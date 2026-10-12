@@ -1,0 +1,18 @@
+{
+  "aihub.top": {
+    "type": "api_key",
+    "key": "sk-****"
+  },
+  "deepseek": {
+    "type": "api_key",
+    "key": "sk-****"
+  },
+  "laneai": {
+    "type": "api_key",
+    "key": "sk-****"
+  },
+  "LinuxDoGpt": {
+    "type": "api_key",
+    "key": "ah-****"
+  }
+}

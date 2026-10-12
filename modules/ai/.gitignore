@@ -1,0 +1,45 @@
+# ========== AI agent 配置目录 .gitignore（集中管理，勿在 cfg_* 子目录再建 .gitignore）==========
+# 背景：modules/ai/cfg_* 被整目录软链为 agent 运行时目录
+#   cfg_opencode -> ~/.config/opencode
+#   cfg_pi       -> ~/.pi/agent
+# 因此 agent 的会话/缓存/插件/自动同步内容会直接写入仓库，需在此忽略。
+# 规则：配置文件（*.json / config.toml / models.json / mcp.json 等）入库；
+#       运行时数据（sessions/cache/plugins/node_modules/.system 等）一律忽略。
+# 本仓库只管理 opencode 与 pi；claude / codex / gemini 的配置由各工具自行管理，不入库也不链接。
+
+# ---- opencode 运行时文件（npm 依赖等，配置本体 opencode.json 需入库）----
+cfg_opencode/node_modules/
+cfg_opencode/package.json
+cfg_opencode/package-lock.json
+cfg_opencode/bun.lock
+cfg_opencode/.opencode/
+cfg_opencode/logs/
+
+# ---- pi.dev 自动维护和运行时数据（pi 自动创建 / 网络获取，非配置项）----
+cfg_pi/models-store.json
+cfg_pi/pi-subagents-state/
+cfg_pi/sessions/
+cfg_pi/web-search-cache/
+cfg_pi/missions/
+cfg_pi/**/*.log
+cfg_pi/**/*.sqlite*
+cfg_pi/mcp-cache.json
+cfg_pi/mcp-onboarding.json
+cfg_pi/pi-chrome-devtools.json
+cfg_pi/run-history.jsonl
+cfg_pi/crashes.json
+# 运行时自动生成的文件（真值在 security，勿入库）
+cfg_pi/auth.json
+cfg_pi/models.json
+# pi 的 npm 运行时目录（node_modules / package.json / bun.lock 等）
+cfg_pi/npm/
+# glla (pi-goal-list-loop-audit) 扩展自动管理的子代理
+cfg_pi/agents/.glla-subagent-sync.json
+cfg_pi/agents/Explore.md
+
+# 各 agent 自动同步下载的系统级 skills（如 ~/.agents/skills/.system）
+skill/.system/
+
+# ---- activation 生成的仓库内软链（指向 default_rules/global_AGENTS.md / modules/ai/skill，随 rebuild 重建，不入库）----
+cfg_pi/SYSTEM.md
+cfg_opencode/skills

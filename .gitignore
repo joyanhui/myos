@@ -1,0 +1,23 @@
+# ========== 全局通用模式 ==========
+node_modules/
+*~
+*.swp
+*.swo
+.DS_Store
+*.log
+__pycache__/
+*.pyc
+*.pyo
+system.img.vtoy
+.system.work.raw
+# 构建产物 / 归档（nix 文件保留在磁盘，但不入库）
+result*
+/result
+*.7z
+kvm.log
+*.exe
+
+# Windows 下载标记（NTFS Alternate Data Stream 被复制/解压成独立文件）
+*:Zone.Identifier
+
+tmp/

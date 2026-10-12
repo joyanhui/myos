@@ -1,0 +1,7 @@
+# Rime table
+# coding: utf-8
+#@/db_name	custom_phrase.txt
+#@/db_type	tabledb
+#
+硅基 guiji
+硅基流动 guijiliudong

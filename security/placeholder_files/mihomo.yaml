@@ -1,0 +1,353 @@
+mixed-port: 7890
+allow-lan: true
+bind-address: "*"
+mode: rule
+log-level: info
+external-controller: "0.0.0.0:9090"
+tun:
+  enable: true
+  stack: mixed
+  dns-hijack:
+    - "any:53"
+    - "tcp://any:53"
+  auto-route: true
+  auto-redirect: true
+  auto-detect-interface: true
+proxy-providers:
+  skyone:
+    url: "https://subb3xq6b.skyvpn.bond/link/xxxx"
+    type: http
+    interval: 600
+    health-check:
+      {
+        enable: true,
+        url: "https://www.gstatic.com/generate_204",
+        interval: 300,
+      }
+    override:
+      additional-prefix: "sky-"
+  fenniao:
+    url: "https://b.592851.xyz/api/v1/client/subscribe?token=xxxxxx"
+    type: http
+    interval: 600
+    health-check:
+      {
+        enable: true,
+        url: "https://www.gstatic.com/generate_204",
+        interval: 300,
+      }
+    override:
+      additional-prefix: "fn-"
+  freeclash:
+    url: "https://tt.vg/freeclash"
+    type: http
+    interval: 600
+    health-check:
+      {
+        enable: true,
+        url: "https://www.gstatic.com/generate_204",
+        interval: 300,
+      }
+    override:
+      additional-prefix: "fc-"
+
+#proxies:
+#  - name: 'DIRECT'
+#    type: direct
+#    udp: true
+
+geodata-mode: true
+geox-url:
+  geoip: "https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip-lite.dat"
+  geosite: "https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat"
+  mmdb: "https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/country-lite.mmdb"
+  asn: "https://gh-proxy.com/https://github.com/xishang0128/geoip/releases/download/latest/GeoLite2-ASN.mmdb"
+
+dns:
+  enable: true
+  ipv6: true
+  respect-rules: true
+  enhanced-mode: fake-ip
+  fake-ip-filter:
+    - "*"
+    - "+.lan"
+    - "+.local"
+    - "+.**.xiaomi.com"
+    - "localhost.ptlogin2.qq.com" # QQ登录
+  nameserver:
+    #    - https://120.53.53.53/dns-query
+    - 192.168.1.1
+    - https://223.5.5.5/dns-query
+  proxy-server-nameserver:
+    #    - https://120.53.53.53/dns-query
+    - 192.168.1.1
+    - https://223.5.5.5/dns-query
+  nameserver-policy:
+    "geosite:cn,private":
+      - 192.168.1.1
+      - https://120.53.53.53/dns-query
+      - https://223.5.5.5/dns-query
+    "geosite:geolocation-!cn":
+      - "https://dns.cloudflare.com/dns-query"
+      - "https://dns.google/dns-query"
+
+proxy-groups:
+  #- name: 默认
+  #  type: select
+  #  proxies: [自动选择, DIRECT, 🇹🇼台湾, 🇭🇰香港, 🇯🇵日本, 🇰🇷韩国, 🇸🇬新加坡, 🇺🇲美国, 🌍其它地区, 全部节点]
+
+  - name: Google
+    type: select
+    proxies:
+      [
+        🚀 节点选择,
+        🇹🇼台湾,
+        🇭🇰香港,
+        🇯🇵日本,
+        🇰🇷韩国,
+        🇸🇬新加坡,
+        🇺🇲美国,
+        🌍其它地区,
+        全部节点,
+        自动选择,
+        DIRECT,
+      ]
+
+  - name: Telegram
+    type: select
+    proxies:
+      [
+        🚀 节点选择,
+        🇹🇼台湾,
+        🇭🇰香港,
+        🇯🇵日本,
+        🇰🇷韩国,
+        🇸🇬新加坡,
+        🇺🇲美国,
+        🌍其它地区,
+        全部节点,
+        自动选择,
+        DIRECT,
+      ]
+
+  - name: Twitter
+    type: select
+    proxies:
+      [
+        🚀 节点选择,
+        🇹🇼台湾,
+        🇭🇰香港,
+        🇯🇵日本,
+        🇰🇷韩国,
+        🇸🇬新加坡,
+        🇺🇲美国,
+        🌍其它地区,
+        全部节点,
+        自动选择,
+        DIRECT,
+      ]
+
+  - name: 哔哩哔哩
+    type: select
+    proxies:
+      [
+        🚀 节点选择,
+        🇹🇼台湾,
+        🇭🇰香港,
+        🇯🇵日本,
+        🇰🇷韩国,
+        🇸🇬新加坡,
+        🇺🇲美国,
+        🌍其它地区,
+        全部节点,
+        自动选择,
+        DIRECT,
+      ]
+
+  - name: 巴哈姆特
+    type: select
+    proxies:
+      [
+        🚀 节点选择,
+        🇹🇼台湾,
+        🇭🇰香港,
+        🇯🇵日本,
+        🇰🇷韩国,
+        🇸🇬新加坡,
+        🇺🇲美国,
+        🌍其它地区,
+        全部节点,
+        自动选择,
+        DIRECT,
+      ]
+
+  - name: NETFLIX
+    type: select
+    proxies:
+      [
+        🚀 节点选择,
+        🇹🇼台湾,
+        🇭🇰香港,
+        🇯🇵日本,
+        🇰🇷韩国,
+        🇸🇬新加坡,
+        🇺🇲美国,
+        🌍其它地区,
+        全部节点,
+        自动选择,
+        DIRECT,
+      ]
+
+  - name: Spotify
+    type: select
+    proxies:
+      [
+        🚀 节点选择,
+        🇹🇼台湾,
+        🇭🇰香港,
+        🇯🇵日本,
+        🇰🇷韩国,
+        🇸🇬新加坡,
+        🇺🇲美国,
+        🌍其它地区,
+        全部节点,
+        自动选择,
+        DIRECT,
+      ]
+
+  - name: Github
+    type: select
+    proxies:
+      [
+        🚀 节点选择,
+        🇹🇼台湾,
+        🇭🇰香港,
+        🇯🇵日本,
+        🇰🇷韩国,
+        🇸🇬新加坡,
+        🇺🇲美国,
+        🌍其它地区,
+        全部节点,
+        自动选择,
+        DIRECT,
+      ]
+
+  - name: 国内
+    type: select
+    proxies:
+      [
+        DIRECT,
+        🚀 节点选择,
+        🇹🇼台湾,
+        🇭🇰香港,
+        🇯🇵日本,
+        🇰🇷韩国,
+        🇸🇬新加坡,
+        🇺🇲美国,
+        🌍其它地区,
+        全部节点,
+        自动选择,
+      ]
+
+  - name: 🚀 节点选择
+    type: select
+    proxies:
+      [
+        🇹🇼台湾,
+        🇭🇰香港,
+        🇯🇵日本,
+        🇰🇷韩国,
+        🇸🇬新加坡,
+        🇺🇲美国,
+        🌍其它地区,
+        全部节点,
+        自动选择,
+        DIRECT,
+      ]
+
+  - name: 🇹🇼台湾
+    type: select
+    include-all: true
+    filter: "(?i)台|tw|🇹🇼"
+  - name: 🇭🇰香港
+    type: select
+    include-all: true
+    filter: "(?i)香|hk🇭🇰"
+  - name: 🇯🇵日本
+    type: select
+    include-all: true
+    filter: "(?i)日|jp|🇯🇵|japan"
+  - name: 🇰🇷韩国
+    type: select
+    include-all: true
+    filter: "(?i)韩|kr|🇰🇷|korea"
+
+  - name: 🇺🇲美国
+    type: select
+    include-all: true
+    filter: "(?i)美|us|🇺🇲|unitedstates|united states"
+
+  - name: 🇸🇬新加坡
+    type: select
+    include-all: true
+    filter: "(?i)(新|sg|🇸🇬|singapore)"
+
+  - name: 🌍其它地区
+    type: select
+    include-all: true
+    filter: "(?i)^(?!.*(?:🇭🇰|🇯🇵|🇺🇸|🇸🇬|🇨🇳|港|hk|hongkong|台|tw|日|jp|japan|新|sg|singapore|美|us|unitedstates)).*"
+
+  - name: 全部节点
+    type: select
+    include-all: true
+
+  - name: 自动选择
+    type: url-test
+    include-all: true
+    tolerance: 10
+rules:
+  - GEOIP,lan,DIRECT,no-resolve
+  - DOMAIN-SUFFIX,bing.com,DIRECT
+  - DOMAIN-SUFFIX,bing.net,DIRECT
+  - DOMAIN-SUFFIX,live.com,DIRECT
+  - DOMAIN-SUFFIX,mydomain.com,DIRECT
+  - DOMAIN-SUFFIX,mmstat.com,DIRECT
+  - DOMAIN-SUFFIX,taobao.com,DIRECT
+  - DOMAIN-SUFFIX,alibaba.com,DIRECT
+  - DOMAIN-SUFFIX,alipay.com,DIRECT
+  - DOMAIN-SUFFIX,mozilla.org,DIRECT
+  - DOMAIN-SUFFIX,mozilla.com,DIRECT
+  - DOMAIN-SUFFIX,jasonzeng.dev,DIRECT
+  - DOMAIN-SUFFIX,npmmirror.com,DIRECT
+  - DOMAIN-SUFFIX,muyuan.do,DIRECT
+  - DOMAIN-SUFFIX,xiaomimimo.com,DIRECT
+  - DOMAIN-SUFFIX,aini8.com,DIRECT
+  - DOMAIN-SUFFIX,invite.linuxdo.org,DIRECT
+  - DOMAIN-SUFFIX,openai.com,🇺🇲美国
+  - DOMAIN-SUFFIX,chatgpt.com,🇺🇲美国
+  - DOMAIN-SUFFIX,chat.com,🇺🇲美国
+  - DOMAIN-SUFFIX,sora.com,🇺🇲美国
+  - DOMAIN-SUFFIX,oaistatic.com,🇺🇲美国
+  - DOMAIN-SUFFIX,oaiusercontent.com,🇺🇲美国
+  - DOMAIN-SUFFIX,openaimerge.com,🇺🇲美国
+  - DOMAIN-SUFFIX,livekit.cloud,🇺🇲美国
+  - DOMAIN-KEYWORD,livekit,🇺🇲美国
+  - DOMAIN-SUFFIX,webpubsub.azure.com ,🇺🇲美国
+  - DOMAIN-SUFFIX,auth0.com,🇺🇲美国
+  - DOMAIN-SUFFIX,intercom.io,🇺🇲美国
+  - GEOSITE,github,Github
+  - GEOSITE,twitter,Twitter
+  - GEOSITE,google,Google
+  - GEOSITE,telegram,Telegram
+  - GEOSITE,netflix,NETFLIX
+  - GEOSITE,bilibili,哔哩哔哩
+  - GEOSITE,bahamut,巴哈姆特
+  - GEOSITE,spotify,Spotify
+  - GEOSITE,CN,DIRECT
+  - GEOIP,CN,DIRECT
+  - GEOSITE,geolocation-!cn,🚀 节点选择
+  - GEOIP,google,Google
+  - GEOIP,netflix,NETFLIX
+  - GEOIP,telegram,Telegram
+  - GEOIP,twitter,Twitter
+  - MATCH,🚀 节点选择

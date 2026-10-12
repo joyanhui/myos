@@ -1,0 +1,9 @@
+{
+  "plugin": [
+    "@cortexkit/opencode-magic-context@latest"
+  ],
+  "$schema": "https://opencode.ai/tui.json",
+  "cursor": {
+    "style": "line"
+  }
+}

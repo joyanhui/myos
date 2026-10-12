@@ -1,0 +1,38 @@
+{
+  "mcpServers": {
+    "chrome-devtools": {
+      "command": "pnpm",
+      "args": [
+        "dlx",
+        "-y",
+        "chrome-devtools-mcp@latest",
+        "--executablePath",
+        "/etc/profiles/per-user/nixos/bin/google-chrome-stable",
+        "--usageStatistics",
+        "false",
+        "--userDataDir",
+        "/home/nixos/.cache/chrome-devtools-mcp/lot-manager-aio-profile",
+        "--allowUnrestrictedPaths",
+        "--screenshotMaxWidth",
+        "1600",
+        "--screenshotMaxHeight",
+        "1200"
+      ],
+      "lifecycle": "lazy",
+      "idleTimeout": 10,
+      "requestTimeoutMs": 60000
+    },
+    "wechat-devtools": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "wechat-devtools-mcp@0.0.1",
+        "--cliPath",
+        "/etc/profiles/per-user/nixos/bin/wechat-devtools-cli"
+      ],
+      "lifecycle": "lazy",
+      "idleTimeout": 10,
+      "requestTimeoutMs": 60000
+    }
+  }
+}

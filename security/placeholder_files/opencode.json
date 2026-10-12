@@ -1,0 +1,255 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "chrome-devtools": {
+      "command": [
+        "bunx",
+        "-y",
+        "chrome-devtools-mcp@latest"
+      ],
+      "enabled": true,
+      "type": "local"
+    }
+  },
+  "model": "opencode/deepseek-v4-flash-free",
+  "provider": {
+    "deepseek": {
+      "models": {
+        "deepseek-v4-flash": {
+          "name": "deepseek-v4-flash"
+        },
+        "deepseek-v4-pro": {
+          "name": "deepseek-v4-pro"
+        }
+      },
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "apiKey": "****",
+        "baseURL": "https://api.deepseek.com/v1",
+        "setCacheKey": true
+      }
+    },
+    "gancao": {
+      "models": {
+        "gpt-5.5": {
+          "name": "",
+          "variants": {
+            "high": {
+              "reasoningEffort": "high",
+              "reasoningSummary": "auto",
+              "textVerbosity": "medium"
+            },
+            "low": {
+              "reasoningEffort": "low",
+              "reasoningSummary": "auto",
+              "textVerbosity": "medium"
+            },
+            "medium": {
+              "reasoningEffort": "medium",
+              "reasoningSummary": "auto",
+              "textVerbosity": "medium"
+            },
+            "xhigh": {
+              "reasoningEffort": "xhigh",
+              "reasoningSummary": "auto",
+              "textVerbosity": "medium"
+            }
+          }
+        }
+      },
+      "name": "干草",
+      "npm": "@ai-sdk/openai",
+      "options": {
+        "apiKey": "****",
+        "baseURL": "https://gancaopu.com/v1",
+        "setCacheKey": true
+      }
+    },
+    "junde": {
+      "models": {
+        "gpt-5.4": {
+          "name": "",
+          "options": {
+            "include": [
+              "reasoning.encrypted_content"
+            ],
+            "store": false
+          },
+          "variants": {
+            "high": {
+              "reasoningEffort": "high",
+              "reasoningSummary": "auto",
+              "textVerbosity": "medium"
+            },
+            "low": {
+              "reasoningEffort": "low",
+              "reasoningSummary": "auto",
+              "textVerbosity": "medium"
+            },
+            "medium": {
+              "reasoningEffort": "medium",
+              "reasoningSummary": "auto",
+              "textVerbosity": "medium"
+            },
+            "xhigh": {
+              "reasoningEffort": "xhigh",
+              "reasoningSummary": "auto",
+              "textVerbosity": "medium"
+            }
+          }
+        },
+        "gpt-5.4-mini": {
+          "name": "",
+          "options": {
+            "include": [
+              "reasoning.encrypted_content"
+            ],
+            "store": false
+          },
+          "variants": {
+            "high": {
+              "reasoningEffort": "high",
+              "reasoningSummary": "auto",
+              "textVerbosity": "medium"
+            },
+            "low": {
+              "reasoningEffort": "low",
+              "reasoningSummary": "auto",
+              "textVerbosity": "medium"
+            },
+            "medium": {
+              "reasoningEffort": "medium",
+              "reasoningSummary": "auto",
+              "textVerbosity": "medium"
+            },
+            "xhigh": {
+              "reasoningEffort": "xhigh",
+              "reasoningSummary": "auto",
+              "textVerbosity": "medium"
+            }
+          }
+        },
+        "gpt-5.5": {
+          "name": "",
+          "variants": {
+            "high": {
+              "reasoningEffort": "high",
+              "reasoningSummary": "auto",
+              "textVerbosity": "medium"
+            },
+            "low": {
+              "reasoningEffort": "low",
+              "reasoningSummary": "auto",
+              "textVerbosity": "medium"
+            },
+            "medium": {
+              "reasoningEffort": "medium",
+              "reasoningSummary": "auto",
+              "textVerbosity": "medium"
+            },
+            "xhigh": {
+              "reasoningEffort": "xhigh",
+              "reasoningSummary": "auto",
+              "textVerbosity": "medium"
+            }
+          }
+        }
+      },
+      "npm": "@ai-sdk/openai",
+      "options": {
+        "apiKey": "****",
+        "baseURL": "https://muyuan.do/v1",
+        "setCacheKey": true
+      }
+    },
+    "junde-claude": {
+      "models": {
+        "MiniMax-M3": {
+          "name": ""
+        },
+        "claude-opus-4-8": {
+          "name": ""
+        }
+      },
+      "npm": "@ai-sdk/anthropic",
+      "options": {
+        "apiKey": "****",
+        "baseURL": "https://muyuan.do/v1",
+        "setCacheKey": true
+      }
+    },
+    "lyclaude": {
+      "models": {
+        "gpt-5.4-mini": {
+          "name": "",
+          "options": {
+            "include": [
+              "reasoning.encrypted_content"
+            ],
+            "store": false
+          },
+          "variants": {
+            "high": {
+              "reasoningEffort": "high",
+              "reasoningSummary": "auto",
+              "textVerbosity": "medium"
+            },
+            "low": {
+              "reasoningEffort": "low",
+              "reasoningSummary": "auto",
+              "textVerbosity": "medium"
+            },
+            "medium": {
+              "reasoningEffort": "medium",
+              "reasoningSummary": "auto",
+              "textVerbosity": "medium"
+            },
+            "xhigh": {
+              "reasoningEffort": "xhigh",
+              "reasoningSummary": "auto",
+              "textVerbosity": "medium"
+            }
+          }
+        },
+        "gpt-5.5": {
+          "name": "",
+          "options": {
+            "include": [
+              "reasoning.encrypted_content"
+            ],
+            "store": false
+          },
+          "variants": {
+            "high": {
+              "reasoningEffort": "high",
+              "reasoningSummary": "auto",
+              "textVerbosity": "medium"
+            },
+            "low": {
+              "reasoningEffort": "low",
+              "reasoningSummary": "auto",
+              "textVerbosity": "medium"
+            },
+            "medium": {
+              "reasoningEffort": "medium",
+              "reasoningSummary": "auto",
+              "textVerbosity": "medium"
+            },
+            "xhigh": {
+              "reasoningEffort": "xhigh",
+              "reasoningSummary": "auto",
+              "textVerbosity": "medium"
+            }
+          }
+        }
+      },
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "apiKey": "****",
+        "baseURL": "https://free.lyclaude.site/v1",
+        "setCacheKey": true
+      }
+    }
+  },
+  "small_model": "opencode/deepseek-v4-flash-free"
+}

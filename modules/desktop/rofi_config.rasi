@@ -1,0 +1,11 @@
+@theme "Arc-Dark"
+
+configuration {
+    show-icons: true;
+    icon-theme: "Flat-Remix-Blue-Dark";
+    terminal: "kitty";
+    window-format: "{t}";
+    display-drun: "  应用  ";
+    display-window: "  窗口  ";
+    font: "Sarasa UI SC 12";
+}
