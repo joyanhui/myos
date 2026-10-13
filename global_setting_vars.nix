@@ -5,7 +5,16 @@ rec {
 
   editor = "hx";
 
-  secretsUnlocked = builtins.substring 1 8 (builtins.readFile ./security/_protected/sensitive_env.nix) != "GITCRYPT";
+  secretsUnlocked =
+    let
+      checkFile = ./security/_protected/isDecryptedCheckFileLen.txt;
+      checkFileHash = builtins.hashFile "sha256" checkFile;
+    in
+    builtins.pathExists checkFile
+    && builtins.elem checkFileHash [
+      (builtins.hashString "sha256" "1")
+      (builtins.hashString "sha256" "1\n")
+    ];
   secretsDir = if secretsUnlocked then "${repoDir}/security/_protected" else "${repoDir}/security/placeholder_files";
   secretRelDir = if secretsUnlocked then ./security/_protected else ./security/placeholder_files;
 
