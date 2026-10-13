@@ -1,4 +1,5 @@
 {
+  config,
   pkgs,
   lib,
   modulesPath,
@@ -6,6 +7,109 @@
 }:
 let
   resizeRawImage = pkgs.writeShellScriptBin "resize-raw-image" (builtins.readFile ./docs_script/resize-raw-image.sh);
+
+  updateExternalEfi = pkgs.writeShellScriptBin "updateExternalEfi" ''
+    set -euo pipefail
+
+    efibootmgr=${pkgs.efibootmgr}/bin/efibootmgr
+    awk=${pkgs.gawk}/bin/awk
+    coreutils=${pkgs.coreutils}
+    find=${pkgs.findutils}/bin/find
+    blkid=${pkgs.util-linux}/bin/blkid
+    mount=${pkgs.util-linux}/bin/mount
+    umount=${pkgs.util-linux}/bin/umount
+    uki="/boot/EFI/Linux/${config.system.boot.loader.ukiFile}"
+
+    [ "$(id -u)" -eq 0 ] || {
+      echo "error: updateExternalEfi must run as root" >&2
+      exit 1
+    }
+    [ -d /sys/firmware/efi ] || {
+      echo "error: UEFI runtime is not available" >&2
+      exit 1
+    }
+
+    boot_info=$($efibootmgr -v)
+    boot_current=$(printf '%s\\n' "$boot_info" | $awk '/^BootCurrent:/ { print $2; exit }')
+    [ -n "$boot_current" ] || {
+      echo "error: BootCurrent was not found" >&2
+      exit 1
+    }
+
+    boot_entry=$(printf '%s\\n' "$boot_info" | $awk -v id="$boot_current" '$0 ~ "^Boot" id "[* ]" { print; exit }')
+    [ -n "$boot_entry" ] || {
+      echo "error: current UEFI boot entry was not found: $boot_current" >&2
+      exit 1
+    }
+
+    part_uuid=$(printf '%s\\n' "$boot_entry" | $awk 'match($0, /HD\\([^,]*,GPT,([^,]*),/, m) { print m[1]; exit }')
+    efi_path=$(printf '%s\\n' "$boot_entry" | $awk 'match($0, /File\\(([^)]*)\\)/, m) { gsub(/\\\\/, "/", m[1]); print m[1]; exit }')
+    [ -n "$part_uuid" ] || {
+      echo "error: GPT partition UUID was not found in current UEFI entry" >&2
+      exit 1
+    }
+    [ -n "$efi_path" ] || {
+      echo "error: EFI file path was not found in current UEFI entry" >&2
+      exit 1
+    }
+    case "$efi_path" in
+      /EFI/*) ;;
+      *)
+        echo "error: unsupported EFI file path: $efi_path" >&2
+        exit 1
+        ;;
+    esac
+    case "$efi_path" in
+      *..*)
+        echo "error: invalid EFI file path: $efi_path" >&2
+        exit 1
+        ;;
+    esac
+
+    esp_link=$($find /dev/disk/by-partuuid -maxdepth 1 -type l -iname "$part_uuid" -print -quit)
+    [ -n "$esp_link" ] || {
+      echo "error: ESP partition was not found: $part_uuid" >&2
+      exit 1
+    }
+    esp=$($coreutils/bin/readlink -f "$esp_link")
+    [ -b "$esp" ] || {
+      echo "error: EFI partition device is not available: $esp" >&2
+      exit 1
+    }
+    [ "$($blkid -o value -s TYPE "$esp" 2>/dev/null)" = "vfat" ] || {
+      echo "error: EFI partition is not FAT32: $esp" >&2
+      exit 1
+    }
+
+    [ -f "$uki" ] || {
+      echo "error: current system UKI was not found: $uki" >&2
+      exit 1
+    }
+
+    mountpoint=$($coreutils/bin/mktemp -d /run/updateExternalEfi.XXXXXX)
+    temporary=""
+    cleanup() {
+      [ -n "$temporary" ] && $coreutils/bin/rm -f "$temporary"
+      $umount "$mountpoint" 2>/dev/null || true
+      $coreutils/bin/rmdir "$mountpoint" 2>/dev/null || true
+    }
+    trap cleanup EXIT
+
+    $mount -t vfat "$esp" "$mountpoint"
+    target="$mountpoint$efi_path"
+    target_dir=$($coreutils/bin/dirname "$target")
+    $coreutils/bin/mkdir -p "$target_dir"
+    temporary=$($coreutils/bin/mktemp "$target_dir/.updateExternalEfi.XXXXXX")
+    $coreutils/bin/cp --reflink=auto "$uki" "$temporary"
+    $coreutils/bin/chmod 0644 "$temporary"
+    $coreutils/bin/sync
+    $coreutils/bin/mv -f "$temporary" "$target"
+    temporary=""
+    $coreutils/bin/sync
+    echo "updated: $efi_path"
+    echo "source: $uki"
+    echo "esp: $esp"
+  '';
 in
 {
   imports = [
@@ -151,6 +255,7 @@ in
     "/bin"
   ];
   environment.systemPackages = with pkgs; [
+    updateExternalEfi
     resizeRawImage
     qemu-utils
     gptfdisk

@@ -1,12 +1,17 @@
 # Raw OS
 
-Raw OS 使用 NixOS 构建 GPT raw 镜像。镜像包含：
+Raw OS 使用 NixOS 构建 GPT raw 镜像。并支持同一个虚拟磁盘文件可虚拟机启动可以物理机启动可烧录到磁盘启动，使用linux7.x内核级ntfs驱动挂载 使用uki定制efi实现。
 
-- ESP 分区
-- `nixos-root` Btrfs 分区
-- systemd-boot 和 UKI 启动文件
+> 最终产物 为 一个 nixos.raw 系统镜像文件 和一个外部 EFI启动文件
 
 ## 构建
+
+克隆仓库
+
+```bash
+mkdir ~/myws && cd ~/myws # 最好就使用这个路径,否则需要修改global_setting_vars.nix
+git clone https://github.com/joyanhui/myos.git
+```
 
 构建 raw 镜像：
 
@@ -39,56 +44,46 @@ machine/raw_os/docs_script/create-nixos-img-uki-efi.sh \
 
 ## 从宿主 NTFS 文件启动
 
-宿主 NTFS 分区的文件布局：
+宿主任意 NTFS 分区的的根目录中放nixos.raw文件，例如：D:/OS-img/nixos.raw
+
+使用 DiskGenius 将 UKI 文件复制到 FAT32 EFI 分区，例如：
 
 ```text
-NTFS
-└── OS-img
-    └── nixos.raw
+EFI/NixOS/nixos-img.efi
 ```
 
-ESP 中放置 UKI 文件，例如：
+使用 DiskGenius 注册 UEFI 启动项，指向该 EFI 文件。
 
-```text
-ESP
-└── EFI
-    └── NixOS
-        └── nixos-img.efi
+运行系统更新后，在 NixOS 中执行：
+
+```bash
+sudo updateExternalEfi
 ```
 
-使用 DiskGenius 注册 UEFI 启动项：
+命令读取当前 UEFI 启动项中的 GPT 分区 UUID 和 EFI 文件路径，定位 FAT32 EFI 分区，并将当前系统 UKI 更新到该路径。
 
-- 分区：FAT32 ESP 分区
-- EFI 文件：`\EFI\NixOS\nixos-img.efi`
-- 启动项名称：`NixOS raw UKI`
-
-EFI 文件名和目录可以按启动项路径设置。UEFI 加载 UKI 后，initrd 扫描 NTFS 分区并映射 `OS-img/nixos.raw`，随后挂载镜像内部的 `nixos-root`。
+UEFI 加载 UKI 后，initrd 扫描 NTFS 分区并映射 `OS-img/nixos.raw`，随后挂载镜像内部的 `nixos-root`。
 
 ## 直接启动镜像
 
-将 `nixos.raw` 写入 U 盘、移动硬盘或内部磁盘后，使用镜像内部 ESP 的 systemd-boot 启动。
+将 `nixos.raw` 写入 U 盘、移动硬盘或内部磁盘后，直接使用镜像内部 ESP 的 systemd-boot 即可启动。
 
 ## QEMU
 
-QEMU 固件位于：
-
-```text
-kvm-config/firmware/OVMF.fd
-kvm-config/firmware/OVMF_VARS.fd
-```
+QEMU efi启动需要两个pflash文件 OVMF.fd OVMF_VARS.fd 可以从qemu安装路径里面找到
 
 启动 raw 镜像：
 
 ```powershell
-qemu-system-x86_64.exe `
+'C:\Program Files\qemu\qemu-system-x86_64.exe' `
   -machine q35 `
   -accel whpx `
   -cpu max `
   -smp 4 `
   -m 4096 `
-  -drive if=pflash,format=raw,readonly=on,file=V:\OS-img\OVMF.fd `
-  -drive if=pflash,format=raw,file=V:\OS-img\OVMF_VARS.fd `
-  -drive file=V:\OS-img\nixos.raw,format=raw,if=virtio `
+  -drive if=pflash,format=raw,readonly=on,file=N:\OS-img\OVMF.fd `
+  -drive if=pflash,format=raw,file=N:\OS-img\OVMF_VARS.fd `
+  -drive file=N:\OS-img\nixos.raw,format=raw,if=virtio `
   -netdev user,id=n0 `
   -device virtio-net-pci,netdev=n0 `
   -vga virtio `
@@ -106,13 +101,6 @@ machine/raw_os/docs_script/resize-raw-image.sh \
   nixos.raw 20G --resize-btrfs
 ```
 
-只扩展镜像文件和 GPT 第二分区：
-
-```bash
-machine/raw_os/docs_script/resize-raw-image.sh \
-  nixos.raw 20G --skip-btrfs-resize
-```
-
 ## VHD 转换
 
 生成 fixed VHD：
@@ -123,16 +111,4 @@ nix shell nixpkgs#qemu -c \
   nixos.raw
 ```
 
-该脚本生成同目录下的 `.vhd` 文件，并删除输入的 `.raw` 文件。
-
-## 相关文件
-
-- `raw-os-core-img-creat.nix`：raw 镜像配置
-- `raw-os-runtime.nix`：镜像运行时配置和 initrd 文件映射服务
-- `raw-os-work.nix`：工作环境配置
-- `docs_script/create-nixos-img-uki-efi.sh`：生成外部 UKI EFI 文件
-- `docs_script/resize-raw-image.sh`：扩展 raw 镜像
-- `docs_script/resize-raw-image.ps1`：Windows PowerShell 扩展脚本
-- `docs_script/additional-foot-to-raw-and-renameVHD.sh`：生成 fixed VHD
-- `docs_script/UKI启动说明.md`：UKI 启动说明
-- `docs_script/测试和验证方法.md`：QEMU 测试方法
+或者直接使用qemu-img转换也是一样的

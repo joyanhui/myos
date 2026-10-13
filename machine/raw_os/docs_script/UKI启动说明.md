@@ -58,17 +58,27 @@ EFI 文件名和目录由 UEFI 启动项引用。例如：
 ESP/EFI/NixOS/nixos-img.efi
 ```
 
-DiskGenius 启动项配置：
+DiskGenius 将 EFI 文件复制到 FAT32 EFI 分区，并注册 UEFI 启动项：
 
-- 分区：FAT32 ESP 分区
-- EFI 文件：`\EFI\NixOS\nixos-img.efi`
-- 启动项名称：`NixOS raw UKI`
+```text
+EFI/NixOS/nixos-img.efi
+```
 
 宿主 NTFS 分区中的镜像路径：
 
 ```text
 OS-img/nixos.raw
 ```
+
+## 更新外部 EFI
+
+运行系统更新后，在 NixOS 中执行：
+
+```bash
+sudo updateExternalEfi
+```
+
+命令读取当前 UEFI 启动项中的 GPT 分区 UUID 和 EFI 文件路径，定位对应的 FAT32 EFI 分区，并将 `/boot/EFI/Linux/nixos-img.efi` 更新到该路径。
 
 ## 直接启动 raw 磁盘
 
