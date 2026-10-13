@@ -14,5 +14,9 @@
   "LinuxDoGpt": {
     "type": "api_key",
     "key": "ah-****"
+  },
+  "aihub-sol-astra": {
+    "type": "api_key",
+    "key": "sk-****"
   }
 }
