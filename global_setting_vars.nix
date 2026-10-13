@@ -1,6 +1,6 @@
 rec {
   username = "nixos";
-  repoDir = "/home/nixos/myws/os-config";
+  repoDir = "/home/nixos/myws/myos";
   stateVersion = "26.05";
 
   editor = "hx";

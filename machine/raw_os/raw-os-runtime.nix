@@ -6,71 +6,6 @@
 }:
 let
   resizeRawImage = pkgs.writeShellScriptBin "resize-raw-image" (builtins.readFile ./docs_script/resize-raw-image.sh);
-
-  updateGrubx64LoopbackEfi = pkgs.writeShellScriptBin "update-grubx64-loopback-efi" ''
-    set -e
-    export PATH=${pkgs.coreutils}/bin:${pkgs.util-linux}/bin:${pkgs.gnused}/bin:${pkgs.gnugrep}/bin:$PATH
-    bootjson=/run/current-system/boot.json
-    if [ ! -f "$bootjson" ]; then
-      echo "error: $bootjson not found (run after nixos-rebuild)"
-      exit 1
-    fi
-    kernel=$(${pkgs.jq}/bin/jq -r '."org.nixos.bootspec.v1".kernel' "$bootjson")
-    initrd=$(${pkgs.jq}/bin/jq -r '."org.nixos.bootspec.v1".initrd' "$bootjson")
-    init=$(${pkgs.jq}/bin/jq -r '."org.nixos.bootspec.v1".init' "$bootjson")
-    params=$(${pkgs.jq}/bin/jq -r '."org.nixos.bootspec.v1".kernelParams | join(" ")' "$bootjson")
-    tmp=$(mktemp -d)
-    cat > "$tmp/grub.cfg" << EOF_GRUB
-    insmod ntfs
-    insmod part_gpt
-    insmod btrfs
-    insmod search
-    insmod search_fs_file
-    insmod configfile
-    insmod normal
-    insmod linux
-    insmod loopback
-    insmod all_video
-    search --no-floppy --set=root --file /OS-img/nixos.raw
-    set vdisk=(\$root)/OS-img/nixos.raw
-    loopback loop0 \$vdisk
-    linux (loop0,gpt2)$kernel init=$init $params
-    initrd (loop0,gpt2)$initrd
-    boot
-    EOF_GRUB
-    ${pkgs.grub2_efi}/bin/grub-mkstandalone -O x86_64-efi \
-      -d ${pkgs.grub2_efi}/lib/grub/x86_64-efi \
-      --compress=no \
-      --modules="ntfs part_gpt btrfs ext2 fat search search_fs_file configfile normal linux echo all_video loopback" \
-      --output="$tmp/grubx64.efi" \
-      "boot/grub/grub.cfg=$tmp/grub.cfg"
-    updated=""
-    for d in /sys/class/block/*; do
-      dev=$(basename "$d")
-      case "$dev" in
-        loop[0-9]p[0-9]*|sd[a-z][0-9]*|nvme[0-9]n[0-9]p[0-9]*|vd[a-z][0-9]*|mmcblk[0-9]p[0-9]*) ;;
-        *) continue ;;
-      esac
-      [ -b "/dev/$dev" ] || continue
-      mnt=/mnt/esp-check
-      mkdir -p "$mnt"
-      if mount -t vfat "/dev/$dev" "$mnt" 2>/dev/null; then
-        if [ -f "$mnt/EFI/BOOT/BOOTX64.EFI" ] || [ -f "$mnt/EFI/BOOT/grubx64.efi" ]; then
-          cp -f "$tmp/grubx64.efi" "$mnt/EFI/BOOT/BOOTX64.EFI"
-          cp -f "$tmp/grubx64.efi" "$mnt/EFI/BOOT/grubx64.efi"
-          sync
-          updated="$updated /dev/$dev"
-        fi
-        umount "$mnt" 2>/dev/null || true
-      fi
-    done
-    rm -rf "$tmp"
-    if [ -n "$updated" ]; then
-      echo "EFI partitions updated:$updated"
-    else
-      echo "warning: no EFI partition with grub files found"
-    fi
-  '';
 in
 {
   imports = [
@@ -216,7 +151,6 @@ in
     "/bin"
   ];
   environment.systemPackages = with pkgs; [
-    updateGrubx64LoopbackEfi
     resizeRawImage
     qemu-utils
     gptfdisk

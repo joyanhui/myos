@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Add a VHD footer to a raw disk image and rename it in place to .vhd.
 # Output (same dir, .raw -> .vhd) is a fixed VHD whose data area is exactly the
-# original raw content (GPT at offset 0 + file-end footer), usable by both
-# Hyper-V Gen1 (.vhd accepted) and GRUB2 loopback file boot.
+# original raw content (GPT at offset 0 + file-end footer), usable by Hyper-V
+# Gen1 (.vhd accepted).
 # Requires qemu-img in PATH (nix shell nixpkgs#qemu).
 # Usage: additional-foot-to-raw-and-renameVHD.sh <image.raw>
 set -euo pipefail
