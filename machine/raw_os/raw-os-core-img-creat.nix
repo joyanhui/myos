@@ -153,7 +153,8 @@ in
         repartConfig = {
           Type = "esp";
           Format = "vfat";
-          SizeMinBytes = "64M";
+          SizeMinBytes = "1G";
+          SizeMaxBytes = "1G";
           Label = "ESP";
         };
       };

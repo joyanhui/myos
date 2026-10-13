@@ -24,17 +24,14 @@ nix build --no-link --print-out-paths \
 构建 UKI：
 
 ```bash
-nix build --no-link --print-out-paths \
+uki_dir=$(nix build --no-link --print-out-paths \
   .#nixosConfigurations.raw_os_core_img_creat.config.system.build.uki \
-  --option substituters https://cache.nixos.org
+  --option substituters https://cache.nixos.org)
 ```
 
 生成外部 EFI 文件：
 
 ```bash
-uki_dir=$(nix eval --raw \
-  .#nixosConfigurations.raw_os_core_img_creat.config.system.build.uki)
-
 machine/raw_os/docs_script/create-nixos-img-uki-efi.sh \
   "$uki_dir" \
   -o /tmp/nixos-img.efi
