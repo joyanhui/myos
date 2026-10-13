@@ -21,3 +21,5 @@ kvm.log
 *:Zone.Identifier
 
 tmp/
+
+.cortexkit/
