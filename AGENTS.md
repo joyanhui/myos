@@ -37,17 +37,14 @@ niri 配置通过 `spawn-sh-at-startup` 导入会话环境并重启 `fcitx5`；`
 - 调度器是 `app_and_modules_list_OtherLinux.nix`；纯 home-manager 模块使用 `extract`，混合模块通过 `hmStandalone ? false` 选择输出模式。
 - standalone 的 nixpkgs 由 `flake.nix` 中的 `mkHome` 构造，不安全软件包列表来自 `global_settings.permittedInsecurePackages`。
 
-首次部署 Debian 或 Ubuntu：
-
 ```sh
-curl -L https://nixos.org/nix/install | sh
 nix build .#homeConfigurations.linux.activationPackage
 ./result/activate
 ```
 
 更新可重复上述流程，或执行 `home-manager switch --flake .#linux`。
 
-standalone 的 mihomo 关闭 TUN，仅提供 HTTP 7890 和控制器 9090，并作为用户服务运行。fcitx5 由 home-manager 写入 `~/.config/systemd/user/`，wrapper 根据 niri、WSLg 或普通桌面选择 `waylandim` 参数；其启动方式以实际生成的服务和会话依赖为准。环境变量通过 `home.sessionVariables`、`home.sessionPath` 和 `environment.d` 注入。
+standalone 的 mihomo要考虑tun权限 ，并作为用户服务运行。fcitx5 由 home-manager 写入 `~/.config/systemd/user/`，wrapper 根据 niri、WSLg 或普通桌面选择 `waylandim` 参数；其启动方式以实际生成的服务和会话依赖为准。环境变量通过 `home.sessionVariables`、`home.sessionPath` 和 `environment.d` 注入。
 
 ## 构建命令
 
@@ -57,6 +54,7 @@ sudo nixos-rebuild switch --flake .#tb_amd --option substituters https://cache.n
 ```
 
 ## 敏感数据和环境变量
+
 - 本仓库使用 git-crypt 管理加密信息；加密真值只能放在 `security/_protected/`，未解密时自动降级到 `security/placeholder_files/` 的占位值。
 - 禁止把真实密码、API Key、访问令牌、SSH 私钥、证书、Cookie、账号导出文件、带凭据的配置和备份放入源码、flake、模块、脚本、文档、示例或构建产物。
 - 新增敏感文件时，必须放入 `security/_protected/` 并确认 `.gitattributes` 使用 `filter=git-crypt diff=git-crypt`；对应的 `security/placeholder_files/` 只能包含脱敏占位值。
@@ -74,6 +72,7 @@ sudo nixos-rebuild switch --flake .#tb_amd --option substituters https://cache.n
 - `dev-env/flake.nix` 是项目级开发环境模板，通过flake_pkgs_let.nix确定启用的环境。这两个可以复制到其他独立项目中作为模板使用。
 
 ## WSL 专用规则
+
 - `wsl.wslConf.network.generateResolvConf = false`，由 NixOS 管理 `/etc/resolv.conf`。
 - `wsl.interop.register = true`，避免 binfmt 影响 `.exe` 执行。
 - 必须保留 WSLg 硬件 GPU 加速。

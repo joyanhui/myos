@@ -19,13 +19,15 @@ case "${3:---skip-btrfs-resize}" in
 esac
 
 [ -f "$image" ] || { echo "error: image is not a regular file: $image" >&2; exit 1; }
-command -v qemu-img >/dev/null || { echo "error: qemu-img is required" >&2; exit 1; }
+command -v stat >/dev/null || { echo "error: stat is required" >&2; exit 1; }
+command -v truncate >/dev/null || { echo "error: truncate is required" >&2; exit 1; }
+command -v numfmt >/dev/null || { echo "error: numfmt is required" >&2; exit 1; }
 command -v sgdisk >/dev/null || { echo "error: sgdisk is required" >&2; exit 1; }
 command -v btrfs >/dev/null || { echo "error: btrfs-progs is required" >&2; exit 1; }
 
-format=$(qemu-img info --output=json "$image" | jq -r '.format')
-[ "$format" = "raw" ] || { echo "error: image format must be raw, got: $format" >&2; exit 1; }
-current_bytes=$(qemu-img info --output=json "$image" | jq -r '."virtual-size"')
+signature=$(dd if="$image" bs=1 skip=512 count=8 status=none 2>/dev/null || true)
+[ "$signature" = 'EFI PART' ] || { echo "error: image does not contain a GPT header" >&2; exit 1; }
+current_bytes=$(stat -c '%s' "$image")
 case "$current_bytes" in
   ''|*[!0-9]*) echo "error: invalid current image size: $current_bytes" >&2; exit 1 ;;
 esac
@@ -33,26 +35,33 @@ current_gib=$(awk -v bytes="$current_bytes" 'BEGIN { printf "%.2f", bytes / 1073
 echo "image: $image"
 echo "current virtual size: ${current_gib} GiB"
 
-new_bytes=$(qemu-img measure --size "$new_size" 2>/dev/null | awk -F: '/required size:/ {gsub(/ /, "", $2); print $2}')
+new_bytes=$(numfmt --from=iec "$new_size" 2>/dev/null || true)
 case "$new_bytes" in
   ''|*[!0-9]*) echo "error: invalid image size: $new_size" >&2; exit 1 ;;
 esac
+[ $((new_bytes % 512)) -eq 0 ] || { echo "error: image size must be a multiple of 512 bytes: $new_size" >&2; exit 1; }
 if [ "$new_bytes" -le "$current_bytes" ]; then
   echo "error: refusing to shrink or keep the image at its current size: $current_bytes -> $new_bytes bytes" >&2
   exit 1
 fi
 
-# Do not pass --shrink: qemu-img must only grow this raw image.
-qemu-img resize "$image" "$new_size"
-actual_bytes=$(qemu-img info --output=json "$image" | jq -r '."virtual-size"')
+start=$(LC_ALL=C sgdisk -i 2 "$image" | sed -n 's/^First sector: *\([0-9][0-9]*\).*/\1/p')
+case "$start" in
+  ''|*[!0-9]*) echo "error: partition 2 start sector could not be read" >&2; exit 1 ;;
+esac
+
+# Do not use a shrink operation: truncate is only reached after the size check above.
+truncate -s "$new_bytes" "$image"
+actual_bytes=$(stat -c '%s' "$image")
 if [ "$actual_bytes" -lt "$current_bytes" ] || [ "$actual_bytes" -ne "$new_bytes" ]; then
   echo "error: image size verification failed: expected $new_bytes bytes, got $actual_bytes bytes" >&2
   exit 1
 fi
 sgdisk -e "$image" >/dev/null
-start=$(sgdisk -i 2 "$image" | awk -F: '/First sector/ {gsub(/ /, "", $2); print $2}')
-[ -n "$start" ] || { echo "error: partition 2 was not found; image size was changed but partition was not resized" >&2; exit 1; }
 sgdisk -d 2 -n "2:${start}:0" -t 2:8304 -c 2:nixos-root "$image" >/dev/null
+last=$(LC_ALL=C sgdisk -i 2 "$image" | sed -n 's/^Last sector: *\([0-9][0-9]*\).*/\1/p')
+expected_last=$((new_bytes / 512 - 34))
+[ "$last" = "$expected_last" ] || { echo "error: partition 2 resize verification failed: expected end $expected_last, got $last" >&2; exit 1; }
 
 echo "image and partition 2 expanded"
 [ "$resize_btrfs" -eq 1 ] || { echo 'Btrfs resize skipped'; exit 0; }
