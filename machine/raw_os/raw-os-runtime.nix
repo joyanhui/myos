@@ -30,20 +30,20 @@ let
     }
 
     boot_info=$($efibootmgr -v)
-    boot_current=$(printf '%s\\n' "$boot_info" | $awk '/^BootCurrent:/ { print $2; exit }')
+    boot_current=$(printf '%s\n' "$boot_info" | $awk '/^BootCurrent:/ { print $2; exit }')
     [ -n "$boot_current" ] || {
       echo "error: BootCurrent was not found" >&2
       exit 1
     }
 
-    boot_entry=$(printf '%s\\n' "$boot_info" | $awk -v id="$boot_current" '$0 ~ "^Boot" id "[* ]" { print; exit }')
+    boot_entry=$(printf '%s\n' "$boot_info" | $awk -v id="$boot_current" '$0 ~ "^Boot" id "[* ]" { print; exit }')
     [ -n "$boot_entry" ] || {
       echo "error: current UEFI boot entry was not found: $boot_current" >&2
       exit 1
     }
 
-    part_uuid=$(printf '%s\\n' "$boot_entry" | $awk 'match($0, /HD\\([^,]*,GPT,([^,]*),/, m) { print m[1]; exit }')
-    efi_path=$(printf '%s\\n' "$boot_entry" | $awk 'match($0, /File\\(([^)]*)\\)/, m) { gsub(/\\\\/, "/", m[1]); print m[1]; exit }')
+    part_uuid=$(printf '%s\n' "$boot_entry" | $awk 'match($0, /HD\([^,]*,GPT,([^,]*),/, m) { print m[1]; exit }')
+    efi_path=$(printf '%s\n' "$boot_entry" | $awk 'match($0, /File\(([^)]*)\)/, m) { gsub(/\\/, "/", m[1]); print m[1]; exit }')
     [ -n "$part_uuid" ] || {
       echo "error: GPT partition UUID was not found in current UEFI entry" >&2
       exit 1
