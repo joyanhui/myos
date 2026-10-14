@@ -44,3 +44,10 @@ home-manager switch --flake .#linux
 - `app_and_modules_list_OtherLinux.nix`：standalone home-manager 模块调度器；根据 `moduleTags` 加载用户环境模块。
 - NixOS host 的 tag 在 `flake.nix` 的 `mkHost` 中定义；standalone 的 tag 在 `mkHome` 中定义。
 - tag 白名单、`importIf` 和 `hasTag` 统一由 `module_list_lib.nix` 提供。
+
+## 敏感信息
+
+本仓库使用 git-crypt 来加密敏感信息，敏感信息集中放置在`security\_protected` 目录，在没有key解密的情况自动降级到使用`security\placeholder_files`的占位文件文件来完成系统的构建，以及环境变量注入用户账号密码等信息。
+自动判定方式是通过判断一个文件 isDecryptedCheckFileLen.txt 的内容是不是`1`|`1\n`来实现。
+
+本仓库约定所有敏感信息都放到 `security\_protected`目录
