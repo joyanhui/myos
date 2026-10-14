@@ -18,20 +18,17 @@ git clone https://github.com/joyanhui/myos.git
 构建 raw 镜像：
 
 ```bash
-nix build --no-link --print-out-paths \
-  .#nixosConfigurations.raw_os_core_img_creat.config.system.build.image
+nix build --no-link --print-out-paths .#nixosConfigurations.raw_os_core_img_creat.config.system.build.image
 ```
 
 构建 UKI和efi：
 
 ```bash
-uki_dir=$(nix build --no-link --print-out-paths \
-  .#nixosConfigurations.raw_os_core_img_creat.config.system.build.uki)
-machine/raw_os/docs_script/create-nixos-img-uki-efi.sh \
-  "$uki_dir" -o /tmp/nixos-img.efi
+uki_dir=$(nix build --no-link --print-out-paths .#nixosConfigurations.raw_os_core_img_creat.config.system.build.uki)
+machine/raw_os/docs_script/create-nixos-img-uki-efi.sh "$uki_dir" -o /tmp/nixos-img.efi
 ```
 
-`nixos.raw` 和 `nixos-img.efi` 需使用同一次构建生成，部分会导致efi无法启动对应的系统。
+`nixos.raw` 和 `nixos-img.efi` 需使用同一次构建生成，否则可能会无法启动。
 
 ## 镜像与启动链路
 
