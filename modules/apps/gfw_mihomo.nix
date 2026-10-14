@@ -16,11 +16,13 @@ let
 
     配置文件:
        NixOS: ${global_settings.secretsDir}/mihomo.yaml
-       standalone: ~/.config/mihomo/config.yaml (由 ${global_settings.secretsDir}/mihomo.yaml 生成，TUN 已关闭)
+       standalone: ~/.config/mihomo/config.yaml (由 ${global_settings.secretsDir}/mihomo.yaml 生成，并自动关闭TUN)
     外部控制器: 0.0.0.0:9090
     HTTP 代理端口: 7890
 
     UI可用：pkgs.metacubexd 在无法打开的时候，应该是包更新导致的浏览器缓存紊乱。解决办法是F12 network 勾选 disable cache
+
+    为了避免紊乱，本服务只安装不会自动启动，请手动启动。
   '';
   rawConfig = builtins.readFile "${global_settings.secretRelDir}/mihomo.yaml";
   noTunConfig = lib.replaceStrings [ "tun:\n  enable: true" ] [ "tun:\n  enable: false" ] rawConfig;
