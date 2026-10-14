@@ -28,6 +28,7 @@ in
 {
   imports = [
     ./raw-os-runtime.nix
+    ../../modules/term/shell_zsh_raw_core.nix
     (modulesPath + "/image/repart.nix")
   ];
 
