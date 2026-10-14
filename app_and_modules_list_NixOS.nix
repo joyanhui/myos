@@ -125,7 +125,7 @@ in
     ++ importIf (hasTag "editor") ./modules/dev/dev_editor_extras.nix
 
     ++ importIf (hasTag "editor") ./modules/dev/ide_helix.nix
-    ++ importIf (hasTag "editor" && !hasTag "wsl") ./modules/dev/ide_antigravity.nix
+    # ++ importIf (hasTag "editor" && !hasTag "wsl") ./modules/dev/ide_antigravity.nix
     ++ importIf (hasTag "editor" && !hasTag "wsl") ./modules/dev/ide_thonny.nix
     ++ importIf (hasTag "editor") ./modules/dev/ide_common.nix
     ++ importIf (hasTag "editor") ./modules/dev/git/tool_lazygit.nix
@@ -147,7 +147,7 @@ in
     # ++ importIf (hasTag "dailyPC") ./modules/apps/im/qq.nix
     ++ importIf (hasTag "dailyPC") ./modules/apps/im/telegram.nix
     ++ importIf (hasTag "dailyPC") ./modules/apps/im/wechat.nix
-    ++ importIf (hasTag "dailyPC") ./modules/apps/im/wechat_devtools.nix
+    # ++ importIf (hasTag "dailyPC") ./modules/apps/im/wechat_devtools.nix
     ## ++ importIf (hasTag "dailyPC") ./modules/apps/android_mobile_connect.nix
     #++ importIf (hasTag "dailyPC") ./modules/apps/compat_wine_bottles.nix
     # ++ importIf (hasTag "dailyPC") ./modules/apps/download_motrix.nix
@@ -172,8 +172,8 @@ in
     # ++ importIf (hasTag "services") ./modules/services/opencode_web.nix
     #  ++ importIf (hasTag "desktop") ./modules/services/pkg_flatpak.nix
     ++ importIf (hasTag "ai") ./modules/ai/ai_common.nix
-    ++ importIf (hasTag "ai" && !hasTag "wsl") ./modules/ai/cc_switch.nix
-    ++ importIf (hasTag "ai") ./modules/ai/chatgpt_gui_cli.nix
+  # ++ importIf (hasTag "ai" && !hasTag "wsl") ./modules/ai/cc_switch.nix
+  # ++ importIf (hasTag "ai") ./modules/ai/chatgpt_gui_cli.nix
   # ++ importIf (hasTag "ai") ./modules/ai/ollama_llama_cpp.nix
   ;
 
