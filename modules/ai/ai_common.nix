@@ -19,18 +19,23 @@ in
       {
         home.file = {
           # opencode
-          ".config/opencode/opencode.json".source = config.lib.file.mkOutOfStoreSymlink "${global_settings.secretsDir}/opencode.json";
-          ".config/opencode/tui.json".source = config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/modules/ai/configFile/opencode_tui.json";
+          ".config/opencode/opencode.json".source =
+            config.lib.file.mkOutOfStoreSymlink "${global_settings.secretsDir}/opencode.json";
+          ".config/opencode/tui.json".source =
+            config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/modules/ai/configFile/opencode_tui.json";
 
           # pi
-          ".pi/agent/auth.json".source = config.lib.file.mkOutOfStoreSymlink "${global_settings.secretsDir}/pi_auth.json";
-          ".pi/agent/models.json".source = config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/modules/ai/configFile/pi_models.json";
-
-
-          ".pi/agent/SYSTEM.md".source = config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/modules/ai/configFile/global_AGENTS.md";
+          ".pi/agent/auth.json".source =
+            config.lib.file.mkOutOfStoreSymlink "${global_settings.secretsDir}/pi_auth.json";
+          ".pi/agent/models.json".source =
+            config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/modules/ai/configFile/pi_models.json";
+          ".pi/agent/SYSTEM.md".source =
+            config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/modules/ai/configFile/global_AGENTS.md";
           # skills 与 mcp
-          ".agents/skills".source = config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/modules/ai/skill";
-          ".config/mcp/mcp.json".source = config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/modules/ai/configFile/mcp.json";
+          ".agents/skills".source =
+            config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/modules/ai/skill";
+          ".config/mcp/mcp.json".source =
+            config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/modules/ai/configFile/mcp.json";
           # readme
           ".cargo/rust.nix.readme.md".text = readme;
         };
