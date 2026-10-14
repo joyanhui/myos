@@ -48,7 +48,7 @@
           LastSortColumn=name
           LastSortOrder=GTK_SORT_ASCENDING
           LastToolbarItems=0,1,2,3,4,5,6,7,8,9,10
-          LastTerminalEmulator=rio
+          LastTerminalEmulator=ghostty
         '';
       };
 
@@ -62,8 +62,8 @@
               <name>在终端中打开</name>
               <submenu></submenu>
               <unique-id>1709123456</unique-id>
-              <command>rio -w %f</command>
-              <description>在 Rio 终端中打开当前目录</description>
+              <command>ghostty --working-directory="%f"</command>
+              <description>在 Ghostty 终端中打开当前目录</description>
               <patterns>*</patterns>
               <startup-notify/>
               <directories/>
@@ -73,7 +73,7 @@
               <name>Lazygit</name>
               <submenu></submenu>
               <unique-id>1709123457</unique-id>
-              <command>rio -w %f -e lazygit</command>
+              <command>ghostty --working-directory="%f" -e lazygit</command>
               <description>在 Lazygit 中打开当前 Git 仓库</description>
               <patterns>*</patterns>
               <startup-notify/>
