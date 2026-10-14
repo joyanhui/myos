@@ -47,7 +47,7 @@ home-manager switch --flake .#linux
 
 ## 敏感信息
 
-本仓库使用 git-crypt 来加密敏感信息，敏感信息集中放置在`security\_protected` 目录，在没有key解密的情况自动降级到使用`security\placeholder_files`的占位文件文件来完成系统的构建，以及环境变量注入用户账号密码等信息。
-自动判定方式是通过判断一个文件 isDecryptedCheckFileLen.txt 的内容是不是`1`|`1\n`来实现。
+本仓库使用 transcrypt 加密敏感信息，cipher 固定为 `aes-256-cbc`。真实敏感信息集中放置在 `security/_protected/`，未使用正确密码初始化 transcrypt 时自动降级到 `security/placeholder_files/` 中的占位文件，以完成系统构建和环境变量注入。
+自动判定方式是检查 `security/_protected/isDecryptedCheckFileLen.txt` 的内容是否为 `1` 或 `1\n`。
 
-本仓库约定所有敏感信息都放到 `security\_protected`目录
+本仓库约定所有真实敏感信息都放到 `security/_protected/`，transcrypt 密码由使用者交互输入，不写入仓库。
