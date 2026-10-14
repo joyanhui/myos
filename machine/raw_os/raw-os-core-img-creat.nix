@@ -28,7 +28,6 @@ in
 {
   imports = [
     ./raw-os-runtime.nix
-    ../../modules/term/shell_zsh_raw_core.nix
     (modulesPath + "/image/repart.nix")
   ];
 
@@ -64,11 +63,21 @@ in
     isNormalUser = true;
     extraGroups = [ "wheel" ];
     password = "nixos";
+    shell = pkgs.zsh;
   };
   security.sudo.wheelNeedsPassword = false;
 
   programs.fish.enable = true;
   programs.git.enable = true;
+  programs.zsh = {
+    enable = true;
+    enableCompletion = true;
+    promptInit = "";
+    interactiveShellInit = ''
+      source ${pkgs.zsh-autosuggestions}/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+      source ${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+    '';
+  };
 
   system.stateVersion = global_settings.stateVersion;
 
