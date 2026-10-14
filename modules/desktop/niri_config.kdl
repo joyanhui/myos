@@ -55,89 +55,50 @@ spawn-sh-at-startup "dbus-update-activation-environment WAYLAND_DISPLAY DISPLAY 
 binds {
     Alt+Shift+Slash { show-hotkey-overlay; }
 
-    Alt+Return hotkey-overlay-title="终端 (rio)" { spawn "rio"; }
+    Alt+Return hotkey-overlay-title="终端 (ghostty)" { spawn "ghostty"; }
     Alt+Ctrl+Shift+Return hotkey-overlay-title="终端 (kitty)" { spawn "kitty"; }
-    Alt+T hotkey-overlay-title="终端 (rio)" { spawn "rio"; }
-    Alt+R hotkey-overlay-title="应用启动器" { spawn "rofi" "-show" "drun"; }
-    Alt+Shift+R hotkey-overlay-title="重启输入法 (fcitx5)" { spawn "systemctl" "--user" "restart" "fcitx5"; }
-    Alt+Q repeat=false { close-window; }
+    Alt+Shift+R hotkey-overlay-title="应用启动器" { spawn "rofi" "-show" "drun"; }
+    Alt+Ctrl+Shift+R hotkey-overlay-title="重启输入法 (fcitx5)" { spawn "systemctl" "--user" "restart" "fcitx5"; }
     Alt+Shift+Q repeat=false { close-window; }
-    Alt+Shift+E { quit; }
+    Alt+Ctrl+Shift+E { quit; }
 
-    Alt+U { focus-workspace-down; }
-    Alt+I { focus-workspace-up; }
-    Alt+Ctrl+U { move-column-to-workspace-down; }
-    Alt+Ctrl+I { move-column-to-workspace-up; }
-    Alt+Shift+U { move-workspace-down; }
-    Alt+Shift+I { move-workspace-up; }
-    Alt+Page_Down { focus-workspace-down; }
-    Alt+Page_Up { focus-workspace-up; }
-    Alt+Ctrl+Page_Down { move-column-to-workspace-down; }
-    Alt+Ctrl+Page_Up { move-column-to-workspace-up; }
-    Alt+Ctrl+Home { focus-column-first; }
-    Alt+Ctrl+End { focus-column-last; }
-    Alt+1 { focus-workspace 1; }
-    Alt+2 { focus-workspace 2; }
-    Alt+3 { focus-workspace 3; }
-    Alt+4 { focus-workspace 4; }
-    Alt+5 { focus-workspace 5; }
-    Alt+6 { focus-workspace 6; }
-    Alt+7 { focus-workspace 7; }
-    Alt+8 { focus-workspace 8; }
-    Alt+9 { focus-workspace 9; }
-    Alt+Shift+1 { move-column-to-workspace 1; }
-    Alt+Shift+2 { move-column-to-workspace 2; }
-    Alt+Shift+3 { move-column-to-workspace 3; }
-    Alt+Shift+4 { move-column-to-workspace 4; }
-    Alt+Shift+5 { move-column-to-workspace 5; }
-    Alt+Shift+6 { move-column-to-workspace 6; }
-    Alt+Shift+7 { move-column-to-workspace 7; }
-    Alt+Shift+8 { move-column-to-workspace 8; }
-    Alt+Shift+9 { move-column-to-workspace 9; }
-    Alt+Ctrl+1 { move-column-to-workspace 1; }
-    Alt+Ctrl+2 { move-column-to-workspace 2; }
-    Alt+Ctrl+3 { move-column-to-workspace 3; }
-    Alt+Ctrl+4 { move-column-to-workspace 4; }
-    Alt+Ctrl+5 { move-column-to-workspace 5; }
-    Alt+Ctrl+6 { move-column-to-workspace 6; }
-    Alt+Ctrl+7 { move-column-to-workspace 7; }
-    Alt+Ctrl+8 { move-column-to-workspace 8; }
-    Alt+Ctrl+9 { move-column-to-workspace 9; }
-    Alt+WheelScrollDown cooldown-ms=150 { focus-workspace-down; }
-    Alt+WheelScrollUp cooldown-ms=150 { focus-workspace-up; }
-    Alt+Ctrl+WheelScrollDown cooldown-ms=150 { move-column-to-workspace-down; }
-    Alt+Ctrl+WheelScrollUp cooldown-ms=150 { move-column-to-workspace-up; }
-    Alt+Grave { focus-workspace-previous; }
-    Alt+Tab hotkey-overlay-title="窗口切换" { spawn "rofi" "-show" "window"; }
-    Super+Tab hotkey-overlay-title="窗口切换" { spawn "rofi" "-show" "window"; }
+    Alt+Shift+1 { focus-workspace 1; }
+    Alt+Shift+2 { focus-workspace 2; }
+    Alt+Shift+3 { focus-workspace 3; }
+    Alt+Shift+4 { focus-workspace 4; }
+    Alt+Shift+5 { focus-workspace 5; }
+    Alt+Shift+6 { focus-workspace 6; }
+    Alt+Shift+7 { focus-workspace 7; }
+    Alt+Shift+8 { focus-workspace 8; }
+    Alt+Shift+9 { focus-workspace 9; }
+    Alt+Ctrl+Shift+1 { move-column-to-workspace 1; }
+    Alt+Ctrl+Shift+2 { move-column-to-workspace 2; }
+    Alt+Ctrl+Shift+3 { move-column-to-workspace 3; }
+    Alt+Ctrl+Shift+4 { move-column-to-workspace 4; }
+    Alt+Ctrl+Shift+5 { move-column-to-workspace 5; }
+    Alt+Ctrl+Shift+6 { move-column-to-workspace 6; }
+    Alt+Ctrl+Shift+7 { move-column-to-workspace 7; }
+    Alt+Ctrl+Shift+8 { move-column-to-workspace 8; }
+    Alt+Ctrl+Shift+9 { move-column-to-workspace 9; }
     Alt+Shift+A hotkey-overlay-title="窗口切换" { spawn "rofi" "-show" "window"; }
 
-    Alt+H { focus-column-left; }
-    Alt+L { focus-column-right; }
-    Alt+K { focus-window-up; }
-    Alt+J { focus-window-down; }
     Alt+Shift+Left { focus-column-left; }
     Alt+Shift+Right { focus-column-right; }
     Alt+Shift+Up { focus-window-up; }
     Alt+Shift+Down { focus-window-down; }
-    Alt+Ctrl+H { move-column-left; }
-    Alt+Ctrl+L { move-column-right; }
-    Alt+Ctrl+K { move-window-up; }
-    Alt+Ctrl+J { move-window-down; }
-    Alt+WheelScrollRight { focus-column-right; }
-    Alt+WheelScrollLeft { focus-column-left; }
-    Alt+Ctrl+WheelScrollRight { move-column-right; }
-    Alt+Ctrl+WheelScrollLeft { move-column-left; }
+    Alt+Ctrl+Shift+Left { move-column-left; }
+    Alt+Ctrl+Shift+Right { move-column-right; }
+    Alt+Ctrl+Shift+Up { move-window-up; }
+    Alt+Ctrl+Shift+Down { move-window-down; }
 
-    Alt+F { maximize-column; }
-    Alt+Shift+F { fullscreen-window; }
-    Alt+M { maximize-window-to-edges; }
-    Alt+V { toggle-window-floating; }
-    Alt+Shift+V { switch-focus-between-floating-and-tiling; }
-    Alt+W { toggle-column-tabbed-display; }
-    Alt+Shift+W { switch-preset-column-width; }
-    Alt+Ctrl+Shift+W { switch-preset-column-width-back; }
-    Alt+Ctrl+R { reset-window-height; }
+    Alt+Shift+F { maximize-column; }
+    Alt+Ctrl+Shift+F { fullscreen-window; }
+    Alt+Shift+M { maximize-window-to-edges; }
+    Alt+Shift+V { toggle-window-floating; }
+    Alt+Ctrl+Shift+V { switch-focus-between-floating-and-tiling; }
+    Alt+Shift+W { toggle-column-tabbed-display; }
+    Alt+Ctrl+Shift+W { switch-preset-column-width; }
+    Alt+Shift+H { reset-window-height; }
     Alt+Minus { set-column-width "-10%"; }
     Alt+Equal { set-column-width "+10%"; }
     Alt+Shift+Minus { set-window-height "-10%"; }
@@ -146,14 +107,13 @@ binds {
     Alt+Period { expel-window-from-column; }
     Alt+BracketLeft { consume-or-expel-window-left; }
     Alt+BracketRight { consume-or-expel-window-right; }
-    Alt+C { center-column; }
+    Alt+Shift+C { center-column; }
 
-    Alt+O repeat=false { toggle-overview; }
-    Alt+P { screenshot; }
+    Alt+Shift+O repeat=false { toggle-overview; }
     Alt+Shift+S { screenshot; }
-    Alt+Ctrl+S { screenshot-screen; }
-    Alt+Ctrl+Shift+S { screenshot-window; }
+    Alt+Shift+Print { screenshot-screen; }
+    Alt+Ctrl+Shift+Print { screenshot-window; }
 
     Alt+Shift+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
-    Alt+Shift+P { power-off-monitors; }
+    Alt+Ctrl+Shift+P { power-off-monitors; }
 }
