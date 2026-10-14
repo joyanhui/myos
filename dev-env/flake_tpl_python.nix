@@ -25,9 +25,9 @@
           echo "== <项目名> devShell =="
           echo "  python = $(python --version 2>/dev/null) uv = $(uv --version 2>/dev/null)"
           echo "  依赖管理: uv"
-          if [ -t 0 ] && command -v fish >/dev/null 2>&1; then
-            export __FISH_DEVSHELL=1
-            exec fish
+          if [ -t 0 ] && command -v nu >/dev/null 2>&1; then
+            export __NUSHELL_DEVSHELL=1
+            exec nu
           fi
         '';
       };

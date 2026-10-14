@@ -38,7 +38,7 @@
       "nginx"
       "input"
     ];
-    shell = pkgs.bash;
+    shell = pkgs.zsh;
   };
   nix.settings.allowed-users = [ "${username}" ];
 

@@ -15,7 +15,7 @@ in
       background = #0A181A
       background-opacity = 0.88
       background-blur = true
-      command = fish
+      command = zsh
       cursor-style = bar
       font-family = "Sarasa Fixed SC"
       font-size = ${toString font.size.term}

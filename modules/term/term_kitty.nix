@@ -20,7 +20,7 @@ in
 
         term xterm-256color
 
-        shell fish
+        shell zsh
 
         tab_fade 1 1 1
         tab_title_template {fmt.fg.red}{bell_symbol}{activity_symbol}{fmt.fg.tab}{index}:{title}

@@ -56,7 +56,7 @@ let
   pkgList = pick pkgs;
 
   basePackages = rec {
-    utils = pkgList "git|fish|hivemind|tree|ripgrep|jq|file|bc|lsof|dconf|coreutils-full";
+    utils = pkgList "git|nushell|hivemind|tree|ripgrep|jq|file|bc|lsof|dconf|coreutils-full";
     net = pkgList "curl|wget";
     archive = pkgList "unzip|zip|xz|zstd|p7zip|upx";
     dev = pkgList "shellcheck|shfmt|taplo|pkg-config|perl|dpkg|protobuf";

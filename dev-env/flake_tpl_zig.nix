@@ -24,9 +24,9 @@
           export PATH="/run/current-system/sw/bin:/etc/profiles/per-user/$USER/bin:$PATH"
           echo "== <项目名> devShell =="
           echo "  zig = $(zig version 2>/dev/null) zls = $(zls --version 2>/dev/null)"
-          if [ -t 0 ] && command -v fish >/dev/null 2>&1; then
-            export __FISH_DEVSHELL=1
-            exec fish
+          if [ -t 0 ] && command -v nu >/dev/null 2>&1; then
+            export __NUSHELL_DEVSHELL=1
+            exec nu
           fi
         '';
       };

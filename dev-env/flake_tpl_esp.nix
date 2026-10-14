@@ -27,9 +27,9 @@
           echo "== <项目名> devShell =="
           echo "  espflash = $(espflash --version 2>/dev/null)"
           echo "  烧录: espflash flash target/.../xxx.bin"
-          if [ -t 0 ] && command -v fish >/dev/null 2>&1; then
-            export __FISH_DEVSHELL=1
-            exec fish
+          if [ -t 0 ] && command -v nu >/dev/null 2>&1; then
+            export __NUSHELL_DEVSHELL=1
+            exec nu
           fi
         '';
       };

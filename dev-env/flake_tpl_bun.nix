@@ -25,9 +25,9 @@
           echo "== <项目名> devShell =="
           echo "  bun = $(bun --version 2>/dev/null) wrangler = $(bunx wrangler --version 2>/dev/null)"
           echo "  本地开发: bun dev；wrangler 用 bunx/npx wrangler 按需调用"
-          if [ -t 0 ] && command -v fish >/dev/null 2>&1; then
-            export __FISH_DEVSHELL=1
-            exec fish
+          if [ -t 0 ] && command -v nu >/dev/null 2>&1; then
+            export __NUSHELL_DEVSHELL=1
+            exec nu
           fi
         '';
       };

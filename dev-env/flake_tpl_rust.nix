@@ -30,9 +30,9 @@
           echo "  Rust 工具链由 rustup 管理，首次进入请执行："
           echo "    rustup default stable"
           echo "==========================================================="
-          if [ -t 0 ] && command -v fish >/dev/null 2>&1; then
-            export __FISH_DEVSHELL=1
-            exec fish
+          if [ -t 0 ] && command -v nu >/dev/null 2>&1; then
+            export __NUSHELL_DEVSHELL=1
+            exec nu
           fi
         '';
       };

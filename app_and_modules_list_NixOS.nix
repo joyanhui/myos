@@ -42,7 +42,6 @@ in
     ++ importIf (hasTag "common") ./modules/services/openssh.nix
     ++ importIf (hasTag "common") ./modules/services/cron.nix
     ++ importIf (hasTag "common") ./modules/term/shell_bash.nix
-    ++ importIf (hasTag "wsl") ./modules/term/shell_bash_wsl.nix
     ++ importIf (hasTag "common") ./modules/term/shell_fish.nix
     ++ importIf (hasTag "common") ./modules/term/shell_zsh.nix
     ++ importIf (hasTag "dev") ./modules/term/shell_nu.nix
