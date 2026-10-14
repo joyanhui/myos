@@ -166,8 +166,8 @@ in
     ++ importIf (hasTag "services") ./modules/services/virtualisation_docker.nix
     ++ importIf (hasTag "wsl") ./modules/services/virtualisation_qemu_tools.nix
 
-    ++ importIf (hasTag "services") ./modules/services/db_postgresql.nix
-    ++ importIf (hasTag "services") ./modules/services/db_valkey.nix
+    # ++ importIf (hasTag "services") ./modules/services/db_postgresql.nix
+    # ++ importIf (hasTag "services") ./modules/services/db_valkey.nix
     ++ importIf (hasTag "services") ./modules/services/dev_db_tools.nix
     # ++ importIf (hasTag "services") ./modules/services/opencode_web.nix
     #  ++ importIf (hasTag "desktop") ./modules/services/pkg_flatpak.nix

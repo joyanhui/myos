@@ -7,6 +7,72 @@
 }:
 let
   resizeRawImage = pkgs.writeShellScriptBin "resize-raw-image" (builtins.readFile ./docs_script/resize-raw-image.sh);
+  efiArch = pkgs.stdenv.hostPlatform.efiArch;
+
+  installRawUki = pkgs.writeShellScript "install-raw-uki" ''
+    set -euo pipefail
+
+    toplevel="''${1:?system toplevel is required}"
+    boot_mount="${config.boot.loader.efi.efiSysMountPoint}"
+    boot_spec="$toplevel/boot.json"
+    target="$boot_mount/EFI/BOOT/BOOTX64.EFI"
+    target_dir=$(${pkgs.coreutils}/bin/dirname "$target")
+    jq=${pkgs.jq}/bin/jq
+    ukify=${pkgs.systemdUkify}/lib/systemd/ukify
+    stub=${pkgs.systemd}/lib/systemd/boot/efi/linux${efiArch}.efi.stub
+
+    [ -d "$boot_mount" ] || {
+      echo "error: EFI system partition mount point does not exist: $boot_mount" >&2
+      exit 1
+    }
+    [ -f "$boot_spec" ] || {
+      echo "error: boot specification was not found: $boot_spec" >&2
+      exit 1
+    }
+    kernel=$($jq -r '."org.nixos.bootspec.v1".kernel // empty' "$boot_spec")
+    initrd=$($jq -r '."org.nixos.bootspec.v1".initrd // empty' "$boot_spec")
+    init=$($jq -r '."org.nixos.bootspec.v1".init // empty' "$boot_spec")
+    kernel_params=$($jq -r '(."org.nixos.bootspec.v1".kernelParams // []) | join(" ")' "$boot_spec")
+    [ -f "$kernel" ] || {
+      echo "error: kernel from boot specification was not found: $kernel" >&2
+      exit 1
+    }
+    [ -f "$initrd" ] || {
+      echo "error: initrd from boot specification was not found: $initrd" >&2
+      exit 1
+    }
+    [ -n "$init" ] || {
+      echo "error: init from boot specification was empty" >&2
+      exit 1
+    }
+    [ -f "$stub" ] || {
+      echo "error: EFI stub was not found: $stub" >&2
+      exit 1
+    }
+    ${pkgs.coreutils}/bin/mkdir -p "$target_dir"
+    temporary=$(${pkgs.coreutils}/bin/mktemp "$target_dir/.BOOTX64.EFI.XXXXXX")
+    cleanup() {
+      ${pkgs.coreutils}/bin/rm -f "$temporary"
+    }
+    trap cleanup EXIT
+
+    "$ukify" build \
+      --linux "$kernel" \
+      --initrd "$initrd" \
+      --cmdline "init=$init $kernel_params" \
+      --os-release "@$toplevel/etc/os-release" \
+      --stub "$stub" \
+      --uname "${config.boot.kernelPackages.kernel.modDirVersion}" \
+      --efi-arch ${efiArch} \
+      --output "$temporary"
+    ${pkgs.coreutils}/bin/chmod 0644 "$temporary"
+    ${pkgs.coreutils}/bin/sync
+    ${pkgs.coreutils}/bin/mv -f "$temporary" "$target"
+    temporary=""
+    ${pkgs.coreutils}/bin/sync
+    echo "updated: $target"
+    echo "toplevel: $toplevel"
+  '';
 
   updateExternalEfi = pkgs.writeShellScriptBin "updateExternalEfi" ''
     set -euo pipefail
@@ -18,7 +84,7 @@ let
     blkid=${pkgs.util-linux}/bin/blkid
     mount=${pkgs.util-linux}/bin/mount
     umount=${pkgs.util-linux}/bin/umount
-    uki="/boot/EFI/Linux/${config.system.boot.loader.ukiFile}"
+    uki="/boot/EFI/BOOT/BOOTX64.EFI"
 
     [ "$(id -u)" -eq 0 ] || {
       echo "error: updateExternalEfi must run as root" >&2
@@ -32,8 +98,8 @@ let
     boot_info=$($efibootmgr -v)
     boot_current=$(printf '%s\n' "$boot_info" | $awk '/^BootCurrent:/ { print $2; exit }')
     [ -n "$boot_current" ] || {
-      echo "error: BootCurrent was not found" >&2
-      exit 1
+      echo "skip: BootCurrent was not found; no external EFI was updated"
+      exit 0
     }
 
     boot_entry=$(printf '%s\n' "$boot_info" | $awk -v id="$boot_current" '$0 ~ "^Boot" id "[* ]" { print; exit }')
@@ -43,6 +109,12 @@ let
     }
 
     part_uuid=$(printf '%s\n' "$boot_entry" | $awk 'match($0, /HD\([^,]*,GPT,([^,]*),/, m) { print m[1]; exit }')
+    internal_esp=$($coreutils/bin/readlink -f /dev/disk/by-partlabel/nixos-esp 2>/dev/null || true)
+    if [ -z "$part_uuid" ] && [ -n "$internal_esp" ] && [ -b "$internal_esp" ]; then
+      echo "skip: current UEFI boot uses the internal fallback EFI; no external EFI was updated"
+      exit 0
+    fi
+
     efi_path=$(printf '%s\n' "$boot_entry" | $awk '
       match($0, /File\(([^)]*)\)/, m) {
         path=m[1]
@@ -58,12 +130,26 @@ let
         exit
       }
     ')
-    [ -n "$part_uuid" ] || {
-      echo "error: GPT partition UUID was not found in current UEFI entry" >&2
-      exit 1
-    }
     [ -n "$efi_path" ] || {
       echo "error: EFI file path was not found in current UEFI entry" >&2
+      exit 1
+    }
+    if [ "$efi_path" = "/EFI/BOOT/BOOTX64.EFI" ] && [ -z "$part_uuid" ]; then
+      echo "skip: current UEFI boot entry uses the internal fallback EFI; no external EFI was updated"
+      exit 0
+    fi
+
+    internal_part_uuid=""
+    if [ -n "$internal_esp" ] && [ -b "$internal_esp" ]; then
+      internal_part_uuid=$($blkid -o value -s PARTUUID "$internal_esp" 2>/dev/null || true)
+    fi
+    if [ -n "$internal_part_uuid" ] && [ -n "$part_uuid" ] && [ "''${part_uuid,,}" = "''${internal_part_uuid,,}" ]; then
+      echo "skip: current UEFI boot entry points to internal nixos-esp; no external EFI was updated"
+      exit 0
+    fi
+
+    [ -n "$part_uuid" ] || {
+      echo "error: GPT partition UUID was not found in current external UEFI entry" >&2
       exit 1
     }
     case "$efi_path" in
@@ -130,8 +216,11 @@ in
     (modulesPath + "/profiles/minimal.nix")
   ];
 
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader.external = {
+    enable = true;
+    installHook = installRawUki;
+  };
+  boot.loader.efi.canTouchEfiVariables = false;
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.supportedFilesystems = [ "ntfs3" ];
