@@ -19,7 +19,7 @@ EFI 文件与 `nixos.raw` 使用同一次构建生成。
 3. initrd 启动 `nixos-img-loop-for-root.service`。
 4. 服务扫描宿主块设备并挂载 NTFS 分区。
 5. 服务查找 `OS-img/nixos.raw`，创建 loop 设备并扫描其 GPT 分区。
-6. 服务按分区标签建立 `ESP` 和 `nixos-root` 设备链接。
+6. 服务按分区标签建立 `nixos-esp` 和 `nixos-root` 设备链接。
 7. NixOS 按 `root=fstab` 挂载 Btrfs 根分区并继续启动。
 
 ## 生成 EFI 文件

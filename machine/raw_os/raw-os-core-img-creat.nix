@@ -155,7 +155,7 @@ in
           Format = "vfat";
           SizeMinBytes = "1G";
           SizeMaxBytes = "1G";
-          Label = "ESP";
+          Label = "nixos-esp";
         };
       };
       "root" = {

@@ -43,7 +43,21 @@ let
     }
 
     part_uuid=$(printf '%s\n' "$boot_entry" | $awk 'match($0, /HD\([^,]*,GPT,([^,]*),/, m) { print m[1]; exit }')
-    efi_path=$(printf '%s\n' "$boot_entry" | $awk 'match($0, /File\(([^)]*)\)/, m) { gsub(/\\/, "/", m[1]); print m[1]; exit }')
+    efi_path=$(printf '%s\n' "$boot_entry" | $awk '
+      match($0, /File\(([^)]*)\)/, m) {
+        path=m[1]
+        gsub(/\\/, "/", path)
+        print path
+        exit
+      }
+      match($0, /\/\\EFI\\[^[:space:]]*/, m) {
+        path=m[0]
+        sub(/^\/\\/, "/", path)
+        gsub(/\\/, "/", path)
+        print path
+        exit
+      }
+    ')
     [ -n "$part_uuid" ] || {
       echo "error: GPT partition UUID was not found in current UEFI entry" >&2
       exit 1
@@ -282,7 +296,7 @@ in
   };
 
   fileSystems."/boot" = {
-    device = "/dev/disk/by-partlabel/ESP";
+    device = "/dev/disk/by-partlabel/nixos-esp";
     fsType = "vfat";
   };
 }
