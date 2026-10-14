@@ -27,6 +27,8 @@ in
         enable = true;
         enable32Bit = true;
       };
+      services.power-profiles-daemon.enable = lib.mkForce false;
+      hardware.i2c.enable = lib.mkForce false;
     }
 
     ++ importIf (hasTag "common") ./modules/system/env_manager.nix
@@ -98,8 +100,7 @@ in
     ++ importIf (hasTag "desktop") ./modules/desktop/swaylock.nix
     ++ importIf (hasTag "desktop") ./modules/desktop/wayland_wm_base.nix
     ++ importIf (hasTag "wsl" || hasTag "desktop") ./modules/desktop/wayland_wm_niri_common.nix
-    ++ importIf (hasTag "desktop") ./modules/desktop/wayland_wm_niri.nix
-    ++ importIf (hasTag "wsl") ./modules/desktop/wayland_wm_niri_wsl.nix
+    ++ importIf (hasTag "wsl" || hasTag "desktop") ./modules/desktop/wayland_wm_niri.nix
     ++ importIf ((hasTag "wsl" || hasTag "desktop")) ./modules/desktop/wayland_dms.nix
     ++ importIf (hasTag "desktop") ./modules/desktop/wayland_screenshot.nix
     # ++ importIf (hasTag "desktop") ./modules/system/desktopfile_manager.nix

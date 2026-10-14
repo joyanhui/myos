@@ -1,5 +1,4 @@
 
-
 environment {
     XDG_CURRENT_DESKTOP "niri"
     XDG_SESSION_DESKTOP "niri"
@@ -7,6 +6,14 @@ environment {
     NIXOS_OZONE_WL "1"
     ELECTRON_OZONE_PLATFORM_HINT "auto"
     QT_QPA_PLATFORM "wayland;xcb"
+}
+
+cursor {
+    xcursor-theme "Bibata-Modern-Ice"
+}
+
+output "eDP-1" {
+    scale 1
 }
 
 layout {
@@ -49,7 +56,7 @@ binds {
     Mod+Shift+Slash { show-hotkey-overlay; }
 
     Mod+Return hotkey-overlay-title="终端 (rio)" { spawn "rio"; }
-    Mod+Shift+Return hotkey-overlay-title="终端 (kitty)" { spawn "kitty"; }
+    Mod+Ctrl+Shift+Return hotkey-overlay-title="终端 (kitty)" { spawn "kitty"; }
     Mod+T hotkey-overlay-title="终端 (rio)" { spawn "rio"; }
     Mod+R hotkey-overlay-title="应用启动器" { spawn "rofi" "-show" "drun"; }
     Mod+Shift+R hotkey-overlay-title="重启输入法 (fcitx5)" { spawn "systemctl" "--user" "restart" "fcitx5"; }
@@ -148,5 +155,3 @@ binds {
     Mod+Shift+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
     Mod+Shift+P { power-off-monitors; }
 }
-
-include "dms/cursor.kdl"
