@@ -6,7 +6,9 @@
   ...
 }:
 let
-  resizeRawImage = pkgs.writeShellScriptBin "resize-raw-image" (builtins.readFile ./docs_script/resize-raw-image.sh);
+  resizeRawImage = pkgs.writeShellScriptBin "resize-raw-image" (
+    builtins.readFile ./docs_script/resize-raw-image.sh
+  );
   efiArch = pkgs.stdenv.hostPlatform.efiArch;
 
   installRawUki = pkgs.writeShellScript "install-raw-uki" ''
@@ -75,140 +77,140 @@ let
   '';
 
   updateExternalEfi = pkgs.writeShellScriptBin "updateExternalEfi" ''
-    set -euo pipefail
+        set -euo pipefail
 
-    efibootmgr=${pkgs.efibootmgr}/bin/efibootmgr
-    awk=${pkgs.gawk}/bin/awk
-    coreutils=${pkgs.coreutils}
-    find=${pkgs.findutils}/bin/find
-    blkid=${pkgs.util-linux}/bin/blkid
-    mount=${pkgs.util-linux}/bin/mount
-    umount=${pkgs.util-linux}/bin/umount
-    uki="/boot/EFI/BOOT/BOOTX64.EFI"
+    w    efibootmgr=${pkgs.efibootmgr}/bin/efibootmgr
+        awk=${pkgs.gawk}/bin/awk
+        coreutils=${pkgs.coreutils}
+        find=${pkgs.findutils}/bin/find
+        blkid=${pkgs.util-linux}/bin/blkid
+        mount=${pkgs.util-linux}/bin/mount
+        umount=${pkgs.util-linux}/bin/umount
+        uki="/boot/EFI/BOOT/BOOTX64.EFI"
 
-    [ "$(id -u)" -eq 0 ] || {
-      echo "error: updateExternalEfi must run as root" >&2
-      exit 1
-    }
-    [ -d /sys/firmware/efi ] || {
-      echo "error: UEFI runtime is not available" >&2
-      exit 1
-    }
+        [ "$(id -u)" -eq 0 ] || {
+          echo "error: updateExternalEfi must run as root" >&2
+          exit 1
+        }
+        [ -d /sys/firmware/efi ] || {
+          echo "error: UEFI runtime is not available" >&2
+          exit 1
+        }
 
-    boot_info=$($efibootmgr -v)
-    boot_current=$(printf '%s\n' "$boot_info" | $awk '/^BootCurrent:/ { print $2; exit }')
-    [ -n "$boot_current" ] || {
-      echo "skip: BootCurrent was not found; no external EFI was updated"
-      exit 0
-    }
+        boot_info=$($efibootmgr -v)
+        boot_current=$(printf '%s\n' "$boot_info" | $awk '/^BootCurrent:/ { print $2; exit }')
+        [ -n "$boot_current" ] || {
+          echo "skip: BootCurrent was not found; no external EFI was updated"
+          exit 0
+        }
 
-    boot_entry=$(printf '%s\n' "$boot_info" | $awk -v id="$boot_current" '$0 ~ "^Boot" id "[* ]" { print; exit }')
-    [ -n "$boot_entry" ] || {
-      echo "error: current UEFI boot entry was not found: $boot_current" >&2
-      exit 1
-    }
+        boot_entry=$(printf '%s\n' "$boot_info" | $awk -v id="$boot_current" '$0 ~ "^Boot" id "[* ]" { print; exit }')
+        [ -n "$boot_entry" ] || {
+          echo "error: current UEFI boot entry was not found: $boot_current" >&2
+          exit 1
+        }
 
-    part_uuid=$(printf '%s\n' "$boot_entry" | $awk 'match($0, /HD\([^,]*,GPT,([^,]*),/, m) { print m[1]; exit }')
-    internal_esp=$($coreutils/bin/readlink -f /dev/disk/by-partlabel/nixos-esp 2>/dev/null || true)
-    if [ -z "$part_uuid" ] && [ -n "$internal_esp" ] && [ -b "$internal_esp" ]; then
-      echo "skip: current UEFI boot uses the internal fallback EFI; no external EFI was updated"
-      exit 0
-    fi
+        part_uuid=$(printf '%s\n' "$boot_entry" | $awk 'match($0, /HD\([^,]*,GPT,([^,]*),/, m) { print m[1]; exit }')
+        internal_esp=$($coreutils/bin/readlink -f /dev/disk/by-partlabel/nixos-esp 2>/dev/null || true)
+        if [ -z "$part_uuid" ] && [ -n "$internal_esp" ] && [ -b "$internal_esp" ]; then
+          echo "skip: current UEFI boot uses the internal fallback EFI; no external EFI was updated"
+          exit 0
+        fi
 
-    efi_path=$(printf '%s\n' "$boot_entry" | $awk '
-      match($0, /File\(([^)]*)\)/, m) {
-        path=m[1]
-        gsub(/\\/, "/", path)
-        print path
-        exit
-      }
-      match($0, /\/\\EFI\\[^[:space:]]*/, m) {
-        path=m[0]
-        sub(/^\/\\/, "/", path)
-        gsub(/\\/, "/", path)
-        print path
-        exit
-      }
-    ')
-    [ -n "$efi_path" ] || {
-      echo "error: EFI file path was not found in current UEFI entry" >&2
-      exit 1
-    }
-    if [ "$efi_path" = "/EFI/BOOT/BOOTX64.EFI" ] && [ -z "$part_uuid" ]; then
-      echo "skip: current UEFI boot entry uses the internal fallback EFI; no external EFI was updated"
-      exit 0
-    fi
+        efi_path=$(printf '%s\n' "$boot_entry" | $awk '
+          match($0, /File\(([^)]*)\)/, m) {
+            path=m[1]
+            gsub(/\\/, "/", path)
+            print path
+            exit
+          }
+          match($0, /\/\\EFI\\[^[:space:]]*/, m) {
+            path=m[0]
+            sub(/^\/\\/, "/", path)
+            gsub(/\\/, "/", path)
+            print path
+            exit
+          }
+        ')
+        [ -n "$efi_path" ] || {
+          echo "error: EFI file path was not found in current UEFI entry" >&2
+          exit 1
+        }
+        if [ "$efi_path" = "/EFI/BOOT/BOOTX64.EFI" ] && [ -z "$part_uuid" ]; then
+          echo "skip: current UEFI boot entry uses the internal fallback EFI; no external EFI was updated"
+          exit 0
+        fi
 
-    internal_part_uuid=""
-    if [ -n "$internal_esp" ] && [ -b "$internal_esp" ]; then
-      internal_part_uuid=$($blkid -o value -s PARTUUID "$internal_esp" 2>/dev/null || true)
-    fi
-    if [ -n "$internal_part_uuid" ] && [ -n "$part_uuid" ] && [ "''${part_uuid,,}" = "''${internal_part_uuid,,}" ]; then
-      echo "skip: current UEFI boot entry points to internal nixos-esp; no external EFI was updated"
-      exit 0
-    fi
+        internal_part_uuid=""
+        if [ -n "$internal_esp" ] && [ -b "$internal_esp" ]; then
+          internal_part_uuid=$($blkid -o value -s PARTUUID "$internal_esp" 2>/dev/null || true)
+        fi
+        if [ -n "$internal_part_uuid" ] && [ -n "$part_uuid" ] && [ "''${part_uuid,,}" = "''${internal_part_uuid,,}" ]; then
+          echo "skip: current UEFI boot entry points to internal nixos-esp; no external EFI was updated"
+          exit 0
+        fi
 
-    [ -n "$part_uuid" ] || {
-      echo "error: GPT partition UUID was not found in current external UEFI entry" >&2
-      exit 1
-    }
-    case "$efi_path" in
-      /EFI/*) ;;
-      *)
-        echo "error: unsupported EFI file path: $efi_path" >&2
-        exit 1
-        ;;
-    esac
-    case "$efi_path" in
-      *..*)
-        echo "error: invalid EFI file path: $efi_path" >&2
-        exit 1
-        ;;
-    esac
+        [ -n "$part_uuid" ] || {
+          echo "error: GPT partition UUID was not found in current external UEFI entry" >&2
+          exit 1
+        }
+        case "$efi_path" in
+          /EFI/*) ;;
+          *)
+            echo "error: unsupported EFI file path: $efi_path" >&2
+            exit 1
+            ;;
+        esac
+        case "$efi_path" in
+          *..*)
+            echo "error: invalid EFI file path: $efi_path" >&2
+            exit 1
+            ;;
+        esac
 
-    esp_link=$($find /dev/disk/by-partuuid -maxdepth 1 -type l -iname "$part_uuid" -print -quit)
-    [ -n "$esp_link" ] || {
-      echo "error: ESP partition was not found: $part_uuid" >&2
-      exit 1
-    }
-    esp=$($coreutils/bin/readlink -f "$esp_link")
-    [ -b "$esp" ] || {
-      echo "error: EFI partition device is not available: $esp" >&2
-      exit 1
-    }
-    [ "$($blkid -o value -s TYPE "$esp" 2>/dev/null)" = "vfat" ] || {
-      echo "error: EFI partition is not FAT32: $esp" >&2
-      exit 1
-    }
+        esp_link=$($find /dev/disk/by-partuuid -maxdepth 1 -type l -iname "$part_uuid" -print -quit)
+        [ -n "$esp_link" ] || {
+          echo "error: ESP partition was not found: $part_uuid" >&2
+          exit 1
+        }
+        esp=$($coreutils/bin/readlink -f "$esp_link")
+        [ -b "$esp" ] || {
+          echo "error: EFI partition device is not available: $esp" >&2
+          exit 1
+        }
+        [ "$($blkid -o value -s TYPE "$esp" 2>/dev/null)" = "vfat" ] || {
+          echo "error: EFI partition is not FAT32: $esp" >&2
+          exit 1
+        }
 
-    [ -f "$uki" ] || {
-      echo "error: current system UKI was not found: $uki" >&2
-      exit 1
-    }
+        [ -f "$uki" ] || {
+          echo "error: current system UKI was not found: $uki" >&2
+          exit 1
+        }
 
-    mountpoint=$($coreutils/bin/mktemp -d /run/updateExternalEfi.XXXXXX)
-    temporary=""
-    cleanup() {
-      [ -n "$temporary" ] && $coreutils/bin/rm -f "$temporary"
-      $umount "$mountpoint" 2>/dev/null || true
-      $coreutils/bin/rmdir "$mountpoint" 2>/dev/null || true
-    }
-    trap cleanup EXIT
+        mountpoint=$($coreutils/bin/mktemp -d /run/updateExternalEfi.XXXXXX)
+        temporary=""
+        cleanup() {
+          [ -n "$temporary" ] && $coreutils/bin/rm -f "$temporary"
+          $umount "$mountpoint" 2>/dev/null || true
+          $coreutils/bin/rmdir "$mountpoint" 2>/dev/null || true
+        }
+        trap cleanup EXIT
 
-    $mount -t vfat "$esp" "$mountpoint"
-    target="$mountpoint$efi_path"
-    target_dir=$($coreutils/bin/dirname "$target")
-    $coreutils/bin/mkdir -p "$target_dir"
-    temporary=$($coreutils/bin/mktemp "$target_dir/.updateExternalEfi.XXXXXX")
-    $coreutils/bin/cp --reflink=auto "$uki" "$temporary"
-    $coreutils/bin/chmod 0644 "$temporary"
-    $coreutils/bin/sync
-    $coreutils/bin/mv -f "$temporary" "$target"
-    temporary=""
-    $coreutils/bin/sync
-    echo "updated: $efi_path"
-    echo "source: $uki"
-    echo "esp: $esp"
+        $mount -t vfat "$esp" "$mountpoint"
+        target="$mountpoint$efi_path"
+        target_dir=$($coreutils/bin/dirname "$target")
+        $coreutils/bin/mkdir -p "$target_dir"
+        temporary=$($coreutils/bin/mktemp "$target_dir/.updateExternalEfi.XXXXXX")
+        $coreutils/bin/cp --reflink=auto "$uki" "$temporary"
+        $coreutils/bin/chmod 0644 "$temporary"
+        $coreutils/bin/sync
+        $coreutils/bin/mv -f "$temporary" "$target"
+        temporary=""
+        $coreutils/bin/sync
+        echo "updated: $efi_path"
+        echo "source: $uki"
+        echo "esp: $esp"
   '';
 in
 {
