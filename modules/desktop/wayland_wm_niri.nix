@@ -37,8 +37,6 @@ in
       xdg.configFile = {
         "niri/config.kdl".source =
           config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/modules/desktop/niri_config.kdl";
-        "rofi/config.rasi".source =
-          config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/modules/desktop/rofi_config.rasi";
       };
     };
 }

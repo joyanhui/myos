@@ -1,11 +1,112 @@
-@theme "Arc-Dark"
+* {
+    bg:                     #1e1e2e;
+    bg-alt:                 #313244;
+    fg:                     #cdd6f4;
+    fg-muted:               #a6adc8;
+    accent:                 #89b4fa;
+    accent-soft:            #45475a;
+    urgent:                 #f38ba8;
+
+    background-color:       transparent;
+    text-color:             @fg;
+    border-color:            @accent;
+    font:                    "Sarasa UI SC 12";
+}
+
+window {
+    width:                  720px;
+    padding:                24px;
+    border:                 2px;
+    border-radius:           16px;
+    border-color:            @accent;
+    background-color:        @bg;
+}
+
+mainbox {
+    spacing:                16px;
+    children:               [ inputbar, message, listview ];
+}
+
+inputbar {
+    padding:                12px 16px;
+    spacing:                12px;
+    border-radius:           10px;
+    background-color:        @bg-alt;
+    children:               [ prompt, entry ];
+}
+
+prompt {
+    text-color:             @accent;
+}
+
+entry {
+    placeholder:             "搜索应用或窗口";
+    placeholder-color:       @fg-muted;
+    text-color:              @fg;
+}
+
+message {
+    padding:                0 4px;
+    text-color:             @fg-muted;
+}
+
+listview {
+    lines:                  8;
+    columns:                1;
+    fixed-height:            false;
+    cycle:                  true;
+    dynamic:                true;
+    scrollbar:              false;
+    spacing:                6px;
+}
+
+element {
+    padding:                10px 12px;
+    spacing:                12px;
+    border-radius:           10px;
+    background-color:        transparent;
+}
+
+element normal {
+    text-color:             @fg;
+}
+
+element alternate {
+    text-color:             @fg;
+}
+
+element selected {
+    background-color:        @accent-soft;
+    text-color:              @fg;
+}
+
+element urgent {
+    text-color:              @urgent;
+}
+
+element-icon {
+    size:                   28px;
+    cursor:                 pointer;
+}
+
+element-text {
+    vertical-align:          0.5;
+    expand:                 true;
+}
+
+textbox {
+    text-color:             @fg-muted;
+}
 
 configuration {
-    show-icons: true;
-    icon-theme: "Flat-Remix-Blue-Dark";
-    terminal: "kitty";
-    window-format: "{t}";
-    display-drun: "  应用  ";
-    display-window: "  窗口  ";
-    font: "Sarasa UI SC 12";
+    show-icons:             true;
+    icon-theme:             "Flat-Remix-Blue-Dark";
+    terminal:               "kitty";
+    window-format:          "{t}";
+    display-drun:           "  应用  ";
+    display-window:         "  窗口  ";
+    kb-move-char-back:      "Control+b";
+    kb-move-char-forward:    "Control+f";
+    kb-row-left:             "Left";
+    kb-row-right:            "Right";
 }

@@ -7,7 +7,6 @@
 {
   environment.systemPackages = with pkgs; [
     xwayland-satellite
-    rofi
     pamixer
     wl-clipboard
     wlrctl
