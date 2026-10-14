@@ -19,8 +19,11 @@
 
       xdg.configFile."rio/config.toml".text = lib.mkForce ''
         [window]
-        opacity = 0.85
+        opacity = 0.88
         blur = true
+
+        [colors]
+        background = '#0A181A'
 
         [shell]
         program = "fish"
@@ -29,7 +32,7 @@
         shape = "beam"
 
         [fonts]
-        family = "Sarasa Fixed SC"
+        family = "${global_settings.font.mono}"
         size = ${toString global_settings.font.size.term}
       '';
 

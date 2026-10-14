@@ -14,8 +14,11 @@ in
 
       xdg.configFile."rio/config.toml".text = ''
         [window]
-        opacity = 0.85
+        opacity = 0.88
         blur = true
+
+        [colors]
+        background = '#0A181A'
 
         [shell]
         program = "fish"
