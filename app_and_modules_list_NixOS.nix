@@ -44,6 +44,7 @@ in
     ++ importIf (hasTag "common") ./modules/term/shell_bash.nix
     ++ importIf (hasTag "wsl") ./modules/term/shell_bash_wsl.nix
     ++ importIf (hasTag "common") ./modules/term/shell_fish.nix
+    ++ importIf (hasTag "common") ./modules/term/shell_zsh.nix
     ++ importIf (hasTag "dev") ./modules/term/shell_nu.nix
     ++ importIf (hasTag "common") ./modules/dev/git/git_fiash_fun.nix
     ++ importIf (hasTag "common") (
