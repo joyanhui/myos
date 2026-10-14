@@ -79,7 +79,7 @@ let
   updateExternalEfi = pkgs.writeShellScriptBin "updateExternalEfi" ''
         set -euo pipefail
 
-    w    efibootmgr=${pkgs.efibootmgr}/bin/efibootmgr
+    efibootmgr=${pkgs.efibootmgr}/bin/efibootmgr
         awk=${pkgs.gawk}/bin/awk
         coreutils=${pkgs.coreutils}
         find=${pkgs.findutils}/bin/find
