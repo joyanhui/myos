@@ -36,7 +36,6 @@
       };
       home.packages = with pkgs; [
         gh
-        git-crypt
         transcrypt
         git-lfs
         act

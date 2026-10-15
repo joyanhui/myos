@@ -9,7 +9,7 @@ let
     bun install -g opencode-ai@latest
     bun add -g --ignore-scripts @earendil-works/pi-coding-agent
     # 配置文件由本模块软链：opencode 在 ~/.config/opencode，pi 在 ~/.pi/agent
-    # 密钥明文存于 security/（opencode.json / pi_auth.json），models.json 无凭据放 configFile
+    # Credential-bearing files are sourced from security/_protected/, whose committed contents are protected by repository transcrypt encryption (opencode.json / pi_auth.json); models.json contains no credentials and stays in configFile
   '';
 in
 {

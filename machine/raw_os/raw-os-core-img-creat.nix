@@ -93,7 +93,6 @@ in
     gawk
     findutils
     gnutar
-    git-crypt
     transcrypt
     gzip
     bzip2
