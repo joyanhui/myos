@@ -8,6 +8,10 @@
     swaylock-effects
   ];
 
+  security.pam.services.swaylock = {
+    unixAuth = true;
+  };
+
   home-manager.users.${username} =
     { ... }:
     {
