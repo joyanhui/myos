@@ -55,15 +55,8 @@ sudo nixos-rebuild switch --flake .#tb_amd --option substituters https://cache.n
 
 ## 敏感数据和环境变量
 
-- 本仓库使用 transcrypt 管理加密信息，cipher 固定为 `aes-256-cbc`；真实敏感文件只能放在 `security/_protected/`，未解密时自动使用 `security/placeholder_files/` 中的占位值。
-- 自动化修改、审计和提交时，禁止读取、输出、复制或提交真实密码、API Key、访问令牌、SSH 私钥、证书、Cookie、账号导出文件、带凭据的配置和备份。
-- 新增敏感文件时，必须放入 `security/_protected/`，确认 `.gitattributes` 使用 `filter=crypt diff=crypt merge=crypt`，并在 `security/placeholder_files/` 中提供脱敏占位文件。
-- transcrypt 密码只能由使用者交互输入并保存在本地 Git 配置中；禁止提交密码、解密后的副本和临时导出文件。
-- 提交前必须检查 transcrypt 属性、工作区状态和暂存区内容，确认真实敏感文件受到 transcrypt 保护；`security/_protected/` 之外出现真实敏感值时必须停止提交。
-- 如果凭据曾进入 Git 历史，不能只删除当前文件；必须先轮换凭据，再清理历史并确认远程仓库不再保留旧对象。
-- 非敏感环境变量只在 `modules/system/env_manager.nix` 的 `envVars` 中定义。
-- 敏感环境变量只在 `security/_protected/sensitive_env.nix` 中定义，并在 `security/placeholder_files/sensitive_env.nix` 中使用脱敏占位值。
-- 完整的使用说明、解锁命令和占位文件说明见 [README.md 的敏感信息说明](README.md#security-secrets)。
+- 敏感信息统一由 transcrypt 管理，真实文件放在 `security/_protected/`，未解密时使用 `security/placeholder_files/`；完整规则见 [README.md 的敏感信息说明](README.md#security-secrets)。
+- 自动化修改和提交审计不得读取、输出或提交真实凭据；新增敏感文件必须同时符合 `.gitattributes` 加密规则并提供脱敏占位文件。
 
 ## 写法约定
 
