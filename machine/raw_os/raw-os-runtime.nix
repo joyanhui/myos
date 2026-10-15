@@ -55,6 +55,26 @@ let
       "boot/grub/grub.cfg=${rawOsEmbeddedGrubConfig}"
   '';
 
+  rawOsExternalEmbeddedGrubConfig = pkgs.writeText "raw-os-external-embedded-grub.cfg" ''
+    set host=
+    search --no-floppy --file --set=host /OS-img/nixos.raw
+    if [ -z "$host" ]; then
+      echo 'Raw OS image was not found on an NTFS partition'
+      sleep 5
+    else
+      loopback raw ($host)/OS-img/nixos.raw
+      configfile (raw,gpt1)/EFI/NixOS/raw-os/grub.cfg
+    fi
+  '';
+
+  rawOsExternalBootEfi = pkgs.runCommand "raw-os-external-boot-efi" { } ''
+    ${pkgs.grub2_efi}/bin/grub-mkstandalone \
+      --format=${pkgs.grub2_efi.grubTarget} \
+      --modules="part_gpt fat ntfs search search_fs_file loopback configfile chain normal echo sleep" \
+      --output="$out" \
+      "boot/grub/grub.cfg=${rawOsExternalEmbeddedGrubConfig}"
+  '';
+
   installRawBoot = pkgs.writeShellScript "install-raw-boot" ''
     set -euo pipefail
 
@@ -262,8 +282,7 @@ let
     blkid=${pkgs.util-linux}/bin/blkid
     mount=${pkgs.util-linux}/bin/mount
     umount=${pkgs.util-linux}/bin/umount
-    source_efi="/boot/EFI/BOOT/BOOTX64.EFI"
-    source_data="/boot/EFI/NixOS/raw-os"
+    source_efi="${rawOsExternalBootEfi}"
 
     [ "$(id -u)" -eq 0 ] || {
       echo "error: updateExternalEfi must run as root" >&2
@@ -363,11 +382,6 @@ let
       echo "error: current Raw OS boot EFI was not found: $source_efi" >&2
       exit 1
     }
-    [ -d "$source_data" ] || {
-      echo "error: current Raw OS boot data was not found: $source_data" >&2
-      exit 1
-    }
-
     mountpoint=$($coreutils/bin/mktemp -d /run/updateExternalEfi.XXXXXX)
     temporary=""
     cleanup() {
@@ -380,8 +394,7 @@ let
     $mount -t vfat "$esp" "$mountpoint"
     target="$mountpoint$efi_path"
     target_dir=$($coreutils/bin/dirname "$target")
-    data_target="$mountpoint/EFI/NixOS/raw-os"
-    $coreutils/bin/mkdir -p "$target_dir" "$data_target"
+    $coreutils/bin/mkdir -p "$target_dir"
 
     copy_file() {
       local source="$1"
@@ -398,24 +411,9 @@ let
       temporary=""
     }
 
-    for source in "$source_data"/*; do
-      [ -f "$source" ] || continue
-      name=$($coreutils/bin/basename "$source")
-      case "$name" in
-        grub.cfg|nixos-current.efi|nixos-generation-*.efi)
-          copy_file "$source" "$data_target/$name"
-          ;;
-      esac
-    done
-    for target_file in "$data_target"/nixos-generation-*.efi; do
-      [ -e "$target_file" ] || continue
-      name=$($coreutils/bin/basename "$target_file")
-      [ -e "$source_data/$name" ] || $coreutils/bin/rm -f "$target_file"
-    done
     copy_file "$source_efi" "$target"
     $coreutils/bin/sync
     echo "updated: $efi_path"
-    echo "updated: /EFI/NixOS/raw-os"
     echo "source: $source_efi"
     echo "esp: $esp"
   '';
@@ -427,6 +425,7 @@ in
 
   system.build.rawOsBootEfi = rawOsBootEfi;
   system.build.rawOsBootConfig = rawOsGrubConfig;
+  system.build.rawOsExternalBootEfi = rawOsExternalBootEfi;
 
   boot.loader.external = {
     enable = true;
