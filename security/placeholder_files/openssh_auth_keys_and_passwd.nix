@@ -3,6 +3,8 @@
   ...
 }:
 {
+  # The raw image keeps the initial nixos/nixos password and autologin for first boot.
+  # A raw_os_work_* rebuild uses the protected file to replace the password hash and disables autologin.
   users.users.${username} = {
     password = "nixos";
     /*

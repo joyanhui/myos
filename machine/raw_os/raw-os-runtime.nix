@@ -16,21 +16,33 @@ let
     set default=0
 
     menuentry 'NixOS current (generation 1)' {
+      set root=
       search --no-floppy --file --set=root /EFI/NixOS/raw-os/nixos-generation-1.efi
-      chainloader ($root)/EFI/NixOS/raw-os/nixos-generation-1.efi
+      if [ -n "$root" ]; then
+        chainloader ($root)/EFI/NixOS/raw-os/nixos-generation-1.efi
+      else
+        echo 'NixOS generation 1 was not found'
+        sleep 3
+      fi
     }
 
     menuentry 'NixOS current' {
+      set root=
       search --no-floppy --file --set=root /EFI/NixOS/raw-os/nixos-current.efi
-      chainloader ($root)/EFI/NixOS/raw-os/nixos-current.efi
+      if [ -n "$root" ]; then
+        chainloader ($root)/EFI/NixOS/raw-os/nixos-current.efi
+      else
+        echo 'NixOS current EFI was not found'
+        sleep 3
+      fi
     }
 
     menuentry 'Windows Boot Manager' {
-      if [ -z "$windows" ]; then
-        search --no-floppy --file --set=windows /EFI/Microsoft/Boot/bootmgfw.efi
-      fi
+      set windows=
+      search --no-floppy --file --set=windows /EFI/Microsoft/Boot/bootmgfw.efi
       if [ -n "$windows" ]; then
-        chainloader ($windows)/EFI/Microsoft/Boot/bootmgfw.efi
+        set root="$windows"
+        chainloader ($root)/EFI/Microsoft/Boot/bootmgfw.efi
       else
         echo 'Windows Boot Manager was not found'
         sleep 3
@@ -229,22 +241,36 @@ let
       else
         echo "menuentry 'NixOS current' {"
       fi
+      echo '  set root='
       echo '  search --no-floppy --file --set=root /EFI/NixOS/raw-os/nixos-current.efi'
-      echo '  chainloader ($root)/EFI/NixOS/raw-os/nixos-current.efi'
+      echo '  if [ -n "$root" ]; then'
+      echo '    chainloader ($root)/EFI/NixOS/raw-os/nixos-current.efi'
+      echo '  else'
+      echo "    echo 'NixOS current EFI was not found'"
+      echo '    sleep 3'
+      echo '  fi'
       echo '}'
       while read -r generation; do
         [ -n "$generation" ] || continue
         [ "$generation" = "$current_generation" ] && continue
         echo "menuentry 'NixOS generation $generation' {"
+        echo '  set root='
         echo '  search --no-floppy --file --set=root /EFI/NixOS/raw-os/nixos-generation-'"$generation"'.efi'
-        echo '  chainloader ($root)/EFI/NixOS/raw-os/nixos-generation-'"$generation"'.efi'
+        echo '  if [ -n "$root" ]; then'
+        echo '    chainloader ($root)/EFI/NixOS/raw-os/nixos-generation-'"$generation"'.efi'
+        echo '  else'
+        echo "    echo 'NixOS generation $generation was not found'"
+        echo '    sleep 3'
+        echo '  fi'
         echo '}'
       done < <($coreutils/bin/sort -rn "$generation_list")
       $coreutils/bin/cat <<'WINDOWS_ENTRY'
     menuentry 'Windows Boot Manager' {
+      set windows=
       search --no-floppy --file --set=windows /EFI/Microsoft/Boot/bootmgfw.efi
       if [ -n "$windows" ]; then
-        chainloader ($windows)/EFI/Microsoft/Boot/bootmgfw.efi
+        set root="$windows"
+        chainloader ($root)/EFI/Microsoft/Boot/bootmgfw.efi
       else
         echo 'Windows Boot Manager was not found'
         sleep 3

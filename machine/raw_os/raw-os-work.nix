@@ -8,6 +8,8 @@
 
   swapDevices = [ ];
 
+  services.getty.autologinUser = lib.mkForce null;
+
   home-manager.users.${username} =
     { lib, ... }:
     {
