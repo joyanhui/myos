@@ -8,9 +8,9 @@
 - `nixos-current.efi`：当前系统的 UKI。
 - `nixos-generation-<generation>.efi`：按 generation 保存的 UKI，最多 10 个。
 
-## 启动链路
+## 启动职责
 
-### 直接启动 raw 镜像
+直接启动 raw 镜像时，内部 EFI 负责加载内部菜单：
 
 ```text
 UEFI
@@ -20,23 +20,23 @@ UEFI
 → NixOS
 ```
 
-内部 GRUB 菜单还会搜索并 chainload：
+内部菜单也会搜索并 chainload：
 
 ```text
 /EFI/Microsoft/Boot/bootmgfw.efi
 ```
 
-### 从 NTFS 启动 raw 镜像
+从 NTFS 启动时，外部固定 EFI 只负责定位 raw 和加载内部菜单：
 
 ```text
-外部固定 EFI
-→ NTFS:/OS-img/nixos.raw
-→ raw 镜像分区 1 的 EFI/NixOS/raw-os/grub.cfg
-→ 当前或指定 generation UKI
-→ NixOS
+搜索宿主 ESP 上的 Windows EFI
+→ 搜索 NTFS:/OS-img/nixos.raw
+→ loopback raw
+→ 读取 raw 内部 EFI/NixOS/raw-os/grub.cfg
+→ 由内部菜单选择 NixOS 或 Windows
 ```
 
-外部固定 EFI 不依赖外部 ESP 上的菜单文件或 generation UKI。它会在加载 raw 镜像前先搜索宿主 ESP 上的 Windows Boot Manager，并将找到的设备传递给内部菜单；内部菜单仍保留全盘搜索作为 fallback。
+外部 EFI 不生成或保存 generation 列表、菜单文件或 generation UKI。Windows 搜索失败时，内部菜单仍会再次搜索 Windows EFI。
 
 ## 构建
 

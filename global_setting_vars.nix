@@ -54,7 +54,7 @@ rec {
       term = 14;
     };
     mono = "Sarasa Mono SC";
-    sans = "Sarasa UI SC";
+    sans = "Sarasa Gothic SC";
     serif = "Sarasa Gothic";
     emoji = "Noto Color Emoji";
   };

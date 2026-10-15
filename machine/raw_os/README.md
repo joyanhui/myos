@@ -22,9 +22,17 @@ internal_efi=${outputs[1]}
 
 外部固定 EFI 由 `creat-rawOsExternalBootEfi.sh` 单独构建。
 
-## 内部启动
+## 启动职责
 
-raw 镜像内部的 ESP 包含：
+内部 EFI 位于 raw 镜像内部，负责加载内部菜单：
+
+```text
+EFI/BOOT/BOOTX64.EFI
+→ EFI/NixOS/raw-os/grub.cfg
+→ 当前或指定 generation UKI
+```
+
+内部 ESP 保存：
 
 ```text
 EFI/BOOT/BOOTX64.EFI
@@ -33,26 +41,23 @@ EFI/NixOS/raw-os/nixos-current.efi
 EFI/NixOS/raw-os/nixos-generation-*.efi
 ```
 
-`BOOTX64.EFI` 是 standalone GRUB，负责加载 `grub.cfg`。菜单选择当前系统或 generation UKI，并包含 Windows Boot Manager 项：
+`nixos-rebuild switch` 的 bootloader install hook 读取系统 generation，生成最多 10 个 generation UKI 和 `grub.cfg`，并写入 raw 镜像内部 ESP。当前 generation 必须保留，`nixos-current.efi` 不计入 10 个 generation 限额。内部菜单也包含 Windows Boot Manager：
 
 ```text
 /EFI/Microsoft/Boot/bootmgfw.efi
 ```
 
-`nixos-rebuild switch` 通过 bootloader install hook 自动更新内部 EFI、菜单和 generation UKI。当前 generation 必须保留，其余按 generation 编号从新到旧选择，最多保留 10 个 generation UKI。`nixos-current.efi` 不计入该数量。
-
-## 外部启动
-
-外部 EFI 只保存一个固定 loader。它执行以下链路：
+外部 EFI 只保存一个固定 loader，负责定位 raw 和进入内部菜单：
 
 ```text
-外部固定 EFI
-→ NTFS:/OS-img/nixos.raw
-→ raw 镜像内部 EFI/NixOS/raw-os/grub.cfg
-→ generation UKI
+搜索宿主 ESP 上的 Windows EFI
+→ 搜索 NTFS:/OS-img/nixos.raw
+→ loopback raw
+→ 读取 raw 内部 EFI/NixOS/raw-os/grub.cfg
+→ 由内部菜单选择 NixOS 或 Windows
 ```
 
-外部固定 EFI 会在加载 raw 镜像前先搜索宿主 ESP 上的 Windows Boot Manager，并将找到的设备传递给内部菜单；内部菜单仍保留全盘搜索作为 fallback。外部 EFI 不保存 `grub.cfg`、`nixos-current.efi` 或 generation UKI。普通系统更新只需替换 NTFS 中的 `OS-img/nixos.raw`，不需要更新外部 EFI。
+外部 EFI 不生成或保存 generation 列表、`grub.cfg`、`nixos-current.efi` 或 generation UKI。Windows 搜索失败时，内部菜单仍会再次搜索 Windows EFI。普通系统更新只需替换 NTFS 中的 `OS-img/nixos.raw`，不需要更新外部 EFI。
 
 首次部署或外部固定 EFI 发生变化时，使用脚本单独构建外部 EFI：
 
