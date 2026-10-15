@@ -26,7 +26,9 @@ let
     }
 
     menuentry 'Windows Boot Manager' {
-      search --no-floppy --file --set=windows /EFI/Microsoft/Boot/bootmgfw.efi
+      if [ -z "$windows" ]; then
+        search --no-floppy --file --set=windows /EFI/Microsoft/Boot/bootmgfw.efi
+      fi
       if [ -n "$windows" ]; then
         chainloader ($windows)/EFI/Microsoft/Boot/bootmgfw.efi
       else
@@ -56,6 +58,8 @@ let
   '';
 
   rawOsExternalEmbeddedGrubConfig = pkgs.writeText "raw-os-external-embedded-grub.cfg" ''
+    set windows=
+    search --no-floppy --file --set=windows /EFI/Microsoft/Boot/bootmgfw.efi
     set host=
     search --no-floppy --file --set=host /OS-img/nixos.raw
     if [ -z "$host" ]; then

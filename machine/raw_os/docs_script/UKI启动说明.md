@@ -36,7 +36,7 @@ UEFI
 → NixOS
 ```
 
-外部固定 EFI 不依赖外部 ESP 上的菜单文件或 generation UKI。
+外部固定 EFI 不依赖外部 ESP 上的菜单文件或 generation UKI。它会在加载 raw 镜像前先搜索宿主 ESP 上的 Windows Boot Manager，并将找到的设备传递给内部菜单；内部菜单仍保留全盘搜索作为 fallback。
 
 ## 构建
 

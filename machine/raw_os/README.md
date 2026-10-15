@@ -52,7 +52,7 @@ EFI/NixOS/raw-os/nixos-generation-*.efi
 → generation UKI
 ```
 
-外部 EFI 不保存 `grub.cfg`、`nixos-current.efi` 或 generation UKI。普通系统更新只需替换 NTFS 中的 `OS-img/nixos.raw`，不需要更新外部 EFI。
+外部固定 EFI 会在加载 raw 镜像前先搜索宿主 ESP 上的 Windows Boot Manager，并将找到的设备传递给内部菜单；内部菜单仍保留全盘搜索作为 fallback。外部 EFI 不保存 `grub.cfg`、`nixos-current.efi` 或 generation UKI。普通系统更新只需替换 NTFS 中的 `OS-img/nixos.raw`，不需要更新外部 EFI。
 
 首次部署或外部固定 EFI 发生变化时，使用脚本单独构建外部 EFI：
 
