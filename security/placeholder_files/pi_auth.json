@@ -1,22 +1,22 @@
 {
   "aihub.top": {
     "type": "api_key",
-    "key": "sk-****"
-  },
-  "deepseek": {
-    "type": "api_key",
-    "key": "sk-****"
-  },
-  "laneai": {
-    "type": "api_key",
-    "key": "sk-****"
+    "key": "PLACEHOLDER_API_KEY"
   },
   "LinuxDoGpt": {
     "type": "api_key",
-    "key": "ah-****"
+    "key": "PLACEHOLDER_API_KEY"
+  },
+  "deepseek": {
+    "type": "api_key",
+    "key": "PLACEHOLDER_API_KEY"
+  },
+  "laneai": {
+    "type": "api_key",
+    "key": "PLACEHOLDER_API_KEY"
   },
   "aihub-sol-astra": {
     "type": "api_key",
-    "key": "sk-****"
+    "key": "PLACEHOLDER_API_KEY"
   }
 }

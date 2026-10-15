@@ -1,71 +1,164 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "plugin": [
+    "@cortexkit/opencode-magic-context@latest"
+  ],
+  "compaction": {
+    "auto": false,
+    "prune": false
+  },
+  "agent": {
+    "build": {
+      "options": {
+        "store": false
+      }
+    },
+    "plan": {
+      "options": {
+        "store": false
+      }
+    }
+  },
   "mcp": {
     "chrome-devtools": {
       "command": [
         "bunx",
         "-y",
-        "chrome-devtools-mcp@latest"
+        "chrome-devtools-mcp@latest",
+        "--executablePath",
+        "/etc/profiles/per-user/nixos/bin/google-chrome-stable",
+        "--usageStatistics",
+        "false"
       ],
       "enabled": true,
       "type": "local"
     }
   },
-  "model": "opencode/deepseek-v4-flash-free",
+  "model": "opencode/mimo-v2.6-flash-free",
+  "permission": {
+    "*": "allow",
+    "external_directory": "allow",
+    "doom_loop": "allow"
+  },
   "provider": {
+    "LinuxDoGpt": {
+      "models": {
+        "gpt-5.5": {
+          "limit": {
+            "context": 1050000,
+            "output": 128000
+          },
+          "name": "GPT-5.5",
+          "options": {
+            "store": false
+          },
+          "variants": {
+            "high": {},
+            "low": {},
+            "max": {},
+            "medium": {},
+            "xhigh": {}
+          }
+        },
+        "gpt-5.6-luna": {
+          "limit": {
+            "context": 1050000,
+            "output": 128000
+          },
+          "name": "GPT-5.6 Luna",
+          "options": {
+            "store": false
+          },
+          "variants": {
+            "high": {},
+            "low": {},
+            "max": {},
+            "medium": {},
+            "xhigh": {}
+          }
+        },
+        "gpt-5.6-sol": {
+          "limit": {
+            "context": 1050000,
+            "output": 128000
+          },
+          "name": "GPT-5.6 Sol",
+          "options": {
+            "store": false
+          },
+          "variants": {
+            "high": {},
+            "low": {},
+            "max": {},
+            "medium": {},
+            "xhigh": {}
+          }
+        },
+        "gpt-5.6-terra": {
+          "limit": {
+            "context": 1050000,
+            "output": 128000
+          },
+          "name": "GPT-5.6 Terra",
+          "options": {
+            "store": false
+          },
+          "variants": {
+            "high": {},
+            "low": {},
+            "max": {},
+            "medium": {},
+            "xhigh": {}
+          }
+        }
+      },
+      "options": {
+        "apiKey": "PLACEHOLDER_API_KEY",
+        "baseURL": "https://example.invalid/placeholder"
+      }
+    },
+    "aihub.top": {
+      "models": {
+        "gpt-5.6-luna": {
+          "limit": {
+            "context": 272000,
+            "output": 128000
+          },
+          "name": "GPT-5.6 Luna",
+          "options": {
+            "store": false
+          },
+          "variants": {
+            "low": {},
+            "medium": {},
+            "high": {},
+            "xhigh": {},
+            "max": {}
+          }
+        }
+      },
+      "options": {
+        "apiKey": "PLACEHOLDER_API_KEY",
+        "baseURL": "https://example.invalid/placeholder"
+      }
+    },
     "deepseek": {
       "models": {
         "deepseek-v4-flash": {
           "name": "deepseek-v4-flash"
         },
-        "deepseek-v4-pro": {
-          "name": "deepseek-v4-pro"
+        "deepseek-v4-flash-vision-exp": {
+          "name": ""
         }
       },
       "npm": "@ai-sdk/openai-compatible",
       "options": {
-        "apiKey": "****",
-        "baseURL": "https://api.deepseek.com/v1",
+        "apiKey": "PLACEHOLDER_API_KEY",
+        "baseURL": "https://example.invalid/placeholder",
         "setCacheKey": true
       }
     },
-    "gancao": {
-      "models": {
-        "gpt-5.5": {
-          "name": "",
-          "variants": {
-            "high": {
-              "reasoningEffort": "high",
-              "reasoningSummary": "auto",
-              "textVerbosity": "medium"
-            },
-            "low": {
-              "reasoningEffort": "low",
-              "reasoningSummary": "auto",
-              "textVerbosity": "medium"
-            },
-            "medium": {
-              "reasoningEffort": "medium",
-              "reasoningSummary": "auto",
-              "textVerbosity": "medium"
-            },
-            "xhigh": {
-              "reasoningEffort": "xhigh",
-              "reasoningSummary": "auto",
-              "textVerbosity": "medium"
-            }
-          }
-        }
-      },
-      "name": "干草",
-      "npm": "@ai-sdk/openai",
-      "options": {
-        "apiKey": "****",
-        "baseURL": "https://gancaopu.com/v1",
-        "setCacheKey": true
-      }
-    },
-    "junde": {
+    "hub-gpt": {
       "models": {
         "gpt-5.4": {
           "name": "",
@@ -98,119 +191,6 @@
             }
           }
         },
-        "gpt-5.4-mini": {
-          "name": "",
-          "options": {
-            "include": [
-              "reasoning.encrypted_content"
-            ],
-            "store": false
-          },
-          "variants": {
-            "high": {
-              "reasoningEffort": "high",
-              "reasoningSummary": "auto",
-              "textVerbosity": "medium"
-            },
-            "low": {
-              "reasoningEffort": "low",
-              "reasoningSummary": "auto",
-              "textVerbosity": "medium"
-            },
-            "medium": {
-              "reasoningEffort": "medium",
-              "reasoningSummary": "auto",
-              "textVerbosity": "medium"
-            },
-            "xhigh": {
-              "reasoningEffort": "xhigh",
-              "reasoningSummary": "auto",
-              "textVerbosity": "medium"
-            }
-          }
-        },
-        "gpt-5.5": {
-          "name": "",
-          "variants": {
-            "high": {
-              "reasoningEffort": "high",
-              "reasoningSummary": "auto",
-              "textVerbosity": "medium"
-            },
-            "low": {
-              "reasoningEffort": "low",
-              "reasoningSummary": "auto",
-              "textVerbosity": "medium"
-            },
-            "medium": {
-              "reasoningEffort": "medium",
-              "reasoningSummary": "auto",
-              "textVerbosity": "medium"
-            },
-            "xhigh": {
-              "reasoningEffort": "xhigh",
-              "reasoningSummary": "auto",
-              "textVerbosity": "medium"
-            }
-          }
-        }
-      },
-      "npm": "@ai-sdk/openai",
-      "options": {
-        "apiKey": "****",
-        "baseURL": "https://muyuan.do/v1",
-        "setCacheKey": true
-      }
-    },
-    "junde-claude": {
-      "models": {
-        "MiniMax-M3": {
-          "name": ""
-        },
-        "claude-opus-4-8": {
-          "name": ""
-        }
-      },
-      "npm": "@ai-sdk/anthropic",
-      "options": {
-        "apiKey": "****",
-        "baseURL": "https://muyuan.do/v1",
-        "setCacheKey": true
-      }
-    },
-    "lyclaude": {
-      "models": {
-        "gpt-5.4-mini": {
-          "name": "",
-          "options": {
-            "include": [
-              "reasoning.encrypted_content"
-            ],
-            "store": false
-          },
-          "variants": {
-            "high": {
-              "reasoningEffort": "high",
-              "reasoningSummary": "auto",
-              "textVerbosity": "medium"
-            },
-            "low": {
-              "reasoningEffort": "low",
-              "reasoningSummary": "auto",
-              "textVerbosity": "medium"
-            },
-            "medium": {
-              "reasoningEffort": "medium",
-              "reasoningSummary": "auto",
-              "textVerbosity": "medium"
-            },
-            "xhigh": {
-              "reasoningEffort": "xhigh",
-              "reasoningSummary": "auto",
-              "textVerbosity": "medium"
-            }
-          }
-        },
         "gpt-5.5": {
           "name": "",
           "options": {
@@ -245,11 +225,133 @@
       },
       "npm": "@ai-sdk/openai-compatible",
       "options": {
-        "apiKey": "****",
-        "baseURL": "https://free.lyclaude.site/v1",
+        "apiKey": "PLACEHOLDER_API_KEY",
+        "baseURL": "https://example.invalid/placeholder",
         "setCacheKey": true
+      }
+    },
+    "junde": {
+      "models": {
+        "glm-5.2": {
+          "name": ""
+        }
+      },
+      "npm": "@ai-sdk/openai",
+      "options": {
+        "apiKey": "PLACEHOLDER_API_KEY",
+        "baseURL": "https://example.invalid/placeholder",
+        "setCacheKey": true
+      }
+    },
+    "laneai": {
+      "name": "LaneAI",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "apiKey": "PLACEHOLDER_API_KEY",
+        "baseURL": "https://example.invalid/placeholder"
+      },
+      "models": {
+        "deepseek-v4-flash": {
+          "name": "DeepSeek V4 Flash",
+          "attachment": false,
+          "reasoning": true,
+          "temperature": true,
+          "tool_call": true,
+          "interleaved": {
+            "field": "reasoning_content"
+          },
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "limit": {
+            "context": 1000000,
+            "input": 1000000,
+            "output": 393216
+          },
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
+        }
+      }
+    },
+    "aihub-sol-astra": {
+      "models": {
+        "gpt-6-astra": {
+          "limit": {
+            "context": 272000,
+            "output": 272000
+          },
+          "name": "GPT-6 Astra",
+          "options": {
+            "store": false
+          },
+          "variants": {
+            "low": {},
+            "medium": {},
+            "high": {},
+            "xhigh": {},
+            "max": {}
+          }
+        },
+        "gpt6.1-sol": {
+          "limit": {
+            "context": 272000,
+            "output": 272000
+          },
+          "name": "GPT-6.1 Sol",
+          "options": {
+            "store": false
+          },
+          "variants": {
+            "low": {},
+            "medium": {},
+            "high": {},
+            "xhigh": {},
+            "max": {}
+          }
+        },
+        "gpt-5.6-sol": {
+          "limit": {
+            "context": 272000,
+            "output": 272000
+          },
+          "name": "GPT-5.6 Sol",
+          "options": {
+            "store": false
+          },
+          "variants": {
+            "low": {},
+            "medium": {},
+            "high": {},
+            "xhigh": {},
+            "max": {}
+          }
+        }
+      },
+      "options": {
+        "apiKey": "PLACEHOLDER_API_KEY",
+        "baseURL": "https://example.invalid/placeholder"
       }
     }
   },
-  "small_model": "opencode/deepseek-v4-flash-free"
+  "small_model": "opencode/mimo-v2.6-flash-free",
+  "tools": {
+    "bash": true,
+    "edit": true,
+    "read": true,
+    "write": true
+  }
 }

@@ -4,8 +4,10 @@ bind-address: "*"
 mode: rule
 log-level: info
 external-controller: "0.0.0.0:9090"
+external-ui: "ui"
 tun:
   enable: true
+  #enable: false
   stack: mixed
   dns-hijack:
     - "any:53"
@@ -14,8 +16,16 @@ tun:
   auto-redirect: true
   auto-detect-interface: true
 proxy-providers:
+  # cf1:
+  #   # url: 'https://websocket.leiyanhui.com/my?clash' # https://ws.syx8.eu.org/PLACEHOLDER_TOKEN?clash  PLACEHOLDER_TOKEN
+  #   url: 'https://ws.syx8.eu.org/my?clash'
+  #   type: http
+  #   interval: 600
+  #   health-check: { enable: true, url: 'https://www.gstatic.com/generate_204', interval: 300 }
+  #   override:
+  #     additional-prefix: 'cf-'
   skyone:
-    url: "https://subb3xq6b.skyvpn.bond/link/xxxx"
+    url: "https://subb3xq6b.skyvpn.bond/link/PLACEHOLDER_TOKEN?clash=1"
     type: http
     interval: 600
     health-check:
@@ -27,7 +37,7 @@ proxy-providers:
     override:
       additional-prefix: "sky-"
   fenniao:
-    url: "https://b.592851.xyz/api/v1/client/subscribe?token=xxxxxx"
+    url: "https://388583885.459245.xyz/api/v1/client/subscribe?token=PLACEHOLDER_TOKEN"
     type: http
     interval: 600
     health-check:
@@ -58,10 +68,10 @@ proxy-providers:
 
 geodata-mode: true
 geox-url:
-  geoip: "https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip-lite.dat"
-  geosite: "https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat"
-  mmdb: "https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/country-lite.mmdb"
-  asn: "https://gh-proxy.com/https://github.com/xishang0128/geoip/releases/download/latest/GeoLite2-ASN.mmdb"
+  geoip: "https://gh.leiyanhui.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip-lite.dat"
+  geosite: "https://gh.leiyanhui.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat"
+  mmdb: "https://gh.leiyanhui.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/country-lite.mmdb"
+  asn: "https://gh.leiyanhui.com/https://github.com/xishang0128/geoip/releases/download/latest/GeoLite2-ASN.mmdb"
 
 dns:
   enable: true
@@ -72,19 +82,21 @@ dns:
     - "*"
     - "+.lan"
     - "+.local"
-    - "+.**.xiaomi.com"
-    - "localhost.ptlogin2.qq.com" # QQ登录
+    - "+.xiaomi.com"
+    - "+.leiyanhui.com"
+    - "localhost.ptlogin2.qq.com"
   nameserver:
-    #    - https://120.53.53.53/dns-query
-    - 192.168.1.1
+    - https://120.53.53.53/dns-query
     - https://223.5.5.5/dns-query
   proxy-server-nameserver:
-    #    - https://120.53.53.53/dns-query
-    - 192.168.1.1
+    - https://120.53.53.53/dns-query
     - https://223.5.5.5/dns-query
   nameserver-policy:
-    "geosite:cn,private":
+    "geosite:private":
       - 192.168.1.1
+      - https://120.53.53.53/dns-query
+      - https://223.5.5.5/dns-query
+    "geosite:cn":
       - https://120.53.53.53/dns-query
       - https://223.5.5.5/dns-query
     "geosite:geolocation-!cn":
@@ -96,6 +108,152 @@ proxy-groups:
   #  type: select
   #  proxies: [自动选择, DIRECT, 🇹🇼台湾, 🇭🇰香港, 🇯🇵日本, 🇰🇷韩国, 🇸🇬新加坡, 🇺🇲美国, 🌍其它地区, 全部节点]
 
+  - name: 🚀 节点选择
+    type: select
+    proxies:
+      [
+        🇹🇼台湾,
+        🇭🇰香港,
+        🇯🇵日本,
+        🇰🇷韩国,
+        🇸🇬新加坡,
+        🇸🇬自动sky新加坡,
+        🇯🇵自动sky日本,
+        🇺🇲自动sky美国,
+        🇺🇲美国,
+        🌍其它地区,
+        全部节点,
+        自动选择,
+        DIRECT,
+      ]
+
+  - name: AI专用
+    type: select
+    proxies:
+      [
+        🚀 节点选择,
+        🇹🇼台湾,
+        🇭🇰香港,
+        🇯🇵日本,
+        🇰🇷韩国,
+        🇸🇬新加坡,
+        🇸🇬自动sky新加坡,
+        🇯🇵自动sky日本,
+        🇺🇲自动sky美国,
+        🇺🇲美国,
+        🌍其它地区,
+        全部节点,
+        自动选择,
+        DIRECT,
+      ]
+
+  - name: 自动选择
+    type: url-test
+    include-all: true
+    tolerance: 10
+
+  - name: Copilot
+    type: select
+    proxies:
+      [
+        AI专用,
+        🚀 节点选择,
+        🇹🇼台湾,
+        🇭🇰香港,
+        🇯🇵日本,
+        🇰🇷韩国,
+        🇸🇬新加坡,
+        🇸🇬自动sky新加坡,
+        🇯🇵自动sky日本,
+        🇺🇲自动sky美国,
+        🇺🇲美国,
+        🌍其它地区,
+        全部节点,
+        自动选择,
+        DIRECT,
+      ]
+
+  - name: Gemini
+    type: select
+    proxies:
+      [
+        AI专用,
+        🚀 节点选择,
+        🇹🇼台湾,
+        🇭🇰香港,
+        🇯🇵日本,
+        🇰🇷韩国,
+        🇸🇬新加坡,
+        🇸🇬自动sky新加坡,
+        🇯🇵自动sky日本,
+        🇺🇲自动sky美国,
+        🇺🇲美国,
+        🌍其它地区,
+        全部节点,
+        自动选择,
+        DIRECT,
+      ]
+
+  - name: ChatGPT
+    type: select
+    proxies:
+      [
+        AI专用,
+        🚀 节点选择,
+        🇹🇼台湾,
+        🇭🇰香港,
+        🇯🇵日本,
+        🇰🇷韩国,
+        🇸🇬新加坡,
+        🇸🇬自动sky新加坡,
+        🇯🇵自动sky日本,
+        🇺🇲自动sky美国,
+        🇺🇲美国,
+        🌍其它地区,
+        全部节点,
+        自动选择,
+        DIRECT,
+      ]
+
+  - name: Reddit
+    type: select
+    proxies:
+      [
+        🚀 节点选择,
+        🇹🇼台湾,
+        🇭🇰香港,
+        🇯🇵日本,
+        🇰🇷韩国,
+        🇸🇬新加坡,
+        🇸🇬自动sky新加坡,
+        🇯🇵自动sky日本,
+        🇺🇲自动sky美国,
+        🇺🇲美国,
+        🌍其它地区,
+        全部节点,
+        自动选择,
+        DIRECT,
+      ]
+
+  - name: 微软
+    type: select
+    proxies:
+      [
+        🚀 节点选择,
+        🇹🇼台湾,
+        🇭🇰香港,
+        🇯🇵日本,
+        🇰🇷韩国,
+        🇸🇬新加坡,
+        🇸🇬自动sky新加坡,
+        🇯🇵自动sky日本,
+        🇺🇲自动sky美国,
+        🇺🇲美国,
+        🌍其它地区,
+        全部节点,
+        自动选择,
+        DIRECT,
+      ]
   - name: Google
     type: select
     proxies:
@@ -106,6 +264,9 @@ proxy-groups:
         🇯🇵日本,
         🇰🇷韩国,
         🇸🇬新加坡,
+        🇸🇬自动sky新加坡,
+        🇯🇵自动sky日本,
+        🇺🇲自动sky美国,
         🇺🇲美国,
         🌍其它地区,
         全部节点,
@@ -123,6 +284,9 @@ proxy-groups:
         🇯🇵日本,
         🇰🇷韩国,
         🇸🇬新加坡,
+        🇸🇬自动sky新加坡,
+        🇯🇵自动sky日本,
+        🇺🇲自动sky美国,
         🇺🇲美国,
         🌍其它地区,
         全部节点,
@@ -140,23 +304,9 @@ proxy-groups:
         🇯🇵日本,
         🇰🇷韩国,
         🇸🇬新加坡,
-        🇺🇲美国,
-        🌍其它地区,
-        全部节点,
-        自动选择,
-        DIRECT,
-      ]
-
-  - name: 哔哩哔哩
-    type: select
-    proxies:
-      [
-        🚀 节点选择,
-        🇹🇼台湾,
-        🇭🇰香港,
-        🇯🇵日本,
-        🇰🇷韩国,
-        🇸🇬新加坡,
+        🇸🇬自动sky新加坡,
+        🇯🇵自动sky日本,
+        🇺🇲自动sky美国,
         🇺🇲美国,
         🌍其它地区,
         全部节点,
@@ -174,6 +324,9 @@ proxy-groups:
         🇯🇵日本,
         🇰🇷韩国,
         🇸🇬新加坡,
+        🇸🇬自动sky新加坡,
+        🇯🇵自动sky日本,
+        🇺🇲自动sky美国,
         🇺🇲美国,
         🌍其它地区,
         全部节点,
@@ -191,6 +344,9 @@ proxy-groups:
         🇯🇵日本,
         🇰🇷韩国,
         🇸🇬新加坡,
+        🇸🇬自动sky新加坡,
+        🇯🇵自动sky日本,
+        🇺🇲自动sky美国,
         🇺🇲美国,
         🌍其它地区,
         全部节点,
@@ -208,6 +364,9 @@ proxy-groups:
         🇯🇵日本,
         🇰🇷韩国,
         🇸🇬新加坡,
+        🇸🇬自动sky新加坡,
+        🇯🇵自动sky日本,
+        🇺🇲自动sky美国,
         🇺🇲美国,
         🌍其它地区,
         全部节点,
@@ -225,6 +384,9 @@ proxy-groups:
         🇯🇵日本,
         🇰🇷韩国,
         🇸🇬新加坡,
+        🇸🇬自动sky新加坡,
+        🇯🇵自动sky日本,
+        🇺🇲自动sky美国,
         🇺🇲美国,
         🌍其它地区,
         全部节点,
@@ -243,26 +405,13 @@ proxy-groups:
         🇯🇵日本,
         🇰🇷韩国,
         🇸🇬新加坡,
+        🇸🇬自动sky新加坡,
+        🇯🇵自动sky日本,
+        🇺🇲自动sky美国,
         🇺🇲美国,
         🌍其它地区,
         全部节点,
         自动选择,
-      ]
-
-  - name: 🚀 节点选择
-    type: select
-    proxies:
-      [
-        🇹🇼台湾,
-        🇭🇰香港,
-        🇯🇵日本,
-        🇰🇷韩国,
-        🇸🇬新加坡,
-        🇺🇲美国,
-        🌍其它地区,
-        全部节点,
-        自动选择,
-        DIRECT,
       ]
 
   - name: 🇹🇼台湾
@@ -291,6 +440,21 @@ proxy-groups:
     type: select
     include-all: true
     filter: "(?i)(新|sg|🇸🇬|singapore)"
+  - name: 🇸🇬自动sky新加坡
+    type: url-test
+    include-all: true
+    filter: "(?i)sky-.*(新|sg|singapore)"
+    tolerance: 10
+  - name: 🇯🇵自动sky日本
+    type: url-test
+    include-all: true
+    filter: "(?i)sky-.*(日|jp|japan)"
+    tolerance: 10
+  - name: 🇺🇲自动sky美国
+    type: url-test
+    include-all: true
+    filter: "(?i)sky-.*(美|us|unitedstates)"
+    tolerance: 10
 
   - name: 🌍其它地区
     type: select
@@ -301,15 +465,14 @@ proxy-groups:
     type: select
     include-all: true
 
-  - name: 自动选择
-    type: url-test
-    include-all: true
-    tolerance: 10
 rules:
   - GEOIP,lan,DIRECT,no-resolve
   - DOMAIN-SUFFIX,bing.com,DIRECT
   - DOMAIN-SUFFIX,bing.net,DIRECT
-  - DOMAIN-SUFFIX,live.com,DIRECT
+  # - DOMAIN-SUFFIX,onedrive.live.com,🚀 节点选择
+  # - DOMAIN-SUFFIX,live.com,DIRECT
+  - DOMAIN-SUFFIX,leiyanhui.com,DIRECT
+  - DOMAIN-SUFFIX,syx8.eu.org,DIRECT
   - DOMAIN-SUFFIX,mydomain.com,DIRECT
   - DOMAIN-SUFFIX,mmstat.com,DIRECT
   - DOMAIN-SUFFIX,taobao.com,DIRECT
@@ -319,30 +482,29 @@ rules:
   - DOMAIN-SUFFIX,mozilla.com,DIRECT
   - DOMAIN-SUFFIX,jasonzeng.dev,DIRECT
   - DOMAIN-SUFFIX,npmmirror.com,DIRECT
+  - DOMAIN-SUFFIX,cenguigui.cn,DIRECT
   - DOMAIN-SUFFIX,muyuan.do,DIRECT
+  - DOMAIN-SUFFIX,anyrouter.top,DIRECT
+  - DOMAIN-SUFFIX,hybgzs.com,DIRECT
   - DOMAIN-SUFFIX,xiaomimimo.com,DIRECT
   - DOMAIN-SUFFIX,aini8.com,DIRECT
   - DOMAIN-SUFFIX,invite.linuxdo.org,DIRECT
-  - DOMAIN-SUFFIX,openai.com,🇺🇲美国
-  - DOMAIN-SUFFIX,chatgpt.com,🇺🇲美国
-  - DOMAIN-SUFFIX,chat.com,🇺🇲美国
-  - DOMAIN-SUFFIX,sora.com,🇺🇲美国
-  - DOMAIN-SUFFIX,oaistatic.com,🇺🇲美国
-  - DOMAIN-SUFFIX,oaiusercontent.com,🇺🇲美国
-  - DOMAIN-SUFFIX,openaimerge.com,🇺🇲美国
-  - DOMAIN-SUFFIX,livekit.cloud,🇺🇲美国
-  - DOMAIN-KEYWORD,livekit,🇺🇲美国
-  - DOMAIN-SUFFIX,webpubsub.azure.com ,🇺🇲美国
-  - DOMAIN-SUFFIX,auth0.com,🇺🇲美国
-  - DOMAIN-SUFFIX,intercom.io,🇺🇲美国
+  - DOMAIN-SUFFIX,yacd.haishan.me,DIRECT
+  - DOMAIN-SUFFIX,opencode.ai,DIRECT
+  - DOMAIN-SUFFIX,music.haitangw.net,DIRECT
+  - GEOSITE,github-copilot,Copilot
+  - DOMAIN-SUFFIX,copilot.microsoft.com,Copilot
   - GEOSITE,github,Github
   - GEOSITE,twitter,Twitter
+  - GEOSITE,google-gemini,Gemini
   - GEOSITE,google,Google
   - GEOSITE,telegram,Telegram
   - GEOSITE,netflix,NETFLIX
-  - GEOSITE,bilibili,哔哩哔哩
   - GEOSITE,bahamut,巴哈姆特
   - GEOSITE,spotify,Spotify
+  - GEOSITE,openai,ChatGPT
+  - GEOSITE,reddit,Reddit
+  - GEOSITE,microsoft,微软
   - GEOSITE,CN,DIRECT
   - GEOIP,CN,DIRECT
   - GEOSITE,geolocation-!cn,🚀 节点选择

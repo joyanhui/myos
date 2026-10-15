@@ -1,28 +1,41 @@
 {
   username,
+  lib,
   ...
 }:
-{
-  home-manager = {
-    users.${username} = {
-      home.sessionVariables = {
-        KOPIA_PASSWORD = "******";
-        KOPIA_CHECK_FOR_UPDATES = "false";
-        TOKEN_CF = "******";
-        TOKEN_GH = "ghp_******";
-        TOKEN_GH2 = "ghp_******";
-        TOKEN_ZEROSSL = "****";
-        TOKEN_ZEROSS_EAB_KID = "******";
-        TOKEN_ZEROSS_EAB_KEY = "**********";
+let
+  sessionVars = rec {
+    KOPIA_PASSWORD = "PLACEHOLDER_KOPIA_PASSWORD";
+    KOPIA_CHECK_FOR_UPDATES = "false";
+    TOKEN_CF = "PLACEHOLDER_TOKEN_CF";
+    TOKEN_GH = "PLACEHOLDER_TOKEN_GH";
+    TOKEN_GH2 = "PLACEHOLDER_TOKEN_GH2";
+    TOKEN_GH3 = "PLACEHOLDER_TOKEN_GH3";
+    GITHUB_TOKEN = TOKEN_GH;
+    NIX_GITHUB_TOKEN = TOKEN_GH;
+    TOKEN_ZEROSSL = "PLACEHOLDER_TOKEN_ZEROSSL";
+    TOKEN_ZEROSS_EAB_KID = "PLACEHOLDER_TOKEN_ZEROSS_EAB_KID";
+    TOKEN_ZEROSS_EAB_KEY = "PLACEHOLDER_TOKEN_ZEROSS_EAB_KEY";
 
-        MYGH = "https://aaaaa:**********@gh-proxy.com/";
-        MYGH_fileuni = "https://vvvvvv:**********@gh-proxy.com/";
-        GMAILPASSWD = "**********";
-        TOKEN_ALI_AK = "**********";
-        TOKEN_ALI_SK = "**********";
-        TOKEN_TX_AK = "**********";
-        TOKEN_TX_SK = "**********";
-      };
-    };
+    GMAILPASSWD = "PLACEHOLDER_GMAILPASSWD";
+    TOKEN_ALI_AK = "PLACEHOLDER_TOKEN_ALI_AK";
+    TOKEN_ALI_SK = "PLACEHOLDER_TOKEN_ALI_SK";
+    NPM_TOKEN_JOYANHUI = "PLACEHOLDER_NPM_TOKEN_JOYANHUI";
+    NPM_TOKEN_FILEUNI = "PLACEHOLDER_NPM_TOKEN_FILEUNI";
+
+    TOKEN_TX_AK = "PLACEHOLDER_TOKEN_TX_AK";
+    TOKEN_TX_SK = "PLACEHOLDER_TOKEN_TX_SK";
+
+    CLOUDFLARE_ACCOUNT_ID = "PLACEHOLDER_CLOUDFLARE_ACCOUNT_ID";
+    CLOUDFLARE_API_TOKEN = "PLACEHOLDER_CLOUDFLARE_API_TOKEN";
+  };
+in
+{
+  home-manager.users.${username} = {
+    home.sessionVariables = sessionVars;
+
+    xdg.configFile."fish/conf.d/95-sensitive-env.fish".text = lib.concatStringsSep "\n" (
+      lib.mapAttrsToList (name: value: "set -gx ${name} \"${toString value}\"") sessionVars
+    );
   };
 }

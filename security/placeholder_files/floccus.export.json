@@ -1,0 +1,31 @@
+[
+  {
+    "enabled": false,
+    "localRoot": "/path/to/bookmarks",
+    "strategy": "default",
+    "syncInterval": 5,
+    "nestedSync": true,
+    "failsafe": true,
+    "allowNetwork": false,
+    "label": "工具栏",
+    "errorCount": 0,
+    "clickCountEnabled": false,
+    "type": "webdav",
+    "url": "https://example.invalid/placeholder",
+    "username": "PLACEHOLDER_USERNAME",
+    "password": "PLACEHOLDER_PASSWORD",
+    "bookmark_file": "/path/to/bookmarks.html",
+    "bookmark_file_type": "xbel",
+    "includeCredentials": false,
+    "allowRedirects": false,
+    "passphrase": "",
+    "syncing": false,
+    "error": null,
+    "lastSync": 1782033282873,
+    "scheduled": false,
+    "rootPath": "/path/to/bookmarks",
+    "syncIntervalEnabled": true,
+    "lastAttempt": 1782033281711,
+    "isTransientError": false
+  }
+]
