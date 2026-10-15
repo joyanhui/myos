@@ -9,6 +9,8 @@
 let
   extraEnvVars = config.envManager.extraVars or { };
   theme = global_settings.theme;
+  iconPkg = pkgs.${theme.iconThemePkg};
+  fcitx5Pkg = lib.attrByPath [ "i18n" "inputMethod" "package" ] pkgs.qt6Packages.fcitx5-with-addons config;
   gstOut = pkg: lib.getOutput "out" pkg;
   gstPluginPath = lib.concatStringsSep ":" (
     map (pkg: "${gstOut pkg}/lib/gstreamer-1.0") (with pkgs.gst_all_1; [
@@ -22,6 +24,10 @@ let
   );
 
   xdgDataDirsBase = lib.concatStringsSep ":" [
+    "${iconPkg}/share"
+    "${fcitx5Pkg}/share"
+    "${pkgs.fcitx5-rime}/share"
+    "${pkgs.hicolor-icon-theme}/share"
     "/home/${username}/.local/share/flatpak/exports/share"
     "/var/lib/flatpak/exports/share"
     "/home/${username}/.nix-profile/share"
