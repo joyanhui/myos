@@ -1,13 +1,15 @@
 # myos
 
+基于nixos，支持其他linux发行版，支持构建可以引导的raw文件和外部efi
+
 ## Hosts
 
 - `wsl`：WSL2 的 NixOS 配置。
 - `tb_amd`：ThinkBook 14p AMD 配置。
-- `raw_os_core_img_creat`：专用于创建可启动 raw 镜像和 UKI。
-- `raw_os_work_amd`：raw OS AMD 工作环境，使用 `raw-amd` tag。
-- `raw_os_work_intel`：raw OS Intel 工作环境，使用 `raw-intel` tag。
-- `homeConfigurations.linux`：Debian、Ubuntu 等 glibc Linux 的 standalone 配置。
+- `raw_os_core_img_creat`：专用于创建可启动 raw 镜像和 内部esp的引导和外部efi（无视硬件差异）。
+- `raw_os_work_amd`：raw OS AMD 工作环境，运行在raw镜像上，基于amd的优化，支持kvm直通等。
+- `raw_os_work_intel`：raw OS Intel 工作环境，运行在raw镜像上，基于intel优化，支持kvm直通。
+- `homeConfigurations.linux`：Debian、Ubuntu 等基于 glibc Linux 的 standalone 配置。
 
 ## 常用命令
 
