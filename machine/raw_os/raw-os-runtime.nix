@@ -66,6 +66,7 @@ let
     ukify=${pkgs.systemdUkify}/lib/systemd/ukify
     stub=${pkgs.systemd}/lib/systemd/boot/efi/linux${efiArch}.efi.stub
     coreutils=${pkgs.coreutils}
+    grep=${pkgs.gnugrep}/bin/grep
     tmp_root=$($coreutils/bin/mktemp -d /run/raw-os-boot.XXXXXX)
     generation_list="$tmp_root/generations"
     current_toplevel=$($coreutils/bin/readlink -f "$toplevel")
@@ -240,7 +241,7 @@ let
       old_name=$($coreutils/bin/basename "$old")
       old_generation=''${old_name#nixos-generation-}
       old_generation=''${old_generation%.efi}
-      if ! $coreutils/bin/grep -qx "$old_generation" "$generation_list"; then
+      if ! $grep -qx "$old_generation" "$generation_list"; then
         $coreutils/bin/rm -f "$old"
       fi
     done
