@@ -133,7 +133,9 @@ let
       }
     }
 
-    current_generation=""
+    generation_candidates="$tmp_root/generation-candidates"
+    sorted_candidates="$tmp_root/sorted-generations"
+    : > "$generation_candidates"
     for generation_link in "$profiles_dir"/system-*-link; do
       [ -e "$generation_link" ] || continue
       generation_name=$($coreutils/bin/basename "$generation_link")
@@ -144,12 +146,41 @@ let
       esac
       system_path=$($coreutils/bin/readlink -f "$generation_link") || continue
       [ -f "$system_path/boot.json" ] || continue
-      build_uki "$generation" "$system_path" "nixos-generation-$generation.efi"
-      printf '%s\n' "$generation" >> "$generation_list"
+      printf '%s\t%s\n' "$generation" "$system_path" >> "$generation_candidates"
+    done
+    $coreutils/bin/sort -t "$(printf '\t')" -k1,1nr "$generation_candidates" > "$sorted_candidates"
+
+    current_generation=""
+    while IFS="$(printf '\t')" read -r generation system_path; do
+      [ -n "$generation" ] || continue
       if [ "$system_path" = "$current_toplevel" ]; then
         current_generation="$generation"
+        break
       fi
-    done
+    done < "$generation_candidates"
+
+    selected_generations="$tmp_root/selected-generations"
+    : > "$generation_list"
+    : > "$selected_generations"
+    selected_count=0
+    if [ -n "$current_generation" ]; then
+      printf '%s\n' "$current_generation" >> "$generation_list"
+      printf '%s\t%s\n' "$current_generation" "$current_toplevel" >> "$selected_generations"
+      selected_count=1
+    fi
+    while IFS="$(printf '\t')" read -r generation system_path; do
+      [ -n "$generation" ] || continue
+      [ "$generation" = "$current_generation" ] && continue
+      [ "$selected_count" -ge 10 ] && break
+      printf '%s\n' "$generation" >> "$generation_list"
+      printf '%s\t%s\n' "$generation" "$system_path" >> "$selected_generations"
+      selected_count=$((selected_count + 1))
+    done < "$sorted_candidates"
+
+    while IFS="$(printf '\t')" read -r generation system_path; do
+      [ -n "$generation" ] || continue
+      build_uki "$generation" "$system_path" "nixos-generation-$generation.efi"
+    done < "$selected_generations"
 
     build_uki current "$current_toplevel" nixos-current.efi
 
@@ -184,7 +215,7 @@ let
         echo '  chainloader ($root)/EFI/NixOS/raw-os/nixos-generation-'"$generation"'.efi'
         echo '}'
       done < <($coreutils/bin/sort -rn "$generation_list")
-      cat <<'WINDOWS_ENTRY'
+      $coreutils/bin/cat <<'WINDOWS_ENTRY'
     menuentry 'Windows Boot Manager' {
       search --no-floppy --file --set=windows /EFI/Microsoft/Boot/bootmgfw.efi
       if [ -n "$windows" ]; then

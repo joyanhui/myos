@@ -5,7 +5,7 @@
 - `nixos.raw`：GPT raw 镜像，包含内部 `nixos-esp` 和 `nixos-root` 分区。
 - `nixos-img.efi`：由 `config.system.build.uki` 生成的初始 UKI，用于注册外部自定义 EFI 启动项。
 - `EFI/BOOT/BOOTX64.EFI`：raw 镜像内部的 GRUB loader。
-- `EFI/NixOS/raw-os/`：GRUB 菜单、当前 UKI 和按 generation 保存的 UKI。
+- `EFI/NixOS/raw-os/`：GRUB 菜单、当前 UKI 和最多 10 个按 generation 保存的 UKI。
 - 内部启动路径固定为：`EFI/BOOT/BOOTX64.EFI`。
 - 外部启动路径由当前 UEFI 启动项决定，例如：`EFI/NixOS/nixos-img.efi`。
 - 宿主 NTFS 文件固定为：`OS-img/nixos.raw`。
@@ -70,7 +70,7 @@ OS-img/nixos.raw
 sudo updateExternalEfi
 ```
 
-命令读取当前 `BootCurrent` 对应的 GPT 分区 UUID 和 EFI 路径，将内部 GRUB loader、菜单配置和所有 generation UKI 同步到当前外部 ESP。外部 loader 写入当前 UEFI 启动项指定的路径，不会写入或改用 `EFI/BOOT/BOOTX64.EFI`。若系统从 raw 内部 fallback 启动，命令输出跳过信息，不更新外部 EFI。
+命令读取当前 `BootCurrent` 对应的 GPT 分区 UUID 和 EFI 路径，将内部 GRUB loader、菜单配置和最多 10 个 generation UKI 同步到当前外部 ESP。外部 loader 写入当前 UEFI 启动项指定的路径，不会写入或改用 `EFI/BOOT/BOOTX64.EFI`。若系统从 raw 内部 fallback 启动，命令输出跳过信息，不更新外部 EFI。
 
 ## 内部更新
 
@@ -82,7 +82,7 @@ sudo updateExternalEfi
 /boot/EFI/NixOS/raw-os/nixos-generation-<generation>.efi
 ```
 
-每个 generation 单独生成 UKI，旧 generation 文件会被清理；不设置 generation 数量上限。内部不会创建 `EFI/Linux/nixos-img.efi`，也不会把外部 EFI 路径改成 `EFI/BOOT/BOOTX64.EFI`。
+每个 generation 单独生成 UKI，最多保留 10 个 generation UKI，旧 generation 文件会在新文件成功安装后清理。内部不会创建 `EFI/Linux/nixos-img.efi`，也不会把外部 EFI 路径改成 `EFI/BOOT/BOOTX64.EFI`。
 
 ## QEMU
 

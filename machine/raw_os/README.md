@@ -30,7 +30,7 @@ machine/raw_os/docs_script/create-nixos-img-uki-efi.sh \
   "$uki_dir" -o /tmp/nixos-img.efi
 ```
 
-`nixos-img.efi` 是外部启动项的初始 UKI。raw 镜像内部的菜单 loader 和各 generation UKI 由同一批 system 构建生成。
+`nixos-img.efi` 是外部启动项的初始 UKI。raw 镜像内部的菜单 loader 和最多 10 个 generation UKI 由同一批 system 构建生成。
 
 ## 镜像与启动链路
 
@@ -39,7 +39,7 @@ machine/raw_os/docs_script/create-nixos-img-uki-efi.sh \
 - `nixos-esp`：FAT32 ESP，存放内部 `EFI/BOOT/BOOTX64.EFI`、菜单配置和 generation UKI
 - `nixos-root`：Btrfs 根分区
 
-`EFI/BOOT/BOOTX64.EFI` 是内嵌配置的 GRUB loader，它从同一 ESP 加载动态菜单。菜单包含所有发现的 NixOS generation，并搜索 Windows 引导文件。UKI 的 initrd 仍由 `nixos-img-loop-for-root.service` 扫描宿主分区，在 NTFS 上定位 `OS-img/nixos.raw`，创建 loop 设备并按分区标签建立设备链接，然后挂载 `nixos-root` 完成启动。直接以 `nixos.raw` 为磁盘启动时，服务检测到根分区已存在会跳过 loop 流程。
+`EFI/BOOT/BOOTX64.EFI` 是内嵌配置的 GRUB loader，它从同一 ESP 加载动态菜单。菜单包含最多 10 个 NixOS generation，并搜索 Windows 引导文件。UKI 的 initrd 仍由 `nixos-img-loop-for-root.service` 扫描宿主分区，在 NTFS 上定位 `OS-img/nixos.raw`，创建 loop 设备并按分区标签建立设备链接，然后挂载 `nixos-root` 完成启动。直接以 `nixos.raw` 为磁盘启动时，服务检测到根分区已存在会跳过 loop 流程。
 
 ## 从宿主 NTFS 文件启动
 
@@ -51,7 +51,7 @@ machine/raw_os/docs_script/create-nixos-img-uki-efi.sh \
 
 运行系统更新后，在外部 EFI 启动的 NixOS 中执行：`sudo updateExternalEfi`
 
-命令读取当前 UEFI 启动项中的 GPT 分区 UUID 和 EFI 文件路径，定位 FAT32 EFI 分区，并将内部 GRUB loader、菜单配置和所有 generation UKI 原子同步到该自定义路径及其 `EFI/NixOS/raw-os` 数据目录。外部路径始终使用当前 UEFI 启动项的实际路径，不会改成 `EFI/BOOT/BOOTX64.EFI`，也不会修改 Windows 文件。从 raw 内部 fallback 启动时，命令会识别并跳过。
+命令读取当前 UEFI 启动项中的 GPT 分区 UUID 和 EFI 文件路径，定位 FAT32 EFI 分区，并将内部 GRUB loader、菜单配置和最多 10 个 generation UKI 原子同步到该自定义路径及其 `EFI/NixOS/raw-os` 数据目录。外部路径始终使用当前 UEFI 启动项的实际路径，不会改成 `EFI/BOOT/BOOTX64.EFI`，也不会修改 Windows 文件。从 raw 内部 fallback 启动时，命令会识别并跳过。
 
 ## 直接启动镜像
 
