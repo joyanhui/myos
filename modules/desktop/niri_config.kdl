@@ -53,67 +53,71 @@ spawn-sh-at-startup "swayidle -w timeout 600 'swaylock -f' timeout 660 'niri msg
 spawn-sh-at-startup "dbus-update-activation-environment WAYLAND_DISPLAY DISPLAY NIRI_SOCKET XDG_CURRENT_DESKTOP XDG_SESSION_TYPE; systemctl --user restart xdg-desktop-portal"
 
 binds {
-    Alt+Shift+Slash { show-hotkey-overlay; }
+    Mod+Shift+Slash hotkey-overlay-title="显示快捷键列表" { show-hotkey-overlay; }
 
-    Alt+Return hotkey-overlay-title="终端 (ghostty)" { spawn "ghostty"; }
-    Alt+Ctrl+Shift+Return hotkey-overlay-title="终端 (kitty)" { spawn "kitty"; }
-    Alt+Shift+R hotkey-overlay-title="应用启动器" { spawn "rofi" "-show" "drun"; }
-    Alt+Ctrl+Shift+R hotkey-overlay-title="重启输入法 (fcitx5)" { spawn "systemctl" "--user" "restart" "fcitx5"; }
-    Alt+Shift+Q repeat=false { close-window; }
-    Alt+Ctrl+Shift+E { quit; }
+    Mod+Return hotkey-overlay-title="终端 (ghostty)" { spawn "ghostty"; }
+    Mod+Ctrl+Shift+Return hotkey-overlay-title="终端 (kitty)" { spawn "kitty"; }
+    Mod+Shift+R hotkey-overlay-title="应用启动器" { spawn "rofi" "-show" "drun"; }
+    Mod+Ctrl+Shift+R hotkey-overlay-title="重启输入法 (fcitx5)" { spawn "systemctl" "--user" "restart" "fcitx5"; }
+    Mod+Shift+Q repeat=false hotkey-overlay-title="关闭窗口" { close-window; }
+    Mod+Ctrl+Shift+E hotkey-overlay-title="退出 niri" { quit; }
 
-    Alt+Shift+1 { focus-workspace 1; }
-    Alt+Shift+2 { focus-workspace 2; }
-    Alt+Shift+3 { focus-workspace 3; }
-    Alt+Shift+4 { focus-workspace 4; }
-    Alt+Shift+5 { focus-workspace 5; }
-    Alt+Shift+6 { focus-workspace 6; }
-    Alt+Shift+7 { focus-workspace 7; }
-    Alt+Shift+8 { focus-workspace 8; }
-    Alt+Shift+9 { focus-workspace 9; }
-    Alt+Ctrl+Shift+1 { move-column-to-workspace 1; }
-    Alt+Ctrl+Shift+2 { move-column-to-workspace 2; }
-    Alt+Ctrl+Shift+3 { move-column-to-workspace 3; }
-    Alt+Ctrl+Shift+4 { move-column-to-workspace 4; }
-    Alt+Ctrl+Shift+5 { move-column-to-workspace 5; }
-    Alt+Ctrl+Shift+6 { move-column-to-workspace 6; }
-    Alt+Ctrl+Shift+7 { move-column-to-workspace 7; }
-    Alt+Ctrl+Shift+8 { move-column-to-workspace 8; }
-    Alt+Ctrl+Shift+9 { move-column-to-workspace 9; }
-    Alt+Shift+A hotkey-overlay-title="窗口切换" { spawn "rofi" "-show" "window"; }
+    Mod+Shift+1 hotkey-overlay-title="切工作区 1" { focus-workspace 1; }
+    Mod+Shift+2 hotkey-overlay-title="切工作区 2" { focus-workspace 2; }
+    Mod+Shift+3 hotkey-overlay-title="切工作区 3" { focus-workspace 3; }
+    Mod+Shift+4 hotkey-overlay-title="切工作区 4" { focus-workspace 4; }
+    Mod+Shift+5 hotkey-overlay-title="切工作区 5" { focus-workspace 5; }
+    Mod+Shift+6 hotkey-overlay-title="切工作区 6" { focus-workspace 6; }
+    Mod+Shift+7 hotkey-overlay-title="切工作区 7" { focus-workspace 7; }
+    Mod+Shift+8 hotkey-overlay-title="切工作区 8" { focus-workspace 8; }
+    Mod+Shift+9 hotkey-overlay-title="切工作区 9" { focus-workspace 9; }
+    Mod+Ctrl+Shift+1 hotkey-overlay-title="移列到工作区 1" { move-column-to-workspace 1; }
+    Mod+Ctrl+Shift+2 hotkey-overlay-title="移列到工作区 2" { move-column-to-workspace 2; }
+    Mod+Ctrl+Shift+3 hotkey-overlay-title="移列到工作区 3" { move-column-to-workspace 3; }
+    Mod+Ctrl+Shift+4 hotkey-overlay-title="移列到工作区 4" { move-column-to-workspace 4; }
+    Mod+Ctrl+Shift+5 hotkey-overlay-title="移列到工作区 5" { move-column-to-workspace 5; }
+    Mod+Ctrl+Shift+6 hotkey-overlay-title="移列到工作区 6" { move-column-to-workspace 6; }
+    Mod+Ctrl+Shift+7 hotkey-overlay-title="移列到工作区 7" { move-column-to-workspace 7; }
+    Mod+Ctrl+Shift+8 hotkey-overlay-title="移列到工作区 8" { move-column-to-workspace 8; }
+    Mod+Ctrl+Shift+9 hotkey-overlay-title="移列到工作区 9" { move-column-to-workspace 9; }
+    Mod+Shift+A hotkey-overlay-title="窗口切换" { spawn "rofi" "-show" "window"; }
 
-    Alt+Shift+Left { focus-column-left; }
-    Alt+Shift+Right { focus-column-right; }
-    Alt+Shift+Up { focus-window-up; }
-    Alt+Shift+Down { focus-window-down; }
-    Alt+Ctrl+Shift+Left { move-column-left; }
-    Alt+Ctrl+Shift+Right { move-column-right; }
-    Alt+Ctrl+Shift+Up { move-window-up; }
-    Alt+Ctrl+Shift+Down { move-window-down; }
+    Mod+Shift+Left hotkey-overlay-title="聚焦左列" { focus-column-left; }
+    Mod+Shift+Right hotkey-overlay-title="聚焦右列" { focus-column-right; }
+    Mod+Shift+Up hotkey-overlay-title="聚焦上方窗口" { focus-window-up; }
+    Mod+Shift+Down hotkey-overlay-title="聚焦下方窗口" { focus-window-down; }
+    Mod+Ctrl+Shift+Left hotkey-overlay-title="移动列到左侧" { move-column-left; }
+    Mod+Ctrl+Shift+Right hotkey-overlay-title="移动列到右侧" { move-column-right; }
+    Mod+Ctrl+Shift+Up hotkey-overlay-title="移动窗口向上" { move-window-up; }
+    Mod+Ctrl+Shift+Down hotkey-overlay-title="移动窗口向下" { move-window-down; }
 
-    Alt+Shift+F { maximize-column; }
-    Alt+Ctrl+Shift+F { fullscreen-window; }
-    Alt+Shift+M { maximize-window-to-edges; }
-    Alt+Shift+V { toggle-window-floating; }
-    Alt+Ctrl+Shift+V { switch-focus-between-floating-and-tiling; }
-    Alt+Shift+W { toggle-column-tabbed-display; }
-    Alt+Ctrl+Shift+W { switch-preset-column-width; }
-    Alt+Shift+H { reset-window-height; }
-    Alt+Minus { set-column-width "-10%"; }
-    Alt+Equal { set-column-width "+10%"; }
-    Alt+Shift+Minus { set-window-height "-10%"; }
-    Alt+Shift+Equal { set-window-height "+10%"; }
-    Alt+Comma { consume-window-into-column; }
-    Alt+Period { expel-window-from-column; }
-    Alt+BracketLeft { consume-or-expel-window-left; }
-    Alt+BracketRight { consume-or-expel-window-right; }
-    Alt+Shift+C { center-column; }
+    Mod+Shift+F hotkey-overlay-title="最大化列" { maximize-column; }
+    Mod+Ctrl+Shift+F hotkey-overlay-title="全屏窗口" { fullscreen-window; }
+    Mod+Shift+M hotkey-overlay-title="最大化窗口到边缘" { maximize-window-to-edges; }
+    Mod+Shift+V hotkey-overlay-title="切换窗口浮动" { toggle-window-floating; }
+    Mod+Ctrl+Shift+V hotkey-overlay-title="切换焦点 (浮动/平铺)" { switch-focus-between-floating-and-tiling; }
+    Mod+Shift+W hotkey-overlay-title="切换列标签显示" { toggle-column-tabbed-display; }
+    Mod+Ctrl+Shift+W hotkey-overlay-title="切换预设列宽" { switch-preset-column-width; }
+    Mod+Shift+H hotkey-overlay-title="重置窗口高度" { reset-window-height; }
+    Mod+Minus hotkey-overlay-title="列宽 -10%" { set-column-width "-10%"; }
+    Mod+Equal hotkey-overlay-title="列宽 +10%" { set-column-width "+10%"; }
+    Mod+Shift+Minus hotkey-overlay-title="窗口高度 -10%" { set-window-height "-10%"; }
+    Mod+Shift+Equal hotkey-overlay-title="窗口高度 +10%" { set-window-height "+10%"; }
+    Mod+Comma hotkey-overlay-title="并入列" { consume-window-into-column; }
+    Mod+Period hotkey-overlay-title="移出列" { expel-window-from-column; }
+    Mod+BracketLeft hotkey-overlay-title="并入/移出列 (左)" { consume-or-expel-window-left; }
+    Mod+BracketRight hotkey-overlay-title="并入/移出列 (右)" { consume-or-expel-window-right; }
+    Mod+Shift+C hotkey-overlay-title="居中列" { center-column; }
 
-    Alt+Shift+O repeat=false { toggle-overview; }
-    Alt+Shift+S { screenshot; }
-    Alt+Shift+Print { screenshot-screen; }
-    Alt+Ctrl+Shift+Print { screenshot-window; }
+    Mod+Shift+O repeat=false hotkey-overlay-title="切换概览" { toggle-overview; }
+    Mod+Shift+S hotkey-overlay-title="截图" { screenshot; }
+    Mod+Shift+Print hotkey-overlay-title="截屏 (屏幕)" { screenshot-screen; }
+    Mod+Ctrl+Shift+Print hotkey-overlay-title="截屏 (窗口)" { screenshot-window; }
 
-    Alt+Shift+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
-    Alt+Ctrl+Shift+P { power-off-monitors; }
+    Mod+Shift+Escape allow-inhibiting=false hotkey-overlay-title="切换快捷键抑制" { toggle-keyboard-shortcuts-inhibit; }
+    Mod+Ctrl+Shift+P hotkey-overlay-title="关闭显示器" { power-off-monitors; }
+}
+
+input {
+    mod-key "Alt"
 }
