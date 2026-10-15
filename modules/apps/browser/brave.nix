@@ -23,12 +23,12 @@
         enable = true;
         package = pkgs.brave;
         extensions = [
-          { id = "cjpalhdlnbpafiamejdnhcphjbkeiagm"; }
           #          { id = "oboonakemofpalcgghocfoadofidjkkk"; } # keepassxc
           #          { id = "pnidmkljnhbjfffciajlcpeldoljnidn"; } # linkwarden
           { id = "nngceckbapebfimnlniiiahkandclblb"; }
           { id = "fnaicdffflnofjppbagibeoednhnbjhg"; }
           { id = "ffjiejobkoibkjlhjnlgmcnnigeelbdl"; }
+          { id = "fnldhkfidchnjiokpoemdhoejmaojkgp"; }
           { id = "jlgkpaicikihijadgifklkbpdajbkhjo"; }
           # { id = "cjpalhdlnbpafiamejdnhcphjbkeiagm"; } # uBlock Origin
           { id = "eimadpbcbfnmbkopoojfekhnkhdbieeh"; }
