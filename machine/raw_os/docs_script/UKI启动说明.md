@@ -1,106 +1,123 @@
 # UKI 启动方式
 
-## 文件和路径
+## 产物
 
-- `nixos.raw`：GPT raw 镜像，包含内部 `nixos-esp` 和 `nixos-root` 分区。
-- `nixos-img.efi`：由 `config.system.build.uki` 生成的初始 UKI，用于注册外部自定义 EFI 启动项。
-- `EFI/BOOT/BOOTX64.EFI`：raw 镜像内部的 GRUB loader。
-- `EFI/NixOS/raw-os/`：GRUB 菜单、当前 UKI 和最多 10 个按 generation 保存的 UKI。
-- 内部启动路径固定为：`EFI/BOOT/BOOTX64.EFI`。
-- 外部启动路径由当前 UEFI 启动项决定，例如：`EFI/NixOS/nixos-img.efi`。
-- 宿主 NTFS 文件固定为：`OS-img/nixos.raw`。
-
-image 和初始 UKI 必须来自同一条构建命令。首次部署外部 ESP 时可先放置初始 UKI；第一次从该启动项进入 NixOS 后执行 `updateExternalEfi`，此后该自定义路径保存 GRUB loader。
+- `nixos.raw`：包含内部 `nixos-esp` 和 `nixos-root` 分区的 GPT raw 镜像。
+- `rawOsBootEfi`：镜像内部的 standalone GRUB，路径为 `EFI/BOOT/BOOTX64.EFI`。
+- `rawOsExternalBootEfi`：外部固定 standalone GRUB，负责从 NTFS 加载 raw 镜像。
+- `nixos-current.efi`：当前系统的 UKI。
+- `nixos-generation-<generation>.efi`：按 generation 保存的 UKI，最多 10 个。
 
 ## 启动链路
 
-内部直接启动：
+### 直接启动 raw 镜像
 
-1. UEFI 从 `EFI/BOOT/BOOTX64.EFI` 加载内嵌配置的 GRUB loader。
-2. GRUB 加载内部 ESP 上选中的 generation UKI。
-3. UKI 启动 kernel 和 initrd。
-4. raw 镜像内部的 `nixos-esp` 和 `nixos-root` 被挂载。
-5. NixOS 继续启动。
+```text
+UEFI
+→ EFI/BOOT/BOOTX64.EFI
+→ EFI/NixOS/raw-os/grub.cfg
+→ 当前或指定 generation UKI
+→ NixOS
+```
 
-外部 EFI 启动：
+内部 GRUB 菜单还会搜索并 chainload：
 
-1. UEFI 从启动项指定的外部自定义 EFI 路径加载 UKI。
-2. initrd 启动 `nixos-img-loop-for-root.service`。
-3. 服务扫描宿主块设备并挂载 NTFS 分区。
-4. 服务查找 `OS-img/nixos.raw`，创建 loop 设备并扫描其 GPT 分区。
-5. 服务按分区标签建立 `nixos-esp` 和 `nixos-root` 设备链接。
-6. NixOS 挂载镜像内部的 Btrfs 根分区并继续启动。
+```text
+/EFI/Microsoft/Boot/bootmgfw.efi
+```
 
-## 构建和生成 EFI
+### 从 NTFS 启动 raw 镜像
 
-image 和 UKI 必须在同一批构建中生成：
+```text
+外部固定 EFI
+→ NTFS:/OS-img/nixos.raw
+→ raw 镜像分区 1 的 EFI/NixOS/raw-os/grub.cfg
+→ 当前或指定 generation UKI
+→ NixOS
+```
+
+外部固定 EFI 不依赖外部 ESP 上的菜单文件或 generation UKI。
+
+## 构建
+
+raw 镜像和内部 EFI 应使用同一批配置构建：
 
 ```bash
 mapfile -t outputs < <(
   nix build --no-link --print-out-paths \
     .#nixosConfigurations.raw_os_core_img_creat.config.system.build.image \
-    .#nixosConfigurations.raw_os_core_img_creat.config.system.build.uki
+    .#nixosConfigurations.raw_os_core_img_creat.config.system.build.rawOsBootEfi
 )
 image_dir=${outputs[0]}
-uki_dir=${outputs[1]}
-
-mkdir -p /tmp/nixos-img
-cp "$image_dir/nixos.raw" /tmp/nixos-img/nixos.raw
-machine/raw_os/docs_script/create-nixos-img-uki-efi.sh \
-  "$uki_dir" -o /tmp/nixos-img/nixos-img.efi
+internal_efi=${outputs[1]}
 ```
 
-## 外部部署
+外部固定 EFI 使用 `creat-rawOsExternalBootEfi.sh` 单独构建。
 
-在 FAT32 外部 ESP 放置初始 UKI，例如：
+## 内部 EFI 更新
+
+`nixos-rebuild switch` 通过 external bootloader install hook 更新内部 ESP：
 
 ```text
-EFI/NixOS/nixos-img.efi
+EFI/BOOT/BOOTX64.EFI
+EFI/NixOS/raw-os/grub.cfg
+EFI/NixOS/raw-os/nixos-current.efi
+EFI/NixOS/raw-os/nixos-generation-*.efi
 ```
 
-在同一 ESP 的其他自定义路径也可以使用，但必须让 UEFI 启动项指向实际路径。外部 EFI 不使用内部 fallback 路径作为其启动项目标。在宿主 NTFS 分区创建：
+当前 generation 必须保留，其余按 generation 编号从新到旧选择，最多保留 10 个 generation UKI。`nixos-current.efi` 独立保留，不计入数量限制。未被选中的旧 generation 文件会在新文件安装成功后删除。
+
+## 外部 EFI 部署
+
+首次部署时，将 `rawOsExternalBootEfi` 写入 UEFI 启动项实际指向的外部 EFI 路径，例如：
+
+```text
+EFI/Boot/nixos-img.efi
+```
+
+NTFS 分区放置：
 
 ```text
 OS-img/nixos.raw
 ```
 
-首次从该启动项进入 NixOS 后执行：
+首次部署或外部固定 EFI 发生变化时，在仓库根目录执行：
 
 ```bash
-sudo updateExternalEfi
+REPO_DIR="$PWD" \
+  machine/raw_os/docs_script/creat-rawOsExternalBootEfi.sh \
+  -o /tmp/nixos-img.efi
 ```
 
-命令读取当前 `BootCurrent` 对应的 GPT 分区 UUID 和 EFI 路径，将内部 GRUB loader、菜单配置和最多 10 个 generation UKI 同步到当前外部 ESP。外部 loader 写入当前 UEFI 启动项指定的路径，不会写入或改用 `EFI/BOOT/BOOTX64.EFI`。若系统从 raw 内部 fallback 启动，命令输出跳过信息，不更新外部 EFI。
-
-## 内部更新
-
-`nixos-rebuild switch` 通过 external bootloader install hook 更新：
+将生成的 EFI 文件手动复制到 UEFI 启动项实际指向的外部 EFI 路径，例如：
 
 ```text
-/boot/EFI/BOOT/BOOTX64.EFI
-/boot/EFI/NixOS/raw-os/grub.cfg
-/boot/EFI/NixOS/raw-os/nixos-generation-<generation>.efi
+EFI/Boot/nixos-img.efi
 ```
 
-每个 generation 单独生成 UKI，最多保留 10 个 generation UKI，旧 generation 文件会在新文件成功安装后清理。内部不会创建 `EFI/Linux/nixos-img.efi`，也不会把外部 EFI 路径改成 `EFI/BOOT/BOOTX64.EFI`。
+普通系统更新时，替换 NTFS 中的 `OS-img/nixos.raw` 即可，外部固定 EFI 不需要更新。
 
-## QEMU
+## initrd 服务
 
-QEMU 使用只读固件 `OVMF.fd` 和每次测试独立复制的可写 NVRAM `OVMF_VARS.fd`。完整闭环请按 `测试和验证方法.md` 执行。
+`nixos-img-loop-for-root.service` 在外部启动时：
 
-关键启动日志：
+- 扫描宿主块设备；
+- 挂载包含 `OS-img/nixos.raw` 的 NTFS 分区；
+- 创建 raw 镜像 loop 设备；
+- 按分区标签建立 `nixos-esp` 和 `nixos-root` 设备；
+- 由系统配置挂载镜像内部根分区。
+
+直接把 `nixos.raw` 作为磁盘启动时，内部根分区已存在，服务会跳过 loop 流程。
+
+## 文件位置
 
 ```text
-IMGLOOP:start
-IMGLOOP:found nixos.raw
-IMGLOOP:losetup nixos.raw
-IMGLOOP:done
+raw 镜像内部：
+EFI/BOOT/BOOTX64.EFI
+EFI/NixOS/raw-os/grub.cfg
+EFI/NixOS/raw-os/nixos-current.efi
+EFI/NixOS/raw-os/nixos-generation-*.efi
+
+宿主 NTFS：
+OS-img/nixos.raw
 ```
-
-## 文件用途
-
-- `nixos.raw`：内部可直接启动、也可被外部 UKI 加载的 raw 镜像。
-- `nixos-img.efi`：首次部署时外部自定义路径使用的 UKI；执行 `updateExternalEfi` 后该路径保存 GRUB loader。
-- `EFI/BOOT/BOOTX64.EFI`：raw 镜像内部的 GRUB fallback loader 文件。
-- `OVMF.fd`：QEMU 只读 UEFI 固件。
-- `OVMF_VARS.fd`：QEMU 可写 UEFI 变量模板。
