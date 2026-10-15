@@ -29,6 +29,8 @@ in
             config.lib.file.mkOutOfStoreSymlink "${global_settings.secretsDir}/pi_auth.json";
           ".pi/agent/models.json".source =
             config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/modules/ai/configFile/pi_models.json";
+          ".pi/agent/settings.json".source =
+            config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/modules/ai/configFile/pi_settings.json";
           ".pi/agent/SYSTEM.md".source =
             config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/modules/ai/configFile/global_AGENTS.md";
           # skills 与 mcp
