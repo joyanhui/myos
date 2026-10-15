@@ -36,8 +36,8 @@ rec {
   theme = {
     name = "adw-gtk3-dark";
     package = "adw-gtk3";
-    iconTheme = "Flat-Remix-Blue-Dark";
-    iconThemePkg = "flat-remix-icon-theme";
+    iconTheme = "Papirus-Dark";
+    iconThemePkg = "papirus-icon-theme";
     cursorTheme = "Bibata-Modern-Ice";
     cursorThemePkg = "bibata-cursors";
   };

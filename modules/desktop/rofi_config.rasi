@@ -100,7 +100,7 @@ textbox {
 
 configuration {
     show-icons:             true;
-    icon-theme:             "Flat-Remix-Blue-Dark";
+    icon-theme:             "__ICON_THEME__";
     terminal:               "kitty";
     window-format:          "{t}";
     display-drun:           "  应用  ";

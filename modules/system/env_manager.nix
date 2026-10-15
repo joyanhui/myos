@@ -8,6 +8,7 @@
 }:
 let
   extraEnvVars = config.envManager.extraVars or { };
+  theme = global_settings.theme;
   gstOut = pkg: lib.getOutput "out" pkg;
   gstPluginPath = lib.concatStringsSep ":" (
     map (pkg: "${gstOut pkg}/lib/gstreamer-1.0") (with pkgs.gst_all_1; [
@@ -49,7 +50,7 @@ let
     NO_PROXY = "127.0.0.1,localhost";
 
     XCURSOR_SIZE = 32;
-    XCURSOR_THEME = "Bibata-Modern-Ice";
+    XCURSOR_THEME = theme.cursorTheme;
     FONTCONFIG_PATH = "/etc/fonts";
 
     GTK_IM_MODULE = "fcitx";    QT_IM_MODULE = "fcitx";

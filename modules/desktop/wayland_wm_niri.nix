@@ -6,6 +6,10 @@
   ...
 }:
 let
+  niriConfig = builtins.replaceStrings
+    [ "__CURSOR_THEME__" ]
+    [ global_settings.theme.cursorTheme ]
+    (builtins.readFile ./niri_config.kdl);
   niriPackage = pkgs.symlinkJoin {
     name = "niri-wrapped";
     paths = [ pkgs.niri ];
@@ -32,11 +36,8 @@ in
   ];
 
   home-manager.users.${username} =
-    { config, ... }:
+    { ... }:
     {
-      xdg.configFile = {
-        "niri/config.kdl".source =
-          config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/modules/desktop/niri_config.kdl";
-      };
+      xdg.configFile."niri/config.kdl".text = niriConfig;
     };
 }

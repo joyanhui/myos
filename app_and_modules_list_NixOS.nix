@@ -106,7 +106,7 @@ in
     ++ importIf (hasTag "desktop") ./modules/desktop/wayland_screenshot.nix
     # ++ importIf (hasTag "desktop") ./modules/system/desktopfile_manager.nix
 
-    ++ importIf (hasTag "gui") ./modules/system/theme.nix
+    ++ importIf (hasTag "gui" || hasTag "wsl") ./modules/system/theme.nix
     ++ importIf (hasTag "gui") ./modules/system/xdg_mimes.nix
     ++ importIf (hasTag "gui") ./modules/services/sound_pipewire.nix
 

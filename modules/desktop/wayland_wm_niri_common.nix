@@ -12,8 +12,6 @@
     wlrctl
     swayidle
     libxcursor
-    flat-remix-icon-theme
-    bibata-cursors
   ];
 
   xdg.portal = {

@@ -20,6 +20,7 @@ in
         home.packages = with pkgs; [
           adwaita-icon-theme
           hicolor-icon-theme
+          iconPkg
           pkgs.${theme.package}
           cursorPkg
         ];
