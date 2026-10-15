@@ -19,7 +19,8 @@ let
     mkdir -p $out/etc
     cp -a ${config.system.build.toplevel}/etc/. $out/etc/
     mkdir -p $out/nix/var/nix/profiles
-    ln -s ${config.system.build.toplevel} $out/nix/var/nix/profiles/system
+    ln -s ${config.system.build.toplevel} $out/nix/var/nix/profiles/system-1-link
+    ln -s system-1-link $out/nix/var/nix/profiles/system
     ln -s ${config.system.build.toplevel} $out/run/current-system
     ln -s ${config.system.build.toplevel}/init $out/init
     ln -s ${config.system.build.toplevel}/init $out/sbin/init
@@ -156,7 +157,11 @@ in
             efiArch = pkgs.stdenv.hostPlatform.efiArch;
           in
           {
-            "/EFI/BOOT/BOOT${lib.toUpper efiArch}.EFI".source =
+            "/EFI/BOOT/BOOT${lib.toUpper efiArch}.EFI".source = config.system.build.rawOsBootEfi;
+            "/EFI/NixOS/raw-os/grub.cfg".source = config.system.build.rawOsBootConfig;
+            "/EFI/NixOS/raw-os/nixos-current.efi".source =
+              "${config.system.build.uki}/${config.system.boot.loader.ukiFile}";
+            "/EFI/NixOS/raw-os/nixos-generation-1.efi".source =
               "${config.system.build.uki}/${config.system.boot.loader.ukiFile}";
           };
         repartConfig = {

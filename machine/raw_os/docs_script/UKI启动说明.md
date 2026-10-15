@@ -3,21 +3,24 @@
 ## 文件和路径
 
 - `nixos.raw`：GPT raw 镜像，包含内部 `nixos-esp` 和 `nixos-root` 分区。
-- `nixos-img.efi`：由 `config.system.build.uki` 生成的 UKI，用于外部自定义 EFI 路径。
+- `nixos-img.efi`：由 `config.system.build.uki` 生成的初始 UKI，用于注册外部自定义 EFI 启动项。
+- `EFI/BOOT/BOOTX64.EFI`：raw 镜像内部的 GRUB loader。
+- `EFI/NixOS/raw-os/`：GRUB 菜单、当前 UKI 和按 generation 保存的 UKI。
 - 内部启动路径固定为：`EFI/BOOT/BOOTX64.EFI`。
-- 外部启动路径由 UEFI 启动项决定，例如：`EFI/NixOS/nixos-img.efi`。
+- 外部启动路径由当前 UEFI 启动项决定，例如：`EFI/NixOS/nixos-img.efi`。
 - 宿主 NTFS 文件固定为：`OS-img/nixos.raw`。
 
-`nixos.raw` 和 `nixos-img.efi` 必须来自同一批构建。内部 fallback 文件和外部自定义 EFI 文件是同一个 UKI 的不同路径副本。
+image 和初始 UKI 必须来自同一条构建命令。首次部署外部 ESP 时可先放置初始 UKI；第一次从该启动项进入 NixOS 后执行 `updateExternalEfi`，此后该自定义路径保存 GRUB loader。
 
 ## 启动链路
 
 内部直接启动：
 
-1. UEFI 从 `EFI/BOOT/BOOTX64.EFI` 加载 UKI。
-2. UKI 启动 kernel 和 initrd。
-3. raw 镜像内部的 `nixos-esp` 和 `nixos-root` 被挂载。
-4. NixOS 继续启动。
+1. UEFI 从 `EFI/BOOT/BOOTX64.EFI` 加载内嵌配置的 GRUB loader。
+2. GRUB 加载内部 ESP 上选中的 generation UKI。
+3. UKI 启动 kernel 和 initrd。
+4. raw 镜像内部的 `nixos-esp` 和 `nixos-root` 被挂载。
+5. NixOS 继续启动。
 
 外部 EFI 启动：
 
@@ -49,37 +52,37 @@ machine/raw_os/docs_script/create-nixos-img-uki-efi.sh \
 
 ## 外部部署
 
-在 FAT32 外部 ESP 放置 UKI，例如：
+在 FAT32 外部 ESP 放置初始 UKI，例如：
 
 ```text
 EFI/NixOS/nixos-img.efi
 ```
 
-在同一 ESP 的其他自定义路径也可以使用，但必须让 UEFI 启动项指向实际路径。外部 EFI 不使用内部 fallback 路径作为其启动项目标。
-
-在宿主 NTFS 分区创建：
+在同一 ESP 的其他自定义路径也可以使用，但必须让 UEFI 启动项指向实际路径。外部 EFI 不使用内部 fallback 路径作为其启动项目标。在宿主 NTFS 分区创建：
 
 ```text
 OS-img/nixos.raw
 ```
 
-运行系统更新后，只有从外部 EFI 启动时才执行：
+首次从该启动项进入 NixOS 后执行：
 
 ```bash
 sudo updateExternalEfi
 ```
 
-命令读取当前 `BootCurrent` 对应的 GPT 分区 UUID 和 EFI 路径，将 `/boot/EFI/BOOT/BOOTX64.EFI` 更新到当前外部启动项指向的文件。若系统从 raw 内部 fallback 启动，命令输出跳过信息，不更新外部 EFI。
+命令读取当前 `BootCurrent` 对应的 GPT 分区 UUID 和 EFI 路径，将内部 GRUB loader、菜单配置和所有 generation UKI 同步到当前外部 ESP。外部 loader 写入当前 UEFI 启动项指定的路径，不会写入或改用 `EFI/BOOT/BOOTX64.EFI`。若系统从 raw 内部 fallback 启动，命令输出跳过信息，不更新外部 EFI。
 
 ## 内部更新
 
-`nixos-rebuild switch` 通过 external bootloader install hook 原子更新：
+`nixos-rebuild switch` 通过 external bootloader install hook 更新：
 
 ```text
 /boot/EFI/BOOT/BOOTX64.EFI
+/boot/EFI/NixOS/raw-os/grub.cfg
+/boot/EFI/NixOS/raw-os/nixos-generation-<generation>.efi
 ```
 
-内部不会创建 `EFI/Linux/nixos-img.efi`，也不会把外部 EFI 路径改成 `EFI/BOOT/BOOTX64.EFI`。
+每个 generation 单独生成 UKI，旧 generation 文件会被清理；不设置 generation 数量上限。内部不会创建 `EFI/Linux/nixos-img.efi`，也不会把外部 EFI 路径改成 `EFI/BOOT/BOOTX64.EFI`。
 
 ## QEMU
 
@@ -97,7 +100,7 @@ IMGLOOP:done
 ## 文件用途
 
 - `nixos.raw`：内部可直接启动、也可被外部 UKI 加载的 raw 镜像。
-- `nixos-img.efi`：外部自定义路径使用的 UKI 文件。
-- `EFI/BOOT/BOOTX64.EFI`：raw 镜像内部的 UEFI fallback UKI 文件。
+- `nixos-img.efi`：首次部署时外部自定义路径使用的 UKI；执行 `updateExternalEfi` 后该路径保存 GRUB loader。
+- `EFI/BOOT/BOOTX64.EFI`：raw 镜像内部的 GRUB fallback loader 文件。
 - `OVMF.fd`：QEMU 只读 UEFI 固件。
 - `OVMF_VARS.fd`：QEMU 可写 UEFI 变量模板。
