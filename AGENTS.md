@@ -55,14 +55,7 @@ sudo nixos-rebuild switch --flake .#tb_amd --option substituters https://cache.n
 
 ## 敏感数据和环境变量
 
-- 本仓库使用 transcrypt 管理加密信息，cipher 固定为 `aes-256-cbc`；加密真值只能放在 `security/_protected/`，未解密时自动降级到 `security/placeholder_files/` 的占位值。
-- 禁止把真实密码、API Key、访问令牌、SSH 私钥、证书、Cookie、账号导出文件、带凭据的配置和备份放入源码、flake、模块、脚本、文档、示例或构建产物。
-- 新增敏感文件时，必须放入 `security/_protected/` 并确认 `.gitattributes` 使用 `filter=crypt diff=crypt merge=crypt`；对应的 `security/placeholder_files/` 只能包含脱敏占位值。
-- transcrypt 密码只能由使用者交互输入并保存在本地 Git 配置中；禁止提交密码、解密后的副本和临时导出文件。
-- 提交前必须检查 transcrypt 属性和暂存区内容，确认所有真实敏感文件已加密；`security/_protected/` 之外出现真实敏感值时必须停止提交。git-crypt 仅用于访问迁移前的历史内容。
-- 如果凭据曾进入 Git 历史，不能只删除当前文件；必须先轮换凭据，再清理历史并确认远程仓库不再保留旧对象。
-- 非敏感环境变量只在 `modules/system/env_manager.nix` 的 `envVars` 中定义。
-- 敏感环境变量只在 `security/_protected/sensitive_env.nix` 定义，并在 `security/placeholder_files/sensitive_env.nix` 中脱敏后占位显示。
+敏感信息和环境变量规则统一见 [README.md 的敏感信息说明](README.md#security-secrets)，本文件不重复维护。执行任务时必须遵守该说明。
 
 ## 写法约定
 
@@ -102,7 +95,7 @@ sudo nixos-rebuild switch --flake .#tb_amd --option substituters https://cache.n
 │   ├── dev/                   # 开发环境、编辑器、Git、语言运行时和开发工具
 │   ├── input-method/          # fcitx5、Rime 和语音输入配置
 │   └── ai/                    # AI 工具、模型配置、MCP、Pi 和 skills
-├── security/                  # 敏感信息：_protected/ 由 transcrypt 加密，placeholder_files/ 为明文占位文件
+├── security/                  # 敏感文件目录，规则见 README.md 的敏感信息说明
 ├── script/                    # 自动化脚本和辅助程序
 ├── static_file/               # 壁纸、图标、锁屏壁纸和其他静态资源
 ├── kvm-config/                # 虚拟机脚本和固件：qemu_*.sh、download.sh、firmware/
