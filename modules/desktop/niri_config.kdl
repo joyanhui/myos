@@ -61,6 +61,7 @@ binds {
     Mod+Shift+Slash hotkey-overlay-title="hotkey overlay | 显示快捷键列表" { show-hotkey-overlay; }
 
     Mod+Return hotkey-overlay-title="terminal (ghostty) | 终端 (ghostty)" { spawn "ghostty"; }
+    Mod+Shift+Return hotkey-overlay-title="random background terminal (ghostty) | 随机背景终端 (ghostty)" { spawn "ghostty-random-bg"; }
     Mod+Shift+E hotkey-overlay-title="file manager (thunar) | 文件管理器 (thunar)" { spawn "thunar"; }
     Mod+Ctrl+Shift+Return hotkey-overlay-title="terminal (kitty) | 终端 (kitty)" { spawn "kitty"; }
     Mod+Shift+R hotkey-overlay-title="app launcher | 应用启动器" { spawn "rofi" "-show" "drun"; }
