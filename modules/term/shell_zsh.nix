@@ -61,7 +61,7 @@ in
           zstyle ':vcs_info:git:*' formats ' %F{yellow}[%b]%f'
           add-zsh-hook precmd vcs_info
           setopt prompt_subst
-          PROMPT='%F{green}%n%f@%F{cyan}%m%f %F{blue}%~%f''${vcs_info_msg_0_} %(?.%F{green}.%F{red})❯%f '
+          PROMPT='%F{green}%n%f@%F{cyan}%m%f %F{blue}%~%f''${vcs_info_msg_0_} %(?.%F{green}.%F{red})>%f '
           RPROMPT='%F{cyan}%D{%H:%M:%S}%f'
         '';
         shellAliases = commonAliases // { };
