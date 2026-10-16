@@ -68,7 +68,7 @@ in
     ++ importIf (hasTag "dailyPC") (extract ./modules/apps/music_musicfree.nix)
     ++ importIf (hasTag "dailyPC") (extract ./modules/apps/office_obsidian.nix)
     ++ importIf (hasTag "dailyPC") (extract ./modules/apps/filemanager_thunar.nix)
-    ++ importIf (hasTag "dailyPC") (extract ./modules/apps/screenshot_flameshot.nix)
+    ++ importIf (hasTag "dailyPC") (extract ./modules/desktop/screenshot.nix)
     ++ importIf (hasTag "dailyPC") (extract ./modules/apps/graphics_gimp3.nix)
   ;
 }

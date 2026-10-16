@@ -103,7 +103,7 @@ in
     ++ importIf (hasTag "wsl" || hasTag "desktop") ./modules/desktop/wayland_rofi.nix
     ++ importIf (hasTag "wsl" || hasTag "desktop") ./modules/desktop/wayland_wm_niri.nix
     ++ importIf ((hasTag "wsl" || hasTag "desktop")) ./modules/desktop/wayland_dms.nix
-    ++ importIf (hasTag "desktop") ./modules/desktop/wayland_screenshot.nix
+    ++ importIf (hasTag "desktop") ./modules/desktop/screenshot.nix
     # ++ importIf (hasTag "desktop") ./modules/system/desktopfile_manager.nix
 
     ++ importIf (hasTag "gui" || hasTag "wsl") ./modules/system/theme.nix
@@ -138,7 +138,6 @@ in
     ++ importIf (hasTag "input-method") ./modules/input-method/voxtype.nix
 
     ++ importIf (hasTag "dailyPC") ./modules/apps/filemanager_thunar.nix
-    ++ importIf (hasTag "dailyPC") ./modules/apps/screenshot_flameshot.nix
     ++ importIf (hasTag "dailyPC") ./modules/apps/graphics_gimp3.nix
     ++ importIf (hasTag "dailyPC") ./modules/apps/browser/brave.nix
     #++ importIf (hasTag "dailyPC") ./modules/apps/browser/chromium.nix

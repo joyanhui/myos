@@ -44,6 +44,9 @@ layout {
 }
 
 prefer-no-csd
+   hotkey-overlay {
+       hide-not-bound
+   }
 
 window-rule {
     match app-id=r#"^brave-.*-Default$"#
@@ -118,6 +121,7 @@ binds {
 
     Mod+Shift+O repeat=false hotkey-overlay-title="toggle overview | 切换概览" { toggle-overview; }
     Mod+Shift+P hotkey-overlay-title="screenshot (flameshot) | 截图 (flameshot)" { spawn "flameshot" "gui"; }
+    Mod+Ctrl+Shift+P hotkey-overlay-title="select area screenshot (niri) | 自由选取截图 (niri原生截图)" { screenshot; }
     // Mod+Shift+Print hotkey-overlay-title="screenshot screen | 截屏 (屏幕)" { screenshot-screen; }
     // Mod+Ctrl+Shift+Print hotkey-overlay-title="screenshot window | 截屏 (窗口)" { screenshot-window; }
 

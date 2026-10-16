@@ -26,12 +26,12 @@ Raw OS 使用 NixOS 构建 GPT raw 镜像。镜像可以直接写入磁盘启动
 
 ### 产物和职责
 
-| 产物 | 来源 | 部署位置 | 用途 | 普通系统更新是否更新 |
-| --- | --- | --- | --- | --- |
-| `nixos.raw` | `raw_os_core_img_creat.config.system.build.image` | 目标磁盘，或 NTFS 的 `OS-img/nixos.raw` | raw 系统镜像 | 不直接更新；替换镜像时更新 |
-| `rawOsBootEfi` | `system.build.rawOsBootEfi` | raw 内部 `EFI/BOOT/BOOTX64.EFI` | 内部 standalone GRUB loader | 是 |
-| raw 内部菜单和 UKI | `nixos-rebuild switch` 的 bootloader install hook | raw 内部 `EFI/NixOS/raw-os/` | generation 菜单和 NixOS 启动载荷 | 是 |
-| `rawOsExternalBootEfi` | `system.build.rawOsExternalBootEfi` | 宿主 ESP 的自定义 EFI 路径 | 搜索并加载 NTFS 中的 raw 镜像 | 否 |
+| 产物                   | 来源                                              | 部署位置                                | 用途                             | 普通系统更新是否更新       |
+| ---------------------- | ------------------------------------------------- | --------------------------------------- | -------------------------------- | -------------------------- |
+| `nixos.raw`            | `raw_os_core_img_creat.config.system.build.image` | 目标磁盘，或 NTFS 的 `OS-img/nixos.raw` | raw 系统镜像                     | 不直接更新；替换镜像时更新 |
+| `rawOsBootEfi`         | `system.build.rawOsBootEfi`                       | raw 内部 `EFI/BOOT/BOOTX64.EFI`         | 内部 standalone GRUB loader      | 是                         |
+| raw 内部菜单和 UKI     | `nixos-rebuild switch` 的 bootloader install hook | raw 内部 `EFI/NixOS/raw-os/`            | generation 菜单和 NixOS 启动载荷 | 是                         |
+| `rawOsExternalBootEfi` | `system.build.rawOsExternalBootEfi`               | 宿主 ESP 的自定义 EFI 路径              | 搜索并加载 NTFS 中的 raw 镜像    | 否                         |
 
 `system.build.uki` 是基础镜像构建过程使用的内部构建产物，不是需要单独部署或单独更新的外部 EFI。不要按照旧文档单独构建 `system.build.uki`。
 
@@ -70,6 +70,8 @@ EFI/NixOS/raw-os/nixos-generation-1.efi
 ```bash
 machine/raw_os/docs_script/creat-rawOsExternalBootEfi.sh -o ./nixos-img.efi
 ```
+
+或者直接使用本仓库的 ` machine/raw_os/docs_script/nixos-img.efi`
 
 将 `nixos-img.efi` 复制到宿主 ESP 的自定义路径，例如：
 
