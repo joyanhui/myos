@@ -87,23 +87,27 @@ transcrypt
 ## 目录结构
 
 ```text
+├── AGENTS.md                  # AI agent 开发和配置规则
+├── README.md                  # 项目说明、使用方式和目录说明
 ├── flake.nix                  # 入口，定义 inputs、NixOS 与 home-manager 输出
-├── flake.lock / .gitignore
+├── flake.lock                 # Flake inputs 锁定文件
+├── .gitattributes             # Git 属性及敏感文件加密规则
+├── .gitignore                 # Git 忽略规则
 ├── global_setting_vars.nix    # 全局配置变量集中定义（路径、代理、密钥、字体等）
 ├── module_list_lib.nix        # tag 白名单及 importIf/hasTag 辅助函数
 ├── app_and_modules_list_NixOS.nix      # NixOS 模块调度中心，按 tag 条件加载
 ├── app_and_modules_list_OtherLinux.nix # 非 NixOS standalone 模块调度中心
-├── dev-env/                   # 项目级开发环境模板（flake_pkgs_let + flake_tpl_*）
-├── machine/                   # 机器配置（每台机器一个目录或文件）
+├── dev-env/                   # 项目级开发环境模板
+├── dotfiles/                  # 集中存放由 Nix 软链接管理的非敏感配置文件
+├── machine/                   # 机器配置
+│   ├── README.md              # 机器配置说明
 │   ├── tb_amd/                # ThinkBook 14p AMD 的硬件和机器配置
-│   ├── raw_os/                # raw OS 核心和工作环境配置
-│   ├── server_template/       # 服务器配置模板
-│   ├── wsl.nix                # WSL 入口，导入 nixos-wsl 模块
-│   └── livecd_w_base.nix      # Live CD 基础配置
+│   ├── raw_os/                # Raw OS 核心和工作环境配置
+│   └── wsl.nix                # WSL 入口，导入 nixos-wsl 模块
 ├── modules/
 │   ├── system/                # 系统全局：环境变量、用户、Nix、网络、防火墙、引导、字体、主题、存储
-│   ├── desktop/               # 桌面会话：Wayland、niri、锁屏、DMS、截图及相关配置文件
-│   ├── term/                  # shell、终端、命令行工具和 shell 配置
+│   ├── desktop/               # 桌面会话：Wayland、niri、锁屏、DMS、截图及相关配置
+│   ├── term/                  # Shell、终端、命令行工具和 Shell 配置
 │   ├── services/              # SSH、定时任务、数据库、虚拟化、网络服务和其他系统服务
 │   ├── apps/                  # 浏览器、即时通信、文件管理、办公、媒体、兼容层和远程工具
 │   ├── dev/                   # 开发环境、编辑器、Git、语言运行时和开发工具
@@ -111,9 +115,8 @@ transcrypt
 │   └── ai/                    # AI 工具、模型配置、MCP、Pi 和 skills
 ├── security/                  # 敏感文件目录，规则见 README.md 的敏感信息说明
 ├── script/                    # 自动化脚本和辅助程序
-├── static_file/               # 壁纸、图标、锁屏壁纸和其他静态资源
-├── kvm-config/                # 虚拟机脚本和固件：qemu_*.sh、download.sh、firmware/
-├── lyndon_win11/              # Win11 相关的 AutoHotkey 和 dotfile
-├── nixpkgs-config/            # Nixpkgs 配置预留目录
+├── static_file/               # 壁纸、图标、头像和其他静态资源
+├── kvm-config/                # 虚拟机脚本、固件和虚拟机配置
+├── win11/                     # Windows 11 相关配置和脚本
 └── nixos_install.md           # NixOS 安装说明
 ```
