@@ -27,6 +27,8 @@ in
     ++ importIf (hasTag "common") (extract ./modules/system/env_manager.nix)
     ++ importIf (hasTag "common") (extract ./modules/system/home_user_config.nix)
     ++ importIf (hasTag "common") (extract ./modules/term/shell_bash.nix)
+    ++ importIf (hasTag "common") (extract ./modules/term/shell_tmux.nix)
+    ++ importIf (hasTag "common") (extract ./modules/term/shell_zellij.nix)
     ++ importIf (hasTag "common") (extract ./modules/term/shell_fish.nix)
     ++ importIf (hasTag "common") (extract ./modules/term/shell_zsh.nix)
     ++ importIf (hasTag "common") (extract "${global_settings.secretRelDir}/sensitive_env.nix")

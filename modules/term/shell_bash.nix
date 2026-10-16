@@ -20,7 +20,6 @@ in
       {
         home.packages = with pkgs; [
           bash
-          tmux
         ];
         programs.bash = {
           enable = true;
