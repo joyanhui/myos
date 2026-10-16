@@ -29,12 +29,11 @@ in
 {
   imports = [
     ./raw-os-runtime.nix
+    ../../modules/system/nix_config.nix
     (modulesPath + "/image/repart.nix")
   ];
 
   system.image.id = "nixos-img";
-
-  nixpkgs.config.allowUnfree = true;
 
   i18n.defaultLocale = "C.UTF-8";
   i18n.supportedLocales = [ "C.UTF-8/UTF-8" ];
@@ -42,44 +41,16 @@ in
   networking.networkmanager.enable = true;
   time.timeZone = "Asia/Shanghai";
 
-  nix.settings.experimental-features = [
-    "nix-command"
-    "flakes"
-  ];
-  nix.settings.substituters = [
-    "https://mirror.sjtu.edu.cn/nix-channels/store"
-    "https://mirrors.ustc.edu.cn/nix-channels/store"
-    "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"
-    "https://cache.nixos.org"
-  ];
-  nix.settings.trusted-users = [
-    "root"
-    "nixos"
-  ];
-  nix.settings.trusted-public-keys = [
-    "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-  ];
-
   users.users.nixos = {
     isNormalUser = true;
     extraGroups = [ "wheel" ];
     password = "nixos";
-    shell = pkgs.zsh;
+    shell = pkgs.bash;
   };
   security.sudo.wheelNeedsPassword = false;
 
   programs.fish.enable = true;
   programs.git.enable = true;
-  programs.zsh = {
-    enable = true;
-    enableCompletion = true;
-    promptInit = "";
-    interactiveShellInit = ''
-      source ${pkgs.zsh-autosuggestions}/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-      source ${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-    '';
-  };
-
   system.stateVersion = global_settings.stateVersion;
 
   environment.systemPackages = with pkgs; [
@@ -110,6 +81,8 @@ in
     fish
     networkmanager
     helix
+    nvim
+    vim
     usbutils
     pciutils
     parted

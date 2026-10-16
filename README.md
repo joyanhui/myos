@@ -29,7 +29,9 @@ home-manager switch --flake .#linux
 
 ### Raw OS
 
-Raw OS 的构建、部署和运行时更新命令统一维护在 [Raw OS 主文档](machine/raw_os/README.md#raw-os-build-and-deploy)。不要在其他文档中复制 Raw OS 构建命令。
+RAW OS 是基于nixos的make-disk-image.nix 构建一个包含完整启动链的一个镜像文件`nixos.raw`，无视硬件差异，并支持直接在虚拟机启动或者烧录到磁盘/u盘物理机启动，并支持通过外部efi文件直接引导ntfs分区上`nixos.raw`文件物理启动。 `raw_os_work_intel/amd` 是工作在raw镜像上的host配置，用于日常使用。
+
+Raw OS 的构建、部署和运行时更新命令统一维护在 [Raw OS 主文档](machine/raw_os/README.md#raw-os-build-and-deploy)。
 
 - [Raw OS 主文档](machine/raw_os/README.md)
 - [Raw OS 引导架构与 UKI 说明](machine/raw_os/docs_script/UKI启动说明.md)

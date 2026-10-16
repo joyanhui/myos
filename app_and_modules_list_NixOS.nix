@@ -36,7 +36,8 @@ in
     ++ importIf (hasTag "wsl") ./modules/system/env_manager_wsl.nix
     ++ importIf (hasTag "common") ./modules/system/home_user_config.nix
     ++ importIf (hasTag "common") ./modules/system/networking_firewall_config.nix
-    ++ importIf (hasTag "common") ./modules/system/nixpkgs_system.nix
+    ++ importIf (hasTag "common") ./modules/system/nix_config.nix
+    ++ importIf (hasTag "common") ./modules/system/system_defaults.nix
     ++ importIf (hasTag "common") ./modules/system/zram.nix
     ++ importIf (hasTag "wsl") ./modules/system/swap_zram_wsl.nix
     ++ importIf (hasTag "common") ./modules/services/openssh.nix
@@ -126,6 +127,7 @@ in
     ++ importIf (hasTag "editor") ./modules/dev/dev_editor_extras.nix
 
     ++ importIf (hasTag "editor") ./modules/dev/ide_helix.nix
+    ++ importIf (hasTag "editor") ./modules/dev/ide_nvim.nix
     # ++ importIf (hasTag "editor" && !hasTag "wsl") ./modules/dev/ide_antigravity.nix
     ++ importIf (hasTag "editor" && !hasTag "wsl") ./modules/dev/ide_thonny.nix
     ++ importIf (hasTag "editor") ./modules/dev/ide_common.nix

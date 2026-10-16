@@ -1,6 +1,5 @@
 { lib, inputs, global_settings, ... }:
 let
-  stateVersion = global_settings.stateVersion;
   nixpkgsConfig = {
     allowUnfree = true;
     allowBroken = true;
@@ -8,11 +7,15 @@ let
   };
 in
 {
-  nix.settings.experimental-features = "nix-command flakes";
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
   nix.settings.substituters = lib.mkForce [
     "https://mirror.sjtu.edu.cn/nix-channels/store"
     "https://mirrors.ustc.edu.cn/nix-channels/store"
     "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"
+    "https://cache.nixos.org"
   ];
   nixpkgs.config = nixpkgsConfig;
   nixpkgs.overlays = [
@@ -31,13 +34,6 @@ in
       }
     )
   ];
-  documentation.nixos.enable = false;
-  system.stateVersion = stateVersion;
-  time.timeZone = "Asia/Shanghai";
-  systemd.settings.Manager.RebootWatchdogSec = "10s";
-  systemd.services.dbus-broker = {
-    serviceConfig.TimeoutStartSec = 180;
-  };
   nix.optimise = {
     automatic = true;
     dates = [ "weekly" ];
@@ -62,5 +58,4 @@ in
     "nixpkgs-wayland.cachix.org-1:3lwxaILxMRkVhehr5StQprHdEo4IrE8sRho9R9HOLYA="
     "cache.lix.systems:aBnZUw8zA7H35Cz2RyKFVs3H4PlGTLawyY5KRbvJR8o="
   ];
-
 }
