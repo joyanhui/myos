@@ -5,6 +5,12 @@ hl.env("NIXOS_OZONE_WL", "1")
 hl.env("ELECTRON_OZONE_PLATFORM_HINT", "auto")
 hl.env("QT_QPA_PLATFORM", "wayland;xcb")
 
+local mod = "ALT"
+
+local function mod_key(key)
+	return mod .. " + " .. key
+end
+
 hl.monitor({
 	output = "eDP-1",
 	mode = "preferred",
@@ -132,210 +138,262 @@ local function consume_or_expel(direction)
 end
 
 hl.bind(
-	"ALT + SHIFT + SLASH",
+	mod_key("SHIFT + SLASH"),
 	hl.dsp.exec_cmd("notify-send 'Hyprland快捷键' 'hyprland使用lua暂不支持查看快捷菜单列表。'"),
 	{ description = "keybind list unavailable | Hyprland 使用 Lua，暂不支持查看快捷键列表" }
 )
 
-hl.bind("ALT + RETURN", hl.dsp.exec_cmd("ghostty"), { description = "terminal (ghostty) | 终端 (ghostty)" })
+hl.bind(mod_key("RETURN"), hl.dsp.exec_cmd("ghostty"), { description = "terminal (ghostty) | 终端 (ghostty)" })
 hl.bind(
-	"ALT + SHIFT + RETURN",
+	mod_key("SHIFT + RETURN"),
 	hl.dsp.exec_cmd("ghostty-random-bg"),
 	{ description = "random background terminal (ghostty) | 随机背景终端 (ghostty)" }
 )
 hl.bind(
-	"ALT + SHIFT + E",
+	mod_key("SHIFT + E"),
 	hl.dsp.exec_cmd("thunar"),
 	{ description = "file manager (thunar) | 文件管理器 (thunar)" }
 )
-hl.bind("ALT + CTRL + SHIFT + RETURN", hl.dsp.exec_cmd("kitty"), { description = "terminal (kitty) | 终端 (kitty)" })
-hl.bind("ALT + SHIFT + R", hl.dsp.exec_cmd("rofi -show drun"), { description = "app launcher | 应用启动器" })
 hl.bind(
-	"ALT + CTRL + SHIFT + R",
+	mod_key("CTRL + SHIFT + RETURN"),
+	hl.dsp.exec_cmd("kitty"),
+	{ description = "terminal (kitty) | 终端 (kitty)" }
+)
+hl.bind(mod_key("SHIFT + R"), hl.dsp.exec_cmd("rofi -show drun"), { description = "app launcher | 应用启动器" })
+hl.bind(
+	mod_key("CTRL + SHIFT + R"),
 	hl.dsp.exec_cmd("systemctl --user restart fcitx5"),
 	{ description = "restart input method (fcitx5) | 重启输入法 (fcitx5)" }
 )
-hl.bind("ALT + SHIFT + Q", hl.dsp.window.close(), { description = "close window | 关闭窗口" })
-hl.bind("ALT + CTRL + SHIFT + E", hl.dsp.exit(), { description = "quit Hyprland | 退出 Hyprland" })
+hl.bind(mod_key("SHIFT + Q"), hl.dsp.window.close(), { description = "close window | 关闭窗口" })
+hl.bind(mod_key("CTRL + SHIFT + E"), hl.dsp.exit(), { description = "quit Hyprland | 退出 Hyprland" })
 hl.bind(
-	"ALT + mouse:272",
+	mod_key("mouse:272"),
 	hl.dsp.window.drag(),
 	{ mouse = true, description = "move window with Alt+left mouse button | 使用 Alt+鼠标左键移动窗口" }
 )
-hl.bind("ALT + mouse:273", hl.dsp.window.resize(), {
+hl.bind(mod_key("mouse:273"), hl.dsp.window.resize(), {
 	mouse = true,
 	description = "resize window with Alt+right mouse button | 使用 Alt+鼠标右键调整窗口大小",
 })
 
-hl.bind("ALT + SHIFT + 1", hl.dsp.focus({ workspace = 1 }), { description = "focus workspace 1 | 聚焦工作区 1" })
-hl.bind("ALT + SHIFT + 2", hl.dsp.focus({ workspace = 2 }), { description = "focus workspace 2 | 聚焦工作区 2" })
-hl.bind("ALT + SHIFT + 3", hl.dsp.focus({ workspace = 3 }), { description = "focus workspace 3 | 聚焦工作区 3" })
-hl.bind("ALT + SHIFT + 4", hl.dsp.focus({ workspace = 4 }), { description = "focus workspace 4 | 聚焦工作区 4" })
-hl.bind("ALT + SHIFT + 5", hl.dsp.focus({ workspace = 5 }), { description = "focus workspace 5 | 聚焦工作区 5" })
-hl.bind("ALT + SHIFT + 6", hl.dsp.focus({ workspace = 6 }), { description = "focus workspace 6 | 聚焦工作区 6" })
-hl.bind("ALT + SHIFT + 7", hl.dsp.focus({ workspace = 7 }), { description = "focus workspace 7 | 聚焦工作区 7" })
-hl.bind("ALT + SHIFT + 8", hl.dsp.focus({ workspace = 8 }), { description = "focus workspace 8 | 聚焦工作区 8" })
-hl.bind("ALT + SHIFT + 9", hl.dsp.focus({ workspace = 9 }), { description = "focus workspace 9 | 聚焦工作区 9" })
-hl.bind("ALT + SHIFT + S", hl.dsp.workspace.toggle_special("magic"), { description = "toggle special workspace | 切换特殊工作区" })
-hl.bind("ALT + CTRL + SHIFT + S", hl.dsp.window.move({ workspace = "special:magic" }), { description = "move window to special workspace | 移动窗口到特殊工作区" })
 hl.bind(
-	"ALT + CTRL + SHIFT + 1",
+	mod_key("SHIFT + 1"),
+	hl.dsp.focus({ workspace = 1 }),
+	{ description = "focus workspace 1 | 聚焦工作区 1" }
+)
+hl.bind(
+	mod_key("SHIFT + 2"),
+	hl.dsp.focus({ workspace = 2 }),
+	{ description = "focus workspace 2 | 聚焦工作区 2" }
+)
+hl.bind(
+	mod_key("SHIFT + 3"),
+	hl.dsp.focus({ workspace = 3 }),
+	{ description = "focus workspace 3 | 聚焦工作区 3" }
+)
+hl.bind(
+	mod_key("SHIFT + 4"),
+	hl.dsp.focus({ workspace = 4 }),
+	{ description = "focus workspace 4 | 聚焦工作区 4" }
+)
+hl.bind(
+	mod_key("SHIFT + 5"),
+	hl.dsp.focus({ workspace = 5 }),
+	{ description = "focus workspace 5 | 聚焦工作区 5" }
+)
+hl.bind(
+	mod_key("SHIFT + 6"),
+	hl.dsp.focus({ workspace = 6 }),
+	{ description = "focus workspace 6 | 聚焦工作区 6" }
+)
+hl.bind(
+	mod_key("SHIFT + 7"),
+	hl.dsp.focus({ workspace = 7 }),
+	{ description = "focus workspace 7 | 聚焦工作区 7" }
+)
+hl.bind(
+	mod_key("SHIFT + 8"),
+	hl.dsp.focus({ workspace = 8 }),
+	{ description = "focus workspace 8 | 聚焦工作区 8" }
+)
+hl.bind(
+	mod_key("SHIFT + 9"),
+	hl.dsp.focus({ workspace = 9 }),
+	{ description = "focus workspace 9 | 聚焦工作区 9" }
+)
+hl.bind(
+	mod_key("SHIFT + S"),
+	hl.dsp.workspace.toggle_special("magic"),
+	{ description = "toggle special workspace | 切换特殊工作区" }
+)
+hl.bind(
+	mod_key("CTRL + SHIFT + S"),
+	hl.dsp.window.move({ workspace = "special:magic" }),
+	{ description = "move window to special workspace | 移动窗口到特殊工作区" }
+)
+hl.bind(
+	mod_key("CTRL + SHIFT + 1"),
 	hl.dsp.window.move({ workspace = 1 }),
 	{ description = "move window to workspace 1 | 移动窗口到工作区 1" }
 )
 hl.bind(
-	"ALT + CTRL + SHIFT + 2",
+	mod_key("CTRL + SHIFT + 2"),
 	hl.dsp.window.move({ workspace = 2 }),
 	{ description = "move window to workspace 2 | 移动窗口到工作区 2" }
 )
 hl.bind(
-	"ALT + CTRL + SHIFT + 3",
+	mod_key("CTRL + SHIFT + 3"),
 	hl.dsp.window.move({ workspace = 3 }),
 	{ description = "move window to workspace 3 | 移动窗口到工作区 3" }
 )
 hl.bind(
-	"ALT + CTRL + SHIFT + 4",
+	mod_key("CTRL + SHIFT + 4"),
 	hl.dsp.window.move({ workspace = 4 }),
 	{ description = "move window to workspace 4 | 移动窗口到工作区 4" }
 )
 hl.bind(
-	"ALT + CTRL + SHIFT + 5",
+	mod_key("CTRL + SHIFT + 5"),
 	hl.dsp.window.move({ workspace = 5 }),
 	{ description = "move window to workspace 5 | 移动窗口到工作区 5" }
 )
 hl.bind(
-	"ALT + CTRL + SHIFT + 6",
+	mod_key("CTRL + SHIFT + 6"),
 	hl.dsp.window.move({ workspace = 6 }),
 	{ description = "move window to workspace 6 | 移动窗口到工作区 6" }
 )
 hl.bind(
-	"ALT + CTRL + SHIFT + 7",
+	mod_key("CTRL + SHIFT + 7"),
 	hl.dsp.window.move({ workspace = 7 }),
 	{ description = "move window to workspace 7 | 移动窗口到工作区 7" }
 )
 hl.bind(
-	"ALT + CTRL + SHIFT + 8",
+	mod_key("CTRL + SHIFT + 8"),
 	hl.dsp.window.move({ workspace = 8 }),
 	{ description = "move window to workspace 8 | 移动窗口到工作区 8" }
 )
 hl.bind(
-	"ALT + CTRL + SHIFT + 9",
+	mod_key("CTRL + SHIFT + 9"),
 	hl.dsp.window.move({ workspace = 9 }),
 	{ description = "move window to workspace 9 | 移动窗口到工作区 9" }
 )
-hl.bind("ALT + SHIFT + A", hl.dsp.exec_cmd("rofi -show window"), { description = "window switcher | 窗口切换" })
+hl.bind(mod_key("SHIFT + A"), hl.dsp.exec_cmd("rofi -show window"), { description = "window switcher | 窗口切换" })
 
 hl.bind(
-	"ALT + SHIFT + LEFT",
+	mod_key("SHIFT + LEFT"),
 	hl.dsp.focus({ direction = "left" }),
 	{ description = "focus column left | 聚焦左列" }
 )
 hl.bind(
-	"ALT + SHIFT + RIGHT",
+	mod_key("SHIFT + RIGHT"),
 	hl.dsp.focus({ direction = "right" }),
 	{ description = "focus column right | 聚焦右列" }
 )
 hl.bind(
-	"ALT + SHIFT + UP",
+	mod_key("SHIFT + UP"),
 	hl.dsp.focus({ direction = "up" }),
 	{ description = "focus window up | 聚焦上方窗口" }
 )
 hl.bind(
-	"ALT + SHIFT + DOWN",
+	mod_key("SHIFT + DOWN"),
 	hl.dsp.focus({ direction = "down" }),
 	{ description = "focus window down | 聚焦下方窗口" }
 )
 hl.bind(
-	"ALT + CTRL + SHIFT + LEFT",
+	mod_key("CTRL + SHIFT + LEFT"),
 	hl.dsp.window.move({ direction = "left", group_aware = true }),
 	{ description = "move column left | 移动列到左侧" }
 )
 hl.bind(
-	"ALT + CTRL + SHIFT + RIGHT",
+	mod_key("CTRL + SHIFT + RIGHT"),
 	hl.dsp.window.move({ direction = "right", group_aware = true }),
 	{ description = "move column right | 移动列到右侧" }
 )
 hl.bind(
-	"ALT + CTRL + SHIFT + UP",
+	mod_key("CTRL + SHIFT + UP"),
 	hl.dsp.window.move({ direction = "up" }),
 	{ description = "move window up | 移动窗口向上" }
 )
 hl.bind(
-	"ALT + CTRL + SHIFT + DOWN",
+	mod_key("CTRL + SHIFT + DOWN"),
 	hl.dsp.window.move({ direction = "down" }),
 	{ description = "move window down | 移动窗口向下" }
 )
 
-hl.bind("ALT + SHIFT + F", hl.dsp.layout("swapwithmaster master"), { description = "maximize column | 最大化列" })
 hl.bind(
-	"ALT + CTRL + SHIFT + F",
+	mod_key("SHIFT + F"),
+	hl.dsp.layout("swapwithmaster master"),
+	{ description = "maximize column | 最大化列" }
+)
+hl.bind(
+	mod_key("CTRL + SHIFT + F"),
 	hl.dsp.window.fullscreen({ mode = "fullscreen" }),
 	{ description = "fullscreen window | 全屏窗口" }
 )
 hl.bind(
-	"ALT + SHIFT + M",
+	mod_key("SHIFT + M"),
 	hl.dsp.window.fullscreen({ mode = "maximized" }),
 	{ description = "maximize window to edges | 最大化窗口到边缘" }
 )
 hl.bind(
-	"ALT + SHIFT + V",
+	mod_key("SHIFT + V"),
 	hl.dsp.window.float({ action = "toggle" }),
 	{ description = "toggle window floating | 切换窗口浮动" }
 )
 hl.bind(
-	"ALT + CTRL + SHIFT + V",
+	mod_key("CTRL + SHIFT + V"),
 	switch_focus_between_floating_and_tiling,
 	{ description = "switch focus (floating/tiling) | 切换焦点 (浮动/平铺)" }
 )
 hl.bind(
-	"ALT + SHIFT + W",
+	mod_key("SHIFT + W"),
 	hl.dsp.group.toggle(),
 	{ description = "toggle column tabbed display | 切换列标签显示" }
 )
 hl.bind(
-	"ALT + CTRL + SHIFT + W",
+	mod_key("CTRL + SHIFT + W"),
 	switch_master_preset,
 	{ description = "switch preset column width | 切换预设列宽" }
 )
-hl.bind("ALT + SHIFT + H", reset_master_layout, { description = "reset window height | 重置窗口高度" })
-hl.bind("ALT + MINUS", hl.dsp.layout("mfact -0.1"), { description = "column width -10% | 列宽 -10%" })
-hl.bind("ALT + EQUAL", hl.dsp.layout("mfact +0.1"), { description = "column width +10% | 列宽 +10%" })
-hl.bind("ALT + SHIFT + MINUS", function()
+hl.bind(mod_key("SHIFT + H"), reset_master_layout, { description = "reset window height | 重置窗口高度" })
+hl.bind(mod_key("MINUS"), hl.dsp.layout("mfact -0.1"), { description = "column width -10% | 列宽 -10%" })
+hl.bind(mod_key("EQUAL"), hl.dsp.layout("mfact +0.1"), { description = "column width +10% | 列宽 +10%" })
+hl.bind(mod_key("SHIFT + MINUS"), function()
 	resize_active_height(-0.1)
 end, { description = "window height -10% | 窗口高度 -10%" })
-hl.bind("ALT + SHIFT + EQUAL", function()
+hl.bind(mod_key("SHIFT + EQUAL"), function()
 	resize_active_height(0.1)
 end, { description = "window height +10% | 窗口高度 +10%" })
 hl.bind(
-	"ALT + COMMA",
+	mod_key("COMMA"),
 	hl.dsp.window.move({ into_or_create_group = "right" }),
 	{ description = "consume window into column | 并入列" }
 )
 hl.bind(
-	"ALT + PERIOD",
+	mod_key("PERIOD"),
 	hl.dsp.window.move({ out_of_group = true }),
 	{ description = "expel window from column | 移出列" }
 )
-hl.bind("ALT + BRACKETLEFT", function()
+hl.bind(mod_key("BRACKETLEFT"), function()
 	consume_or_expel("left")
 end, { description = "consume/expel window (left) | 并入/移出列 (左)" })
-hl.bind("ALT + BRACKETRIGHT", function()
+hl.bind(mod_key("BRACKETRIGHT"), function()
 	consume_or_expel("right")
 end, { description = "consume/expel window (right) | 并入/移出列 (右)" })
-hl.bind("ALT + SHIFT + C", hl.dsp.layout("orientationcenter"), { description = "center column | 居中列" })
+hl.bind(mod_key("SHIFT + C"), hl.dsp.layout("orientationcenter"), { description = "center column | 居中列" })
 
 hl.bind(
-	"ALT + SHIFT + O",
+	mod_key("SHIFT + O"),
 	hl.dsp.exec_cmd("dms ipc call hypr toggleOverview"),
 	{ description = "toggle overview | 切换概览" }
 )
 hl.bind(
-	"ALT + SHIFT + P",
+	mod_key("SHIFT + P"),
 	hl.dsp.exec_cmd("flameshot gui"),
 	{ description = "screenshot (flameshot) | 截图 (flameshot)" }
 )
 hl.bind(
-	"ALT + CTRL + SHIFT + P",
+	mod_key("CTRL + SHIFT + P"),
 	hl.dsp.exec_cmd(
 		'sh -c \'mkdir -p "$HOME/Pictures/Screenshots"; grimblast --notify copysave area "$HOME/Pictures/Screenshots/Screenshot from $(date +"+%Y-%m-%d %H-%M-%S").png"\''
 	),
