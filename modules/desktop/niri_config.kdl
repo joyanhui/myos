@@ -45,6 +45,11 @@ layout {
 
 prefer-no-csd
 
+window-rule {
+    match app-id=r#"^brave-.*-Default$"#
+    open-floating true
+}
+
 screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
 spawn-at-startup "dms" "run"
@@ -111,12 +116,12 @@ binds {
     Mod+Shift+C hotkey-overlay-title="center column | 居中列" { center-column; }
 
     Mod+Shift+O repeat=false hotkey-overlay-title="toggle overview | 切换概览" { toggle-overview; }
-    Mod+Shift+P hotkey-overlay-title="screenshot | 截图" { screenshot; }
-    Mod+Shift+Print hotkey-overlay-title="screenshot screen | 截屏 (屏幕)" { screenshot-screen; }
-    Mod+Ctrl+Shift+Print hotkey-overlay-title="screenshot window | 截屏 (窗口)" { screenshot-window; }
+    Mod+Shift+P hotkey-overlay-title="screenshot (flameshot) | 截图 (flameshot)" { spawn "flameshot" "gui"; }
+    // Mod+Shift+Print hotkey-overlay-title="screenshot screen | 截屏 (屏幕)" { screenshot-screen; }
+    // Mod+Ctrl+Shift+Print hotkey-overlay-title="screenshot window | 截屏 (窗口)" { screenshot-window; }
 
-    Mod+Shift+Escape allow-inhibiting=false hotkey-overlay-title="toggle shortcuts inhibit | 切换快捷键抑制" { toggle-keyboard-shortcuts-inhibit; }
-    Mod+Ctrl+Shift+P hotkey-overlay-title="power off monitors | 关闭显示器" { power-off-monitors; }
+    // Mod+Shift+Escape allow-inhibiting=false hotkey-overlay-title="toggle shortcuts inhibit | 切换快捷键抑制" { toggle-keyboard-shortcuts-inhibit; }
+    // Mod+Ctrl+Shift+P hotkey-overlay-title="power off monitors | 关闭显示器" { power-off-monitors; }
 }
 
 input {

@@ -100,7 +100,6 @@ in
     ++ importIf (hasTag "desktop") ./modules/desktop/swaylock.nix
     ++ importIf (hasTag "desktop") ./modules/desktop/wayland_wm_base.nix
     ++ importIf (hasTag "wsl" || hasTag "desktop") ./modules/desktop/wayland_rofi.nix
-    ++ importIf (hasTag "wsl" || hasTag "desktop") ./modules/desktop/wayland_wm_niri_common.nix
     ++ importIf (hasTag "wsl" || hasTag "desktop") ./modules/desktop/wayland_wm_niri.nix
     ++ importIf ((hasTag "wsl" || hasTag "desktop")) ./modules/desktop/wayland_dms.nix
     ++ importIf (hasTag "desktop") ./modules/desktop/wayland_screenshot.nix
