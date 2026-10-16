@@ -133,8 +133,8 @@ end
 
 hl.bind(
 	"ALT + SHIFT + SLASH",
-	hl.dsp.exec_cmd("dms ipc call keybinds toggle hyprland"),
-	{ description = "hotkey overlay | 显示快捷键列表" }
+	hl.dsp.exec_cmd("notify-send 'Hyprland快捷键' 'hyprland使用lua暂不支持查看快捷菜单列表。'"),
+	{ description = "keybind list unavailable | Hyprland 使用 Lua，暂不支持查看快捷键列表" }
 )
 
 hl.bind("ALT + RETURN", hl.dsp.exec_cmd("ghostty"), { description = "terminal (ghostty) | 终端 (ghostty)" })
@@ -162,14 +162,10 @@ hl.bind(
 	hl.dsp.window.drag(),
 	{ mouse = true, description = "move window with Alt+left mouse button | 使用 Alt+鼠标左键移动窗口" }
 )
-hl.bind(
-	"ALT + mouse:273",
-	hl.dsp.window.resize(),
-	{
-		mouse = true,
-		description = "resize window with Alt+right mouse button | 使用 Alt+鼠标右键调整窗口大小",
-	}
-)
+hl.bind("ALT + mouse:273", hl.dsp.window.resize(), {
+	mouse = true,
+	description = "resize window with Alt+right mouse button | 使用 Alt+鼠标右键调整窗口大小",
+})
 
 hl.bind("ALT + SHIFT + 1", hl.dsp.focus({ workspace = 1 }), { description = "focus workspace 1 | 聚焦工作区 1" })
 hl.bind("ALT + SHIFT + 2", hl.dsp.focus({ workspace = 2 }), { description = "focus workspace 2 | 聚焦工作区 2" })
@@ -180,6 +176,8 @@ hl.bind("ALT + SHIFT + 6", hl.dsp.focus({ workspace = 6 }), { description = "foc
 hl.bind("ALT + SHIFT + 7", hl.dsp.focus({ workspace = 7 }), { description = "focus workspace 7 | 聚焦工作区 7" })
 hl.bind("ALT + SHIFT + 8", hl.dsp.focus({ workspace = 8 }), { description = "focus workspace 8 | 聚焦工作区 8" })
 hl.bind("ALT + SHIFT + 9", hl.dsp.focus({ workspace = 9 }), { description = "focus workspace 9 | 聚焦工作区 9" })
+hl.bind("ALT + SHIFT + S", hl.dsp.workspace.toggle_special("magic"), { description = "toggle special workspace | 切换特殊工作区" })
+hl.bind("ALT + CTRL + SHIFT + S", hl.dsp.window.move({ workspace = "special:magic" }), { description = "move window to special workspace | 移动窗口到特殊工作区" })
 hl.bind(
 	"ALT + CTRL + SHIFT + 1",
 	hl.dsp.window.move({ workspace = 1 }),
@@ -339,7 +337,7 @@ hl.bind(
 hl.bind(
 	"ALT + CTRL + SHIFT + P",
 	hl.dsp.exec_cmd(
-		'sh -c \'mkdir -p "$HOME/Pictures/Screenshots"; grimblast save area "$HOME/Pictures/Screenshots/Screenshot from $(date +"+%Y-%m-%d %H-%M-%S").png"\''
+		'sh -c \'mkdir -p "$HOME/Pictures/Screenshots"; grimblast --notify copysave area "$HOME/Pictures/Screenshots/Screenshot from $(date +"+%Y-%m-%d %H-%M-%S").png"\''
 	),
-	{ description = "select area screenshot (Hyprland) | 自由选取截图 (Hyprland原生截图)" }
+	{ description = "select area screenshot, copy and notify | 自由选取截图、复制到剪贴板并通知" }
 )
