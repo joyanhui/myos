@@ -6,7 +6,7 @@ usage() {
   exit 2
 }
 
-output="$(pwd)/nixos-img.efi"
+output="nixos-img.efi"
 while [ "$#" -gt 0 ]; do
   case "$1" in
     -o)
@@ -26,15 +26,27 @@ case "$output" in
     exit 1
     ;;
 esac
-case "$output" in
-  /*) ;;
-  *) output="$(pwd)/$output" ;;
-esac
-
-repo_dir="${REPO_DIR:?REPO_DIR must point to the repository}"
+script_path="${BASH_SOURCE[0]}"
+while [ -L "$script_path" ]; do
+  script_dir="$(cd -P -- "$(dirname -- "$script_path")" && pwd)"
+  script_path="$(readlink -- "$script_path")"
+  case "$script_path" in
+    /*) ;;
+    *) script_path="$script_dir/$script_path" ;;
+  esac
+done
+script_dir="$(cd -P -- "$(dirname -- "$script_path")" && pwd)"
+if ! repo_dir="$(cd -P -- "$script_dir/../../.." && pwd)"; then
+  echo "error: unable to locate the repository root from the script path" >&2
+  exit 1
+fi
+if [ ! -f "$repo_dir/flake.nix" ]; then
+  echo "error: repository root does not contain flake.nix: $repo_dir" >&2
+  exit 1
+fi
 
 source_efi=$(
-  cd "$repo_dir"
+  cd -- "$repo_dir"
   nix build --no-link --print-out-paths \
     .#nixosConfigurations.raw_os_core_img_creat.config.system.build.rawOsExternalBootEfi
 )
@@ -43,17 +55,17 @@ source_efi=$(
   echo "error: rawOsExternalBootEfi output was empty" >&2
   exit 1
 }
-output_dir=$(dirname "$output")
-mkdir -p "$output_dir"
-temporary=$(mktemp "$output_dir/.raw-os-external-boot.XXXXXX")
+output_dir="$(dirname -- "$output")"
+mkdir -p -- "$output_dir"
+temporary=$(mktemp -- "$output_dir/.raw-os-external-boot.XXXXXX")
 cleanup() {
-  rm -f "$temporary"
+  rm -f -- "$temporary"
 }
 trap cleanup EXIT
 
-cp --reflink=auto "$source_efi" "$temporary"
-chmod 0644 "$temporary"
-mv -f "$temporary" "$output"
+cp --reflink=auto -- "$source_efi" "$temporary"
+chmod 0644 -- "$temporary"
+mv -f -- "$temporary" "$output"
 temporary=""
 
 printf 'created: %s\n' "$output"

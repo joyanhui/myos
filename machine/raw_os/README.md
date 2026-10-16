@@ -68,12 +68,7 @@ EFI/NixOS/raw-os/nixos-generation-1.efi
 外部固定 EFI 与 raw 镜像是两个不同产物。它只在首次部署、外部启动逻辑发生变化或文件损坏时构建：
 
 ```bash
-set -euo pipefail
-repo_dir="$(git rev-parse --show-toplevel)"
-cd "$repo_dir"
-REPO_DIR="$repo_dir" \
-  machine/raw_os/docs_script/creat-rawOsExternalBootEfi.sh \
-  -o "$repo_dir/nixos-img.efi"
+machine/raw_os/docs_script/creat-rawOsExternalBootEfi.sh -o ./nixos-img.efi
 ```
 
 将 `nixos-img.efi` 复制到宿主 ESP 的自定义路径，例如：
