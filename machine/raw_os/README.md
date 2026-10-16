@@ -17,11 +17,11 @@ Raw OS 使用 NixOS 构建 GPT raw 镜像。镜像可以直接写入磁盘启动
   - 生成与硬件平台无关的基础系统，不包含 `raw_os_work_amd` 或 `raw_os_work_intel` 的完整工作环境。
 - `raw_os_work_amd`
   - 运行在 raw OS 内的 AMD 工作环境配置。
-  - 通过 `raw-amd` tag 启用 AMD IOMMU、KVM 和 VFIO 设置。
+  - 通过 `amd` tag 启用 AMD IOMMU、KVM 和 VFIO 设置。
   - 用 `nixos-rebuild switch` 更新运行中的系统和 raw 内部 ESP。
 - `raw_os_work_intel`
   - 运行在 raw OS 内的 Intel 工作环境配置。
-  - 通过 `raw-intel` tag 启用 Intel IOMMU、KVM 和 VFIO 设置。
+  - 通过 `intel` tag 启用 Intel IOMMU、KVM 和 VFIO 设置。
   - 用 `nixos-rebuild switch` 更新运行中的系统和 raw 内部 ESP。
 
 ### 产物和职责

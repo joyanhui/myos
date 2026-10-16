@@ -110,9 +110,9 @@
           specialArgs = { inherit inputs global_settings; };
         };
         wsl = mkHost "common|wsl|dev|editor|services|ai|input-method" ./machine/wsl.nix;
-        tb_amd = mkHost "common|tb_amd|physical|ai|inputKeyd|desktop|gui|dailyPC|dev|editor|input-method|services" ./machine/tb_amd;
-        raw_os_work_amd = mkHost "common|raw-amd|desktop|gui|dev|editor|input-method|dailyPC|services|ai" ./machine/raw_os/raw-os-work.nix;
-        raw_os_work_intel = mkHost "common|raw-intel|desktop|gui|dev|editor|input-method|dailyPC|services|ai" ./machine/raw_os/raw-os-work.nix;
+        tb_amd = mkHost "common|amd|ai|inputKeyd|desktop|gui|dailyPC|dev|editor|input-method|services" ./machine/tb_amd;
+        raw_os_work_amd = mkHost "common|amd|desktop|gui|dev|editor|input-method|dailyPC|services|ai" ./machine/raw_os/raw-os-work.nix;
+        raw_os_work_intel = mkHost "common|intel|desktop|gui|dev|editor|input-method|dailyPC|services|ai" ./machine/raw_os/raw-os-work.nix;
       };
 
       homeConfigurations = {

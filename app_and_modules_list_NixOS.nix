@@ -48,53 +48,14 @@ in
     ++ importIf (hasTag "common") ./modules/term/shell_fish.nix
     ++ importIf (hasTag "common") ./modules/term/shell_zsh.nix
     ++ importIf (hasTag "dev") ./modules/term/shell_nu.nix
-    ++ importIf (hasTag "common") (
-      import "${global_settings.secretRelDir}/openssh_auth_keys_and_passwd.nix"
-    )
+    ++ importIf (hasTag "common") (import "${global_settings.secretRelDir}/user_credentials.nix")
     ++ importIf (hasTag "common") (import "${global_settings.secretRelDir}/sensitive_env.nix")
 
-    ++ importIf (hasTag "physical") ./modules/system/wifi.nix
-    ++ importIf (hasTag "physical") ./modules/services/bluetooth.nix
-    ++ importIf (hasTag "physical") ./modules/services/mnt_autofs.nix
-    ++ importIf (hasTag "physical") ./modules/apps/recovery_testdisk.nix
-    ++ importIf (hasTag "raw-amd") {
-      environment.systemPackages = with pkgs; [
-        amdgpu_top
-        amdctl
-      ];
-      boot.kernelParams = [
-        "amd_iommu=on"
-        "iommu=pt"
-      ];
-      boot.kernelModules = [ "kvm-amd" ];
-      boot.initrd.kernelModules = [
-        "amdgpu"
-        "vfio"
-        "vfio_iommu_type1"
-        "vfio_pci"
-      ];
-      boot.extraModprobeConfig = ''
-        options kvm_amd nested=1
-        options kvm ignore_msrs=1 report_ignored_msrs=0
-      '';
-    }
-    ++ importIf (hasTag "raw-intel") {
-      boot.kernelParams = [
-        "intel_iommu=on"
-        "iommu=pt"
-      ];
-      boot.kernelModules = [ "kvm-intel" ];
-      boot.initrd.kernelModules = [
-        "i915"
-        "vfio"
-        "vfio_iommu_type1"
-        "vfio_pci"
-      ];
-      boot.extraModprobeConfig = ''
-        options kvm_intel nested=1
-        options kvm ignore_msrs=1 report_ignored_msrs=0
-      '';
-    }
+    ++ importIf (hasTag "amd" || hasTag "intel") ./modules/services/bluetooth.nix
+    ++ importIf (hasTag "amd" || hasTag "intel") ./modules/services/mnt_autofs.nix
+    ++ importIf (hasTag "amd" || hasTag "intel") ./modules/apps/recovery_testdisk.nix
+    ++ importIf (hasTag "amd") ./modules/system/hardware_amd.nix
+    ++ importIf (hasTag "intel") ./modules/system/hardware_intel.nix
     ++ importIf (hasTag "common") ./modules/apps/fastfetch.nix
 
     ++ importIf (hasTag "inputKeyd") ./modules/services/input_keyd.nix

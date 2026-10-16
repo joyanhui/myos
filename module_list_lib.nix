@@ -2,9 +2,7 @@
 let
   knownTags = [
     "common"
-    "tb_amd"
     "ai"
-    "physical"
     "inputKeyd"
     "desktop"
     "gui"
@@ -14,8 +12,8 @@ let
     "dailyPC"
     "services"
     "wsl"
-    "raw-amd"
-    "raw-intel"
+    "amd"
+    "intel"
   ];
 
   unknownTags = lib.subtractLists knownTags moduleTags;
