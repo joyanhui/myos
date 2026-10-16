@@ -208,7 +208,7 @@ let
     while IFS="$(printf '\t')" read -r generation system_path; do
       [ -n "$generation" ] || continue
       [ "$generation" = "$current_generation" ] && continue
-      [ "$selected_count" -ge 10 ] && break
+      [ "$selected_count" -ge 8 ] && break
       printf '%s\n' "$generation" >> "$generation_list"
       printf '%s\t%s\n' "$generation" "$system_path" >> "$selected_generations"
       selected_count=$((selected_count + 1))

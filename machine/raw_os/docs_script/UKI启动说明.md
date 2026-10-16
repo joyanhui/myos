@@ -8,7 +8,7 @@
 - `rawOsBootEfi`：镜像内部的 standalone GRUB，安装路径为 `EFI/BOOT/BOOTX64.EFI`。
 - `rawOsExternalBootEfi`：宿主 ESP 上的外部固定 standalone GRUB，负责从 NTFS 定位并加载 raw 镜像。
 - `nixos-current.efi`：当前系统的 UKI。
-- `nixos-generation-<generation>.efi`：按 NixOS generation 保存的 UKI，内部运行时最多保留 10 个。
+- `nixos-generation-<generation>.efi`：按 NixOS generation 保存的 UKI，内部运行时最多保留 8 个。
 
 `system.build.uki` 是基础镜像构建时用于生成初始 `nixos-current.efi` 和 `nixos-generation-1.efi` 的内部构建产物。它不是需要单独部署的外部固定 EFI，也不是日常更新命令的目标。
 
@@ -75,7 +75,7 @@ EFI/NixOS/raw-os/nixos-generation-<generation>.efi
 
 - 当前 generation 必须保留；
 - `nixos-current.efi` 独立保留，不计入 generation 数量限制；
-- generation UKI 按编号从新到旧最多保留 10 个；
+- generation UKI 按编号从新到旧最多保留 8 个；
 - 新 UKI、菜单和内部 loader 安装成功后，才删除未选中的旧 generation 文件；
 - `boot.loader.efi.canTouchEfiVariables = false`，不会修改 UEFI NVRAM 启动变量。
 
