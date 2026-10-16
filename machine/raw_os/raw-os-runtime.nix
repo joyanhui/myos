@@ -232,6 +232,22 @@ let
       temporary=""
     }
 
+    prune_old_generations() {
+      [ -s "$generation_list" ] || {
+        echo "error: refusing to prune generations because the selected generation list is empty" >&2
+        exit 1
+      }
+      for old in "$target_data"/nixos-generation-*.efi; do
+        [ -e "$old" ] || continue
+        old_name=$($coreutils/bin/basename "$old")
+        old_generation=''${old_name#nixos-generation-}
+        old_generation=''${old_generation%.efi}
+        if ! $grep -qx "$old_generation" "$generation_list"; then
+          $coreutils/bin/rm -f "$old"
+        fi
+      done
+    }
+
     cfg_tmp="$tmp_root/grub.cfg"
     {
       echo 'set timeout=5'
@@ -280,21 +296,14 @@ let
     } > "$cfg_tmp"
 
     $coreutils/bin/mkdir -p "$boot_mount/EFI/BOOT" "$target_data"
+    prune_old_generations
     install_file "$tmp_root/nixos-current.efi" "$target_data/nixos-current.efi"
     while read -r generation; do
       [ -n "$generation" ] || continue
       install_file "$tmp_root/nixos-generation-$generation.efi" "$target_data/nixos-generation-$generation.efi"
     done < "$generation_list"
     install_file "$cfg_tmp" "$target_data/grub.cfg"
-    for old in "$target_data"/nixos-generation-*.efi; do
-      [ -e "$old" ] || continue
-      old_name=$($coreutils/bin/basename "$old")
-      old_generation=''${old_name#nixos-generation-}
-      old_generation=''${old_generation%.efi}
-      if ! $grep -qx "$old_generation" "$generation_list"; then
-        $coreutils/bin/rm -f "$old"
-      fi
-    done
+    prune_old_generations
     install_file "${rawOsBootEfi}" "$boot_mount/EFI/BOOT/BOOTX64.EFI"
     $coreutils/bin/sync
     echo "updated: /boot/EFI/BOOT/BOOTX64.EFI"

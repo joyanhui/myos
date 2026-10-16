@@ -156,7 +156,7 @@ EFI/NixOS/raw-os/nixos-generation-*.efi
 - 当前 generation 必须保留；
 - `nixos-current.efi` 单独保留，不计入 generation 数量；
 - generation UKI 按编号从新到旧最多保留 8 个；
-- 新文件安装成功后才删除未选中的旧 generation 文件。
+- 安装新文件前先删除不在本次保留列表中的旧 generation，确保原子替换临时文件有足够空间；安装完成后再执行一次清理。
 
 上述命令不会更新宿主 ESP 上的外部固定 EFI：
 
