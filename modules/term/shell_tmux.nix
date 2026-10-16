@@ -64,6 +64,7 @@ in
         enable = true;
         mouse = true;
         extraConfig = ''
+          set -g extended-keys on
           set -s set-clipboard on
           set -as terminal-features ',*:clipboard'
         '';
