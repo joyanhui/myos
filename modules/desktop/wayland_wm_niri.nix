@@ -52,6 +52,6 @@ in
     { config, ... }:
     {
       xdg.configFile."niri/config.kdl".source =
-        config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/modules/desktop/configFiles/niri_config.kdl";
+        config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/dotfiles/niri_config.kdl";
     };
 }

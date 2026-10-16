@@ -6,7 +6,7 @@
 }:
 let
   rofiConfig = builtins.replaceStrings [ "__ICON_THEME__" ] [ global_settings.theme.iconTheme ] (
-    builtins.readFile ./configFiles/rofi_config.rasi
+    builtins.readFile ../../dotfiles/rofi_config.rasi
   );
 in
 {
