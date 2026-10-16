@@ -34,7 +34,6 @@ in
 
     ++ importIf (hasTag "dev") (extract ./modules/system/xdg_mimes.nix)
     ++ importIf (hasTag "dev") (extract ./modules/dev/git/git_github_gitea.nix)
-    ++ importIf (hasTag "dev") (extract ./modules/dev/git/git_fiash_fun.nix)
     ++ importIf (hasTag "dev") (extract ./modules/apps/rclone_kopia.nix)
     ++ importIf (hasTag "dev") (extract ./modules/apps/filemanager_yazi.nix)
     ++ importIf (hasTag "dev") (extract ./modules/term/term_kitty.nix)

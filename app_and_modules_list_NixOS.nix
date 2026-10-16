@@ -46,7 +46,6 @@ in
     ++ importIf (hasTag "common") ./modules/term/shell_fish.nix
     ++ importIf (hasTag "common") ./modules/term/shell_zsh.nix
     ++ importIf (hasTag "dev") ./modules/term/shell_nu.nix
-    ++ importIf (hasTag "common") ./modules/dev/git/git_fiash_fun.nix
     ++ importIf (hasTag "common") (
       import "${global_settings.secretRelDir}/openssh_auth_keys_and_passwd.nix"
     )
@@ -122,7 +121,6 @@ in
     ++ importIf (hasTag "dev") ./modules/apps/rclone_kopia.nix
     ++ importIf (hasTag "dev" && !hasTag "wsl") ./modules/apps/gfw_mihomo.nix
     ++ importIf (hasTag "dev") ./modules/dev/git/git_github_gitea.nix
-    ++ importIf (hasTag "dev") ./modules/dev/git/git-auto-commit-skill.nix
     ++ importIf (hasTag "dev") ./modules/dev/dev_base_and_import_all.nix
     ++ importIf (hasTag "editor") ./modules/dev/dev_editor_extras.nix
 

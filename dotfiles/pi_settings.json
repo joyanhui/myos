@@ -10,11 +10,11 @@
   "packages": [
     "npm:@joyanhui/pi-ext-bar-cursor",
     "npm:@joyanhui/pi-ext-git-changes",
-    "npm:@joyanhui/pi-ext-float-term",
     "npm:@narumitw/pi-goal",
     "npm:@narumitw/pi-btw",
     "npm:pi-web-access",
-    "npm:@cortexkit/pi-magic-context"
+    "npm:@cortexkit/pi-magic-context",
+    "../../myws/pi-extension/pi-ext-float-term"
   ],
   "defaultTools": [
     "+codemode"

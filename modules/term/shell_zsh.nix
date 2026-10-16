@@ -50,6 +50,9 @@ in
           share = true;
         };
         initContent = lib.mkAfter ''
+          export GRC_ALIASES=true
+          source ${pkgs.grc}/etc/profile.d/grc.sh
+
           bindkey -e
           WORDCHARS=''${WORDCHARS//[\/~]/}
           bindkey '^[[1;5C' emacs-forward-word

@@ -7,6 +7,8 @@
 let
   readme = ''
     在默认的config之外另外创建多个config文件用来启动不同颜色的ghostty
+
+    ghostty 默认快捷 是 Ctrl + Shift + O（左右分 ）Ctrl + Shift + E （上下分）
   '';
   font = global_settings.font;
   backgroundColors = [
