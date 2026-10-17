@@ -104,7 +104,7 @@ binds {
     Mod+Shift+F hotkey-overlay-title="maximize column | 最大化列" { maximize-column; }
     Mod+Ctrl+Shift+F hotkey-overlay-title="fullscreen window | 全屏窗口" { fullscreen-window; }
     Mod+Shift+M hotkey-overlay-title="maximize window to edges | 最大化窗口到边缘" { maximize-window-to-edges; }
-    Mod+Shift+V hotkey-overlay-title="toggle window floating | 切换窗口浮动" { toggle-window-floating; }
+    Mod+Shift+V hotkey-overlay-title="toggle clipboard | 切换剪切板" { spawn "dms" "ipc" "call" "clipboard" "toggle"; }
     Mod+Ctrl+Shift+V hotkey-overlay-title="switch focus (floating/tiling) | 切换焦点 (浮动/平铺)" { switch-focus-between-floating-and-tiling; }
     Mod+Shift+W hotkey-overlay-title="toggle column tabbed display | 切换列标签显示" { toggle-column-tabbed-display; }
     Mod+Ctrl+Shift+W hotkey-overlay-title="switch preset column width | 切换预设列宽" { switch-preset-column-width; }

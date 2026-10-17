@@ -331,14 +331,19 @@ hl.bind(
 	{ description = "fullscreen window | 全屏窗口" }
 )
 hl.bind(
+	mod_key("CTRL + SHIFT + M"),
+	hl.dsp.layout("swapwithmaster master"),
+	{ description = "swap active window with master | 交换活动窗口与主窗口" }
+)
+hl.bind(
 	mod_key("SHIFT + M"),
 	hl.dsp.window.fullscreen({ mode = "maximized" }),
 	{ description = "maximize window to edges | 最大化窗口到边缘" }
 )
 hl.bind(
 	mod_key("SHIFT + V"),
-	hl.dsp.window.float({ action = "toggle" }),
-	{ description = "toggle window floating | 切换窗口浮动" }
+	hl.dsp.exec_cmd("dms ipc call clipboard toggle"),
+	{ description = "toggle clipboard | 切换剪切板" }
 )
 hl.bind(
 	mod_key("CTRL + SHIFT + V"),
@@ -349,6 +354,16 @@ hl.bind(
 	mod_key("SHIFT + W"),
 	hl.dsp.group.toggle(),
 	{ description = "toggle column tabbed display | 切换列标签显示" }
+)
+hl.bind(
+	mod_key("SHIFT + G"),
+	hl.dsp.group.toggle(),
+	{ description = "toggle window group | 切换窗口分组" }
+)
+hl.bind(
+	mod_key("CTRL + SHIFT + G"),
+	hl.dsp.window.move({ out_of_group = true }),
+	{ description = "remove window from group | 移出窗口分组" }
 )
 hl.bind(
 	mod_key("CTRL + SHIFT + W"),
