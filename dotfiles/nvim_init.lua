@@ -1056,13 +1056,39 @@ end, { desc = "格式化缓冲区" })
 vim.keymap.set("n", "<leader>qq", "<Cmd>qa<CR>", { desc = "退出所有窗口" })
 vim.keymap.set("n", "<leader>qQ", "<Cmd>qa!<CR>", { desc = "强制退出所有窗口" })
 
+local function open_search_replace(opts)
+  local grug = require "grug-far"
+  local ext = vim.bo.filetype
+  local prefills = vim.tbl_extend("force", {
+    filesFilter = ext ~= "" and "*." .. ext or nil,
+  }, opts or {})
+
+  if vim.fn.mode():match "^[vV]" then
+    prefills.search = grug.get_current_visual_selection()
+  elseif not prefills.search or prefills.search == "" then
+    prefills.search = vim.fn.expand "<cword>"
+  end
+
+  grug.open {
+    prefills = prefills,
+    transient = true,
+  }
+end
+
+vim.keymap.set({ "n", "x" }, "<leader>sr", function()
+  open_search_replace()
+end, { desc = "搜索并替换" })
+vim.keymap.set({ "n", "x" }, "<leader>sF", function()
+  open_search_replace { paths = vim.api.nvim_buf_get_name(0) }
+end, { desc = "在当前文件中搜索并替换" })
+
 -- search files
 vim.keymap.set("n", "<leader>sf", picker.files, { desc = "搜索文件" })
 vim.keymap.set("n", "<leader>sb", picker.buffers, { desc = "搜索缓冲区" })
 vim.keymap.set("n", "<leader>sg", picker.git_grep, { desc = "实时 Git 搜索" })
 vim.keymap.set("n", "<leader>sG", picker.grep, { desc = "实时文本搜索" })
 vim.keymap.set("n", "<leader>s*", picker.grep_word, { desc = "搜索光标下的单词" })
-vim.keymap.set("n", "<leader>sr", picker.resume, { desc = "恢复上次搜索" })
+vim.keymap.set("n", "<leader>sR", picker.resume, { desc = "恢复上次搜索" })
 vim.keymap.set("n", "<leader>sn", picker.notifications, { desc = "搜索通知" })
 -- finders
 vim.keymap.set("n", "<leader>fk", picker.keymaps, { desc = "查找快捷键" })
