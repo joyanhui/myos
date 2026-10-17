@@ -976,7 +976,71 @@ vim.keymap.set({ "n", "t" }, "<C-_>", toggle_bottom_terminal, { desc = "切换�
 
 local picker = snacks.picker
 
-require("grug-far").setup {}
+local grug_far = require "grug-far"
+
+for _, engine_name in ipairs({ "ripgrep", "astgrep", "astgrep-rules" }) do
+  local ok, engine = pcall(require, "grug-far.engine." .. engine_name)
+  if ok and engine.inputs then
+    for _, input in ipairs(engine.inputs) do
+      input.label = ({
+        search = "搜索",
+        replacement = "替换",
+        filesFilter = "文件过滤",
+        flags = "选项",
+        paths = "路径",
+        rules = "规则",
+      })[input.name] or input.label
+    end
+  end
+end
+
+grug_far.setup {
+  engines = {
+    ripgrep = {
+      placeholders = {
+        search = "例如：foo、foo([a-z0-9]*)、fun\\(",
+        replacement = "例如：bar、${1}_foo、$$MY_ENV_VAR",
+        filesFilter = "例如：*.lua、*.{css,js}、**/docs/*.md",
+        flags = "例如：--ignore-case（忽略大小写）、--case-sensitive（区分大小写）、--multiline",
+        paths = "例如：.、../、./src/foo.lua、~/.config",
+      },
+    },
+    astgrep = {
+      placeholders = {
+        search = "例如：$A && $A()、foo.bar($$$ARGS)",
+        replacement = "例如：$A?.()、blah($$$ARGS)",
+        filesFilter = "例如：*.lua、*.{css,js}、**/docs/*.md",
+        flags = "例如：--debug-query=ast、--strictness=<级别>",
+        paths = "例如：.、../、./src/foo.lua、~/.config",
+      },
+    },
+    ["astgrep-rules"] = {
+      placeholders = {
+        rules = "输入 Ast-grep 规则",
+        filesFilter = "例如：*.lua、*.{css,js}、**/docs/*.md",
+        flags = "例如：--debug-query=ast、--strictness=<级别>",
+        paths = "例如：.、../、./src/foo.lua、~/.config",
+      },
+    },
+  },
+}
+
+local function toggle_ignore_case()
+  local instance
+  if pcall(function()
+    instance = grug_far.get_instance(0)
+  end) then
+    instance:toggle_flags { "--ignore-case" }
+    return
+  end
+
+  grug_far.open {
+    prefills = { flags = "--ignore-case" },
+    transient = true,
+  }
+end
+
+vim.keymap.set("n", "<leader>si", toggle_ignore_case, { desc = "切换忽略大小写" })
 
 local function git_root()
   return vim.fs.root(0, { ".git" }) or vim.uv.cwd()
