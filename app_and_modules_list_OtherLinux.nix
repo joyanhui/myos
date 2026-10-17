@@ -48,7 +48,7 @@ in
     ++ importIf (hasTag "editor") ./modules/dev/dev_editor_extras.nix
 
     ++ importIf (hasTag "editor") (extract ./modules/dev/ide_helix.nix)
-    ++ importIf (hasTag "editor") (extract ./modules/dev/ide_nvim.nix)
+    ++ importIf (hasTag "editor") (extract ./modules/dev/ide_nvim_lazyvim.nix)
     ++ importIf (hasTag "editor") (extract ./modules/dev/ide_common.nix)
     ++ importIf (hasTag "editor") (extract ./modules/dev/git/tool_lazygit.nix)
 
