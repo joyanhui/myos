@@ -25,8 +25,6 @@ in
             config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/dotfiles/nvim_lazyvim_init.lua";
           "nvim/lua/config/lazy.lua".source =
             config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/dotfiles/nvim_lazyvim_lazy.lua";
-          "nvim/lua/plugins/theme.lua".source =
-            config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/dotfiles/nvim_lazyvim_theme.lua";
           # readme
           ".nvim/nvim.readme.md".text = readme;
 
