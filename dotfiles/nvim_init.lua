@@ -18,6 +18,7 @@ vim.opt.swapfile = false
 vim.opt.confirm = true
 vim.opt.linebreak = true
 vim.opt.termguicolors = true
+vim.opt.guicursor = "n:block,i-ci:ver25,t:ver25,v:block,r-cr-o:hor20"
 vim.opt.expandtab = true -- expand tabs to spaces
 vim.opt.shiftwidth = 4
 vim.opt.tabstop = 4
