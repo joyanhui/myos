@@ -34,7 +34,7 @@ in
     ++ importIf (hasTag "common") (extract "${global_settings.secretRelDir}/sensitive_env.nix")
     ++ importIf (hasTag "common") ./modules/term/tool_grc.nix
 
-    ++ importIf (hasTag "dev") (extract ./modules/system/xdg_mimes.nix)
+    ++ importIf (hasTag "gui") (extract ./modules/system/xdg_mimes.nix)
     ++ importIf (hasTag "dev") (extract ./modules/dev/git/git_github_gitea.nix)
     ++ importIf (hasTag "dev") (extract ./modules/apps/rclone_kopia.nix)
     ++ importIf (hasTag "dev") (extract ./modules/apps/filemanager_yazi.nix)
@@ -61,15 +61,16 @@ in
 
     ++ importIf (hasTag "gui") (extract ./modules/system/theme.nix)
 
-    ++ importIf (hasTag "dailyPC") (extract ./modules/apps/browser/brave.nix)
-    ++ importIf (hasTag "dailyPC") (extract ./modules/apps/browser/google_chrome.nix)
-    ++ importIf (hasTag "dailyPC") (extract ./modules/apps/im/telegram.nix)
-    ++ importIf (hasTag "dailyPC") (extract ./modules/apps/im/wechat.nix)
-    ++ importIf (hasTag "dailyPC") (extract ./modules/apps/media_vlc.nix)
-    ++ importIf (hasTag "dailyPC") (extract ./modules/apps/music_musicfree.nix)
-    ++ importIf (hasTag "dailyPC") (extract ./modules/apps/office_obsidian.nix)
-    ++ importIf (hasTag "dailyPC") (extract ./modules/apps/filemanager_thunar.nix)
-    ++ importIf (hasTag "dailyPC") (extract ./modules/desktop/screenshot.nix)
-    ++ importIf (hasTag "dailyPC") (extract ./modules/apps/graphics_gimp3.nix)
+    ++ importIf (hasTag "gui") (extract ./modules/apps/browser/brave.nix)
+    ++ importIf (hasTag "gui") (extract ./modules/apps/browser/google_chrome.nix)
+    ++ importIf (hasTag "gui") (extract ./modules/apps/im/telegram.nix)
+    ++ importIf (hasTag "gui") (extract ./modules/apps/im/wechat.nix)
+    ++ importIf (hasTag "gui") (extract ./modules/apps/media_vlc.nix)
+    ++ importIf (hasTag "gui") (extract ./modules/apps/music_musicfree.nix)
+    ++ importIf (hasTag "gui") (extract ./modules/apps/office_obsidian.nix)
+    ++ importIf (hasTag "gui") (extract ./modules/apps/filemanager_thunar.nix)
+    ++ importIf (hasTag "desktop" || hasTag "dailyPC") (extract ./modules/desktop/screenshot.nix)
+    ++ importIf (hasTag "gui") (extract ./modules/apps/graphics_gimp3.nix)
+    ++ importIf (hasTag "gui") (extract ./modules/dev/ide_thonny.nix)
   ;
 }

@@ -15,7 +15,7 @@
         '';
       in
       ''
-        /mnt_auto/autofs ${mapConf} --timeout 35
+        /mnt ${mapConf} --timeout 35
       '';
   };
 

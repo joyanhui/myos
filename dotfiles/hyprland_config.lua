@@ -50,7 +50,7 @@ hl.config({
 		enabled = true,
 	},
 	master = {
-		mfact = 0.4,
+		mfact = 0.6,
 		new_status = "slave",
 		orientation = "left",
 		allow_small_split = false,

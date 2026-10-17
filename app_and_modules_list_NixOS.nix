@@ -53,7 +53,7 @@ in
 
     ++ importIf (hasTag "amd" || hasTag "intel") ./modules/services/bluetooth.nix
     ++ importIf (hasTag "amd" || hasTag "intel") ./modules/services/mnt_autofs.nix
-    ++ importIf (hasTag "amd" || hasTag "intel") ./modules/apps/recovery_testdisk.nix
+    ++ importIf ((hasTag "amd" || hasTag "intel") && hasTag "gui") ./modules/apps/recovery_testdisk.nix
     ++ importIf (hasTag "amd") ./modules/system/hardware_amd.nix
     ++ importIf (hasTag "intel") ./modules/system/hardware_intel.nix
     ++ importIf (hasTag "common") ./modules/apps/fastfetch.nix
@@ -62,14 +62,14 @@ in
 
     ++ importIf (hasTag "desktop") ./modules/desktop/swaylock.nix
     ++ importIf (hasTag "desktop") ./modules/desktop/wayland_wm_base.nix
-    ++ importIf (hasTag "wsl" || hasTag "desktop") ./modules/desktop/wayland_rofi.nix
-    ++ importIf (hasTag "wsl" || hasTag "desktop") ./modules/desktop/wayland_wm_niri.nix
+    ++ importIf (hasTag "desktop") ./modules/desktop/wayland_rofi.nix
+    ++ importIf (hasTag "desktop") ./modules/desktop/wayland_wm_niri.nix
     ++ importIf (hasTag "desktop") ./modules/desktop/wayland_wm_hyprland.nix
-    ++ importIf ((hasTag "wsl" || hasTag "desktop")) ./modules/desktop/wayland_dms.nix
+    ++ importIf (hasTag "desktop") ./modules/desktop/wayland_dms.nix
     ++ importIf (hasTag "desktop") ./modules/desktop/screenshot.nix
     # ++ importIf (hasTag "desktop") ./modules/system/desktopfile_manager.nix
 
-    ++ importIf (hasTag "gui" || hasTag "wsl") ./modules/system/theme.nix
+    ++ importIf (hasTag "gui") ./modules/system/theme.nix
     ++ importIf (hasTag "gui") ./modules/system/xdg_mimes.nix
     ++ importIf (hasTag "gui") ./modules/services/sound_pipewire.nix
 
@@ -91,7 +91,7 @@ in
     ++ importIf (hasTag "editor") ./modules/dev/ide_helix.nix
     ++ importIf (hasTag "editor") ./modules/dev/ide_nvim.nix
     # ++ importIf (hasTag "editor" && !hasTag "wsl") ./modules/dev/ide_antigravity.nix
-    ++ importIf (hasTag "editor" && !hasTag "wsl") ./modules/dev/ide_thonny.nix
+    ++ importIf (hasTag "gui") ./modules/dev/ide_thonny.nix
     ++ importIf (hasTag "editor") ./modules/dev/ide_common.nix
     ++ importIf (hasTag "editor") ./modules/dev/git/tool_lazygit.nix
 
@@ -99,24 +99,24 @@ in
     ++ importIf (hasTag "wsl") ./modules/input-method/fcitx5_rime_wsl.nix
     ++ importIf (hasTag "input-method") ./modules/input-method/voxtype.nix
 
-    ++ importIf (hasTag "dailyPC") ./modules/apps/filemanager_thunar.nix
-    ++ importIf (hasTag "dailyPC") ./modules/apps/graphics_gimp3.nix
-    ++ importIf (hasTag "dailyPC") ./modules/apps/browser/brave.nix
+    ++ importIf (hasTag "gui") ./modules/apps/filemanager_thunar.nix
+    ++ importIf (hasTag "gui") ./modules/apps/graphics_gimp3.nix
+    ++ importIf (hasTag "gui") ./modules/apps/browser/brave.nix
     #++ importIf (hasTag "dailyPC") ./modules/apps/browser/chromium.nix
     #++ importIf (hasTag "dev") ./modules/apps/browser/firefox.nix
     #./modules/apps/browser/free_download_manager.nix
-    ++ importIf (hasTag "dailyPC") ./modules/apps/browser/google_chrome.nix
-    ++ importIf (hasTag "dailyPC" || hasTag "wsl") ./modules/apps/office_obsidian.nix
+    ++ importIf (hasTag "gui") ./modules/apps/browser/google_chrome.nix
+    ++ importIf (hasTag "gui") ./modules/apps/office_obsidian.nix
     #++ importIf (hasTag "dailyPC") ./modules/apps/office_wps.nix
     # ++ importIf (hasTag "dailyPC") ./modules/apps/im/qq.nix
-    ++ importIf (hasTag "dailyPC") ./modules/apps/im/telegram.nix
-    ++ importIf (hasTag "dailyPC") ./modules/apps/im/wechat.nix
+    ++ importIf (hasTag "gui") ./modules/apps/im/telegram.nix
+    ++ importIf (hasTag "gui") ./modules/apps/im/wechat.nix
     # ++ importIf (hasTag "dailyPC") ./modules/apps/im/wechat_devtools.nix
     ## ++ importIf (hasTag "dailyPC") ./modules/apps/android_mobile_connect.nix
     #++ importIf (hasTag "dailyPC") ./modules/apps/compat_wine_bottles.nix
     # ++ importIf (hasTag "dailyPC") ./modules/apps/download_motrix.nix
-    ++ importIf (hasTag "dailyPC") ./modules/apps/media_vlc.nix
-    ++ importIf (hasTag "dailyPC") ./modules/apps/music_musicfree.nix
+    ++ importIf (hasTag "gui") ./modules/apps/media_vlc.nix
+    ++ importIf (hasTag "gui") ./modules/apps/music_musicfree.nix
     # ++ importIf (hasTag "dailyPC") ./modules/apps/office_trilium_next_desktop.nix
     #++ importIf (hasTag "services") ./modules/apps/pkg_nginx.nix
     # ./modules/apps/remote_todesk.nix
