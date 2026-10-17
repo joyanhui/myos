@@ -5,7 +5,8 @@
   "defaultThinkingLevel": "max",
   "enabledModels": [
     "aihub.top/gpt-5.6-luna",
-    "aihub-sol-astra/gpt-5.6-sol"
+    "aihub-sol-astra/gpt-5.6-sol",
+    "4router-luna/gpt-6-luna"
   ],
   "packages": [
     "npm:@joyanhui/pi-ext-bar-cursor",

@@ -1,4 +1,8 @@
 {
+  "4router-luna": {
+    "type": "api_key",
+    "key": "PLACEHOLDER_API_KEY"
+  },
   "aihub.top": {
     "type": "api_key",
     "key": "PLACEHOLDER_API_KEY"
