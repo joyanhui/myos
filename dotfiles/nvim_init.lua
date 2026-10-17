@@ -935,6 +935,44 @@ snacks.setup {
   },
 }
 
+local terminal_bufnr
+local terminal_winnr
+
+local function toggle_bottom_terminal()
+  if terminal_winnr and vim.api.nvim_win_is_valid(terminal_winnr) then
+    vim.api.nvim_win_close(terminal_winnr, true)
+    terminal_winnr = nil
+    return
+  end
+
+  if not terminal_bufnr or not vim.api.nvim_buf_is_valid(terminal_bufnr) then
+    terminal_bufnr = vim.api.nvim_create_buf(false, true)
+    vim.bo[terminal_bufnr].bufhidden = "hide"
+    vim.api.nvim_buf_call(terminal_bufnr, function()
+      vim.fn.termopen(vim.o.shell, {
+        on_exit = function()
+          vim.schedule(function()
+            if terminal_bufnr and vim.api.nvim_buf_is_valid(terminal_bufnr) then
+              vim.bo[terminal_bufnr].bufhidden = "wipe"
+            end
+            terminal_bufnr = nil
+            terminal_winnr = nil
+          end)
+        end,
+      })
+    end)
+  end
+
+  vim.cmd "botright split"
+  terminal_winnr = vim.api.nvim_get_current_win()
+  vim.api.nvim_win_set_height(terminal_winnr, math.max(8, math.floor(vim.o.lines * 0.25)))
+  vim.api.nvim_win_set_buf(terminal_winnr, terminal_bufnr)
+  vim.cmd "startinsert"
+end
+
+vim.keymap.set({ "n", "t" }, "<C-/>", toggle_bottom_terminal, { desc = "切换底部终端" })
+vim.keymap.set({ "n", "t" }, "<C-_>", toggle_bottom_terminal, { desc = "切换底部终端" })
+
 local picker = snacks.picker
 
 require("grug-far").setup {}
@@ -1007,6 +1045,9 @@ end, { desc = "删除缓冲区 (force)" })
 vim.keymap.set("n", "<leader>bp", "<Cmd>bprevious<CR>", { desc = "上一个缓冲区" })
 vim.keymap.set("n", "<leader>bn", "<Cmd>bnext<CR>", { desc = "下一个缓冲区" })
 vim.keymap.set("n", "<leader>br", "<Cmd>edit<CR>", { desc = "重新加载缓冲区" })
+
+vim.keymap.set({ "n", "x" }, "<leader>y", '"+y', { desc = "复制到系统剪贴板" })
+vim.keymap.set("n", "<leader>Y", '"+Y', { desc = "复制整行到系统剪贴板" })
 
 vim.keymap.set("n", "<leader>cf", function()
   require("conform").format { async = true, lsp_format = "fallback" }
