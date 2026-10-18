@@ -1,3 +1,5 @@
+_G.ghProxy = vim.env.ghProxy or ""
+
 if vim.version.ge(vim.version(), { 0, 12, 0 }) then
 	local pack = {}
 	local ui = {}
@@ -5,6 +7,14 @@ if vim.version.ge(vim.version(), { 0, 12, 0 }) then
 	local function setup_pack()
 		local hooks = {}
 		local registered = false
+
+		local function proxied_source(src)
+			if ghProxy == "" or not src:match("^https://github%.com/") then
+				return src
+			end
+
+			return ghProxy:gsub("/+$", "") .. "/" .. src
+		end
 
 		local function infer_name(src)
 			local name = src:match("/([^/]+)%.git$") or src:match("/([^/]+)$")
@@ -47,7 +57,7 @@ if vim.version.ge(vim.version(), { 0, 12, 0 }) then
 
 			for _, original in ipairs(specs) do
 				if type(original) == "string" then
-					table.insert(pack_specs, original)
+					table.insert(pack_specs, proxied_source(original))
 				else
 					local spec = vim.deepcopy(original)
 					local name = plugin_name(spec)
@@ -66,6 +76,7 @@ if vim.version.ge(vim.version(), { 0, 12, 0 }) then
 						hooks[name] = plugin_hooks
 					end
 
+					spec.src = proxied_source(spec.src)
 					table.insert(pack_specs, spec)
 				end
 			end
