@@ -1,5 +1,6 @@
-{ pkgs
-, ...
+{
+  pkgs,
+  ...
 }:
 # sudo smbpasswd -a my_user
 {
@@ -24,7 +25,7 @@
         "read only" = "yes";
       };
       mnt_auto = {
-        path = "/mnt_auto";
+        path = "/mnt";
         "create mask" = 644;
         "directory mask" = 755;
         available = "yes";

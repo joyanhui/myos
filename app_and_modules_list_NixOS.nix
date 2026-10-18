@@ -107,6 +107,7 @@ in
     #./modules/apps/browser/free_download_manager.nix
     ++ importIf (hasTag "gui") ./modules/apps/browser/google_chrome.nix
     ++ importIf (hasTag "gui") ./modules/apps/office_obsidian.nix
+    # ++ importIf (hasTag "gui") ./modules/apps/obs-studio.nix
     #++ importIf (hasTag "dailyPC") ./modules/apps/office_wps.nix
     # ++ importIf (hasTag "dailyPC") ./modules/apps/im/qq.nix
     ++ importIf (hasTag "gui") ./modules/apps/im/telegram.nix
@@ -124,7 +125,7 @@ in
     ## ++ importIf (hasTag "dailyPC") ./modules/services/virtualisation_waydroid.nix
     # ./modules/services/xrdp.nix
     # ++ importIf (hasTag "dailyPC") ./modules/services/remote_sunshine.nix
-    # ./modules/services/share_samba.nix
+    ++ importIf (hasTag "services") ./modules/services/share_samba.nix
     # ++ importIf (hasTag "dailyPC") ./modules/services/virtualisation_virtualbox.nix
     # ++ importIf (hasTag "dailyPC") ./modules/services/virtualisation_vbox_serv.nix
     ++ importIf (hasTag "services") ./modules/services/virtualisation_docker.nix
