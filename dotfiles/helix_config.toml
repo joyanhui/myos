@@ -1,4 +1,14 @@
 theme = "base16_terminal"
+
+[keys.normal]
+C-y = [
+  ':sh rm -f /tmp/yazi-helix-picker',
+  ':insert-output env EDITOR_COMMAND=hx yazi "%{buffer_name}" --chooser-file=/tmp/yazi-helix-picker',
+  ':sh printf "\\x1b[?1049h\\x1b[?2004h" > /dev/tty',
+  ':open %sh{cat /tmp/yazi-helix-picker}',
+  ':redraw',
+]
+
 [editor]
 soft-wrap.enable = true
 

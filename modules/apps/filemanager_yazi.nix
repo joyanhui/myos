@@ -64,7 +64,7 @@ in
           opener = {
             edit = [
               {
-                run = ''nvim "$@"'';
+                run = ''''${EDITOR_COMMAND:-nvim} "$@"'';
                 block = true;
               }
             ];
