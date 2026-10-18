@@ -129,7 +129,6 @@ if vim.version.ge(vim.version(), { 0, 12, 0 }) then
 			{ src = "https://github.com/nvim-mini/mini.indentscope" },
 			{ src = "https://github.com/nvim-mini/mini.notify" },
 			{ src = "https://github.com/brenoprata10/nvim-highlight-colors" },
-			{ src = "https://github.com/lewis6991/hover.nvim" },
 		})
 
 		local function apply_catppuccin()
@@ -158,21 +157,6 @@ if vim.version.ge(vim.version(), { 0, 12, 0 }) then
 			vim.api.nvim_set_hl(0, "MiniStatuslineDiagnosticError", {
 				fg = "#f38ba8",
 				bold = true,
-			})
-
-			local palette = require("catppuccin.palettes").get_palette()
-			vim.api.nvim_set_hl(0, "HoverActiveSource", {
-				fg = palette.base,
-				bg = palette.mauve,
-				bold = true,
-			})
-			vim.api.nvim_set_hl(0, "HoverInactiveSource", {
-				fg = palette.overlay0,
-				bg = palette.surface0,
-			})
-			vim.api.nvim_set_hl(0, "HoverSourceLine", {
-				fg = palette.overlay0,
-				bg = palette.mantle,
 			})
 		end
 
@@ -213,31 +197,7 @@ if vim.version.ge(vim.version(), { 0, 12, 0 }) then
 				},
 			})
 			require("mini.indentscope").setup()
-
-			require("hover").config({
-				--- List of modules names to load as providers.
-				providers = {
-					"hover.providers.diagnostic",
-					"hover.providers.lsp",
-					"hover.providers.dap",
-					"hover.providers.man",
-					"hover.providers.dictionary",
-					-- Optional, disabled by default:
-					-- 'hover.providers.gh',
-					-- 'hover.providers.gh_user',
-					-- 'hover.providers.jira',
-					-- 'hover.providers.fold_preview',
-					-- 'hover.providers.highlight',
-				},
-				mouse_providers = {
-					-- "hover.providers.lsp",
-				},
-			})
 			ui.apply_highlights()
-			-- Setup keymaps
-			vim.keymap.set("n", "K", function()
-				require("hover").open()
-			end, { desc = "打开悬浮提示" })
 		end
 
 		require("mini.git").setup()
@@ -346,7 +306,6 @@ if vim.version.ge(vim.version(), { 0, 12, 0 }) then
 					vim.system({ "make", "nvim-install" }, { cwd = ev.data.path }):wait()
 				end,
 			},
-			{ src = "https://github.com/nvim-treesitter/nvim-treesitter-context" },
 			{ src = "https://github.com/folke/todo-comments.nvim" },
 			{ src = "https://github.com/OXY2DEV/markview.nvim" },
 			{ src = "https://github.com/nacro90/numb.nvim" },
