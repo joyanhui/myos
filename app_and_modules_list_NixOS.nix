@@ -84,16 +84,16 @@ in
     ++ importIf (hasTag "dev") ./modules/apps/compat_appimage.nix
     ++ importIf (hasTag "dev") ./modules/apps/rclone_kopia.nix
     ++ importIf (hasTag "dev" && !hasTag "wsl") ./modules/apps/gfw_mihomo.nix
-    ++ importIf (hasTag "dev") ./modules/dev/git/git_github_gitea.nix
+    ++ importIf (hasTag "dev") ./modules/dev/git_github_gitea.nix
     ++ importIf (hasTag "dev") ./modules/dev/dev_base_and_import_all.nix
     ++ importIf (hasTag "editor") ./modules/dev/dev_editor_extras.nix
 
     ++ importIf (hasTag "editor") ./modules/dev/ide_helix.nix
-    ++ importIf (hasTag "editor") ./modules/dev/ide_nvim_lazyvim.nix
+    ++ importIf (hasTag "editor") ./modules/dev/ide_nvim_single_cfg.nix
     # ++ importIf (hasTag "editor" && !hasTag "wsl") ./modules/dev/ide_antigravity.nix
     ++ importIf (hasTag "gui") ./modules/dev/ide_thonny.nix
     ++ importIf (hasTag "editor") ./modules/dev/ide_common.nix
-    ++ importIf (hasTag "editor") ./modules/dev/git/tool_lazygit.nix
+    ++ importIf (hasTag "editor") ./modules/dev/tool_lazygit.nix
 
     ++ importIf (hasTag "input-method") ./modules/input-method/fcitx5_rime.nix
     ++ importIf (hasTag "wsl") ./modules/input-method/fcitx5_rime_wsl.nix

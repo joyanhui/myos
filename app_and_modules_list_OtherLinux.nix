@@ -11,10 +11,18 @@ let
   moduleLib = import ./module_list_lib.nix { inherit lib moduleTags; };
   importIf = moduleLib.importIf;
   hasTag = moduleLib.hasTag;
-  extract = file:
+  extract =
+    file:
     let
       mod = (import file) {
-        inherit pkgs lib username moduleTags global_settings inputs;
+        inherit
+          pkgs
+          lib
+          username
+          moduleTags
+          global_settings
+          inputs
+          ;
         config = { };
       };
     in
@@ -35,7 +43,7 @@ in
     ++ importIf (hasTag "common") ./modules/term/tool_grc.nix
 
     ++ importIf (hasTag "gui") (extract ./modules/system/xdg_mimes.nix)
-    ++ importIf (hasTag "dev") (extract ./modules/dev/git/git_github_gitea.nix)
+    ++ importIf (hasTag "dev") (extract ./modules/dev/git_github_gitea.nix)
     ++ importIf (hasTag "dev") (extract ./modules/apps/rclone_kopia.nix)
     ++ importIf (hasTag "dev") (extract ./modules/apps/filemanager_yazi.nix)
     ++ importIf (hasTag "dev") (extract ./modules/term/term_kitty.nix)
@@ -48,9 +56,9 @@ in
     ++ importIf (hasTag "editor") ./modules/dev/dev_editor_extras.nix
 
     ++ importIf (hasTag "editor") (extract ./modules/dev/ide_helix.nix)
-    ++ importIf (hasTag "editor") (extract ./modules/dev/ide_nvim_lazyvim.nix)
+    ++ importIf (hasTag "editor") (extract ./modules/dev/ide_nvim_single_cfg.nix)
     ++ importIf (hasTag "editor") (extract ./modules/dev/ide_common.nix)
-    ++ importIf (hasTag "editor") (extract ./modules/dev/git/tool_lazygit.nix)
+    ++ importIf (hasTag "editor") (extract ./modules/dev/tool_lazygit.nix)
 
     ++ importIf (hasTag "ai") (extract ./modules/ai/ai_common.nix)
     ++ importIf (hasTag "ai") (extract ./modules/ai/cc_switch.nix)
@@ -71,6 +79,5 @@ in
     ++ importIf (hasTag "gui") (extract ./modules/apps/filemanager_thunar.nix)
     ++ importIf (hasTag "desktop" || hasTag "dailyPC") (extract ./modules/desktop/screenshot.nix)
     ++ importIf (hasTag "gui") (extract ./modules/apps/graphics_gimp3.nix)
-    ++ importIf (hasTag "gui") (extract ./modules/dev/ide_thonny.nix)
-  ;
+    ++ importIf (hasTag "gui") (extract ./modules/dev/ide_thonny.nix);
 }

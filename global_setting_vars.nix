@@ -3,7 +3,7 @@ rec {
   repoDir = "/home/nixos/myws/myos";
   stateVersion = "26.05";
 
-  editor = "hx";
+  editor = "nvim";
 
   secretsUnlocked =
     let

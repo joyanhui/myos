@@ -6,7 +6,7 @@ with lib;
 let
   defaultApps = {
     browser = [ "brave-browser.desktop" ];
-    text = [ "Helix.desktop" ];
+    text = [ "nvim.desktop" ];
     image = [ "imv.desktop" ];
     audio = [ "mpv.desktop" ];
     video = [ "mpv.desktop" ];
