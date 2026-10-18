@@ -734,6 +734,15 @@ if vim.version.ge(vim.version(), { 0, 12, 0 }) then
 			},
 		})
 
+		pack.add({
+			{ src = "https://github.com/mikavilpas/yazi.nvim", name = "yazi.nvim" },
+		})
+
+		require("yazi").setup({
+			open_for_directories = false,
+		})
+		vim.keymap.set("n", "<C-y>", "<Cmd>Yazi<CR>", { desc = "打开 Yazi" })
+
 		local terminal_bufnr
 		local terminal_winnr
 

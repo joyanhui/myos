@@ -47,6 +47,7 @@ in
     ++ importIf (hasTag "dev") (extract ./modules/apps/rclone_kopia.nix)
     ++ importIf (hasTag "dev") (extract ./modules/apps/filemanager_yazi.nix)
     ++ importIf (hasTag "dev") (extract ./modules/term/term_kitty.nix)
+    ++ importIf (hasTag "dev") (extract ./modules/term/term_rio.nix)
     ++ importIf (hasTag "dev") (extract ./modules/term/term_ghostty.nix)
     ++ importIf (hasTag "dev") (extract ./modules/term/term_vte.nix)
     ++ importIf (hasTag "dev") (extract ./modules/term/tool_xclip.nix)

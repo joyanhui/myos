@@ -76,6 +76,7 @@ in
     ++ importIf (hasTag "dev") ./modules/system/font_i18n.nix
     ++ importIf (hasTag "dev") ./modules/system/nix_ld.nix
     ++ importIf (hasTag "dev") ./modules/term/term_kitty.nix
+    ++ importIf (hasTag "dev") ./modules/term/term_rio.nix
     ++ importIf (hasTag "dev" && !hasTag "wsl") ./modules/term/term_vte.nix
     ++ importIf (hasTag "dev") ./modules/term/term_ghostty.nix
     ++ importIf (hasTag "dev") ./modules/term/tool_grc.nix
