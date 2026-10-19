@@ -25,7 +25,7 @@ let
     background-blur = true
     command = zsh
     cursor-style = bar
-    font-family = "Sarasa Fixed SC"
+    font-family = "${font.mono}"
     font-size = ${toString font.size.term}
 
   '';

@@ -110,7 +110,7 @@ local function start_session_services()
 		"systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE HYPRLAND_INSTANCE_SIGNATURE; systemctl --user restart fcitx5"
 	)
 	hl.exec_cmd(
-		"swayidle -w timeout 600 'swaylock -f' timeout 660 'hyprctl dispatch \'hl.dsp.dpms({ action = \"disable\" })\'' resume 'hyprctl dispatch \'hl.dsp.dpms({ action = \"enable\" })\'' before-sleep 'swaylock -f'"
+		"swayidle -w timeout 600 'swaylock -f' timeout 660 \"hyprctl dispatch 'hl.dsp.dpms({ action = \\\"disable\\\" })'\" resume \"hyprctl dispatch 'hl.dsp.dpms({ action = \\\"enable\\\" })'\" before-sleep 'swaylock -f'"
 	)
 	hl.exec_cmd(
 		"dbus-update-activation-environment --systemd WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE HYPRLAND_INSTANCE_SIGNATURE; systemctl --user restart xdg-desktop-portal"

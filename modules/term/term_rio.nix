@@ -15,28 +15,19 @@ let
     "#2A2110"
   ];
   rioConfig = background: ''
-    copy-on-select = true
-    hide-mouse-cursor-when-typing = true
-
     [fonts]
     family = "${font.mono}"
-    size = ${toString font.size.term}
+    size = 18
 
     [window]
     opacity = 0.88
-    blur = true
+
+    [navigation]
+    mode = "Tab"
 
     [colors]
     background = "${background}"
 
-    [cursor]
-    shape = "beam"
-    blinking = true
-    blinking-interval = 500
-
-    [shell]
-    program = "zsh"
-    args = ["--login"]
   '';
   rioConfigFiles = builtins.listToAttrs (
     [
@@ -45,13 +36,10 @@ let
         value.text = rioConfig (builtins.elemAt backgroundColors 0);
       }
     ]
-    ++ builtins.genList (
-      index:
-      {
-        name = "rio/config_${toString index}/config.toml";
-        value.text = rioConfig (builtins.elemAt backgroundColors index);
-      }
-    ) (builtins.length backgroundColors)
+    ++ builtins.genList (index: {
+      name = "rio/config_${toString index}/config.toml";
+      value.text = rioConfig (builtins.elemAt backgroundColors index);
+    }) (builtins.length backgroundColors)
   );
   lastConfigIndex = builtins.length backgroundColors - 1;
   rioRandomBg = pkgs.writeShellScriptBin "rio-random-bg" ''
@@ -71,14 +59,12 @@ let
   '';
 in
 {
-  home-manager = {
-    users.${username} = {
-      home.packages = [
-        pkgs.rio
-        rioRandomBg
-      ];
+  home-manager.users.${username} = {
+    home.packages = [
+      pkgs.unstable.rio
+      rioRandomBg
+    ];
 
-      xdg.configFile = rioConfigFiles;
-    };
+    xdg.configFile = rioConfigFiles;
   };
 }

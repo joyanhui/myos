@@ -8,141 +8,26 @@ Raw OS 使用 NixOS 构建 GPT raw 镜像。镜像可以直接写入磁盘启动
 
 ## 构建与部署
 
-### 配置职责
+### host配置职责
 
 - `raw_os_core_img_creat`
   - 基础镜像构建配置。
   - 生成初始 `nixos.raw`。
   - 为 raw 内部生成 `rawOsBootEfi`、菜单文件和初始 UKI。
-  - 生成与硬件平台无关的基础系统，不包含 `raw_os_work_amd` 或 `raw_os_work_intel` 的完整工作环境。
-- `raw_os_work_amd`
-  - 运行在 raw OS 内的 AMD 工作环境配置。
-  - 通过 `amd` tag 启用 AMD IOMMU、KVM 和 VFIO 设置。
-  - 用 `nixos-rebuild switch` 更新运行中的系统和 raw 内部 ESP。
-- `raw_os_work_intel`
-  - 运行在 raw OS 内的 Intel 工作环境配置。
-  - 通过 `intel` tag 启用 Intel IOMMU、KVM 和 VFIO 设置。
+  - 生成与硬件平台无关的基础系统，不包含完整日用环境，只有基本的的常用工具。
+- `raw_os_work_intel/amd`
+  - 运行在 raw OS 基础上的 AMD/Intel 工作环境配置。
+  - 根据 `amd` 或 `intel` tag 启用对应的 IOMMU、KVM 和 VFIO 设置。
   - 用 `nixos-rebuild switch` 更新运行中的系统和 raw 内部 ESP。
 
 ### 产物和职责
 
-| 产物                   | 来源                                              | 部署位置                                | 用途                             | 普通系统更新是否更新       |
-| ---------------------- | ------------------------------------------------- | --------------------------------------- | -------------------------------- | -------------------------- |
-| `nixos.raw`            | `raw_os_core_img_creat.config.system.build.image` | 目标磁盘，或 NTFS 的 `OS-img/nixos.raw` | raw 系统镜像                     | 不直接更新；替换镜像时更新 |
-| `rawOsBootEfi`         | `system.build.rawOsBootEfi`                       | raw 内部 `EFI/BOOT/BOOTX64.EFI`         | 内部 standalone GRUB loader      | 是                         |
-| raw 内部菜单和 UKI     | `nixos-rebuild switch` 的 bootloader install hook | raw 内部 `EFI/NixOS/raw-os/`            | generation 菜单和 NixOS 启动载荷 | 是                         |
-| `rawOsExternalBootEfi` | `system.build.rawOsExternalBootEfi`               | 宿主 ESP 的自定义 EFI 路径              | 搜索并加载 NTFS 中的 raw 镜像    | 否                         |
+| 产物                   | 构建来源                                            | 部署位置                                | 用途                             | 普通系统更新是否更新       |
+| ---------------------- | --------------------------------------------------- | --------------------------------------- | -------------------------------- | -------------------------- |
+| `nixos.raw`            | `raw_os_core_img_creat.config.system.build.image`   | 目标磁盘，或 NTFS 的 `OS-img/nixos.raw` | raw 系统镜像                     | 不直接更新；替换镜像时更新 |
+| `rawOsExternalBootEfi` | `system.build.rawOsExternalBootEfi`                 | 宿主 ESP 的自定义 EFI 路径              | 搜索并加载 NTFS 中的 raw 镜像    | 否                         |
 
-`system.build.uki` 是基础镜像构建过程使用的内部构建产物，不是需要单独部署或单独更新的外部 EFI。不要按照旧文档单独构建 `system.build.uki`。
-
-<a id="raw-os-initial-build"></a>
-
-### 初次构建
-
-以下命令是 Raw OS 初始构建的唯一标准命令。命令需要在仓库根目录执行，并将基础镜像复制为当前目录的 `nixos.raw`：
-
-```bash
-set -euo pipefail
-repo_dir="$(git rev-parse --show-toplevel)"
-cd "$repo_dir"
-image_dir="$(nix build --no-link --print-out-paths \
-  .#nixosConfigurations.raw_os_core_img_creat.config.system.build.image)"
-cp --reflink=auto "$image_dir/nixos.raw" "$repo_dir/nixos.raw"
-```
-
-构建得到的 raw 镜像内部已经包含：
-
-```text
-EFI/BOOT/BOOTX64.EFI
-EFI/NixOS/raw-os/grub.cfg
-EFI/NixOS/raw-os/nixos-current.efi
-EFI/NixOS/raw-os/nixos-generation-1.efi
-```
-
-不需要再执行 `system.build.uki`、`system.build.rawOsBootEfi` 或其他内部 EFI 的独立构建命令来补充镜像内容。
-
-<a id="raw-os-external-efi-build"></a>
-
-### 初次构建外部固定 EFI
-
-外部固定 EFI 与 raw 镜像是两个不同产物。它只在首次部署、外部启动逻辑发生变化或文件损坏时构建：
-
-```bash
-machine/raw_os/docs_script/creat-rawOsExternalBootEfi.sh -o ./nixos-img.efi
-```
-
-或者直接使用本仓库的 ` machine/raw_os/docs_script/nixos-img.efi`
-
-将 `nixos-img.efi` 复制到宿主 ESP 的自定义路径，例如：
-
-```text
-EFI/NixOS/nixos-img.efi
-```
-
-然后使用目标机器的 UEFI 管理工具创建启动项，指向该文件。外部 EFI 不应覆盖宿主现有的 `EFI/BOOT/BOOTX64.EFI`，除非明确需要使用 fallback 路径。
-
-宿主 NTFS 分区需要放置：
-
-```text
-OS-img/nixos.raw
-```
-
-外部启动链路和文件职责见：[Raw OS 引导架构与 UKI 说明](docs_script/UKI启动说明.md)。
-
-### 直接写盘启动
-
-将 `nixos.raw` 写入目标磁盘后，UEFI 会从镜像内部的 `EFI/BOOT/BOOTX64.EFI` 启动：
-
-```bash
-sudo dd if=./nixos.raw of=/dev/<target-disk> bs=16M status=progress conv=fsync
-```
-
-目标磁盘上的原有数据会被覆盖。直接写盘时不需要宿主 NTFS，也不需要外部固定 EFI。
-
-### 从 NTFS 文件启动
-
-从 NTFS 启动时，文件和启动项关系如下：
-
-```text
-宿主 ESP/EFI/NixOS/nixos-img.efi
-    ↑ UEFI 启动项指向
-宿主 NTFS/OS-img/nixos.raw
-    ↑ 外部 EFI 搜索
-raw 内部 EFI/NixOS/raw-os/grub.cfg
-    ↑ 外部 EFI 通过 loopback 读取
-raw 内部的当前或指定 generation UKI
-```
-
-外部 EFI 只负责：
-
-- 搜索宿主 ESP 上的 Windows Boot Manager；
-- 搜索 NTFS 中的 `/OS-img/nixos.raw`；
-- 以 loopback 方式读取 raw 内部的 `EFI/NixOS/raw-os/grub.cfg`。
-
-外部 EFI 不保存以下文件：
-
-```text
-nixos-current.efi
-grub.cfg
-nixos-generation-*.efi
-```
-
-因此，替换 NTFS 中的 `OS-img/nixos.raw` 后，外部固定 EFI 不需要变化。
-
-<a id="raw-os-runtime-update"></a>
-
-### Raw OS 内更新工作环境
-
-以下命令必须在已经启动的 raw OS 内执行，并且在仓库根目录运行。根据实际硬件设置 `target`：AMD 使用 `raw_os_work_amd`，Intel 使用 `raw_os_work_intel`。
-
-```bash
-target=raw_os_work_amd
-sudo nixos-rebuild switch \
-  --flake ".#$target" \
-  --option substituters https://cache.nixos.org
-```
-
-更新后，bootloader install hook 会更新 raw 内部：
+`nixos.raw` 内部包含 `rawOsBootEfi`、raw 内部菜单和 UKI：
 
 ```text
 EFI/BOOT/BOOTX64.EFI
@@ -151,60 +36,95 @@ EFI/NixOS/raw-os/nixos-current.efi
 EFI/NixOS/raw-os/nixos-generation-*.efi
 ```
 
-其中：
 
-- 当前 generation 必须保留；
-- `nixos-current.efi` 单独保留，不计入 generation 数量；
-- generation UKI 按编号从新到旧最多保留 8 个；
-- 安装新文件前先删除不在本次保留列表中的旧 generation，确保原子替换临时文件有足够空间；安装完成后再执行一次清理。
+<a id="raw-os-initial-build"></a>
 
-上述命令不会更新宿主 ESP 上的外部固定 EFI：
+### 构建nixos.raw
 
-```text
-宿主 ESP/EFI/NixOS/nixos-img.efi
+以下命令是 Raw OS 初始构建的命令。构建完成后，命令会输出镜像目录，请从该目录手动复制 `nixos.raw`
+到目标目录（宿主机的NTFS分区）：
+
+```bash
+nix build --no-link --print-out-paths .#nixosConfigurations.raw_os_core_img_creat.config.system.build.image
 ```
 
-### 重新构建外部固定 EFI
+例如，若输出目录为 `/nix/store/...-nixos-disk-image`，执行：
 
-普通的 `nixos-rebuild switch`、generation 更新和 NTFS raw 镜像替换都不需要重新构建外部 EFI。只有以下情况需要重新执行[初次构建外部固定 EFI](#raw-os-external-efi-build)：
-
-- 修改外部 GRUB 的 raw 搜索路径；
-- 修改 raw 内部菜单路径；
-- 修改外部 EFI 使用的 GRUB 模块；
-- 更新 nixpkgs 后需要重新验证外部 EFI；
-- 外部 EFI 文件损坏或需要重新部署。
-
-### 替换 NTFS 中的 raw 镜像
-
-构建并验证新的 `nixos.raw` 后，只替换宿主 NTFS 上的对应文件：
-
-```text
-宿主 NTFS/OS-img/nixos.raw
+```bash
+cp --reflink=auto /nix/store/...-nixos-disk-image/nixos.raw /mnt/d/OS-img/nixos.raw
 ```
 
-不要在普通更新时替换宿主 ESP 上的外部固定 EFI。替换镜像后，外部 EFI 会继续搜索相同路径，并读取新镜像内部的菜单和 UKI。
+构建得到的 raw 镜像内部已经包含：`EFI/BOOT/BOOTX64.EFI  EFI/NixOS/raw-os/grub.cfg  EFI/NixOS/raw-os/nixos-current.efi  EFI/NixOS/raw-os/nixos-generation-1.efi`
 
-## 内部文件布局
+<a id="raw-os-external-efi-build"></a>
 
-raw 镜像内部 ESP：
+### 构建外部固定 EFI(nixos-img.efi)
 
-```text
-EFI/BOOT/BOOTX64.EFI
-EFI/NixOS/raw-os/grub.cfg
-EFI/NixOS/raw-os/nixos-current.efi
-EFI/NixOS/raw-os/nixos-generation-<generation>.efi
+外部EFI用来在物理机器上搜索NTFS分区的nixos.raw并完成物理启动nixos。只在首次处理物理机引导时候构建和部署：
+
+```bash
+machine/raw_os/docs_script/creat-rawOsExternalBootEfi.sh -o ./nixos-img.efi
 ```
 
-宿主 ESP 和 NTFS：
+或者直接使用本仓库的 ` machine/raw_os/docs_script/nixos-img.efi`
 
-```text
-ESP/EFI/NixOS/nixos-img.efi
-NTFS/OS-img/nixos.raw
+将 `nixos-img.efi` 复制到宿主 ESP/EFI分区，例如：`EFI/NixOS/nixos-img.efi` 或 `EFI/BOOT/nixos-img.efi` 。
+
+在win下可以使用DiskGenius找到自己的ESP分区把这个文件复制过去，然后用DiskGenius的工具里面的UEFI管理功能新增一个启动项指向这个文件。
+
+外部启动链路和文件职责见：[Raw OS 引导架构与 UKI 说明](docs_script/UKI启动说明.md)。
+
+### 直接写盘启动(写到U盘或者硬盘方式)
+
+将 `nixos.raw` 写入目标磁盘后，UEFI 会从镜像内部的 `EFI/BOOT/BOOTX64.EFI` 启动：`sudo dd if=./nixos.raw of=/dev/<target-disk> bs=16M status=progress conv=fsync`
+
+然后重启电脑，选择这个u盘/硬盘引导即可。此时不需要外部efi文件即可启动和正常安装的nixos系统一样使用。
+
+### 使用物理机把nixos.raw模拟为一个真实的磁盘启动
+
+- 把nixos.raw放到 物理机任意NTFS分区下的 /OS-img/nixos.raw
+- 把外部efi`nixos-img.efi`放到物理机的ESP/EFI分区，并注册为UEFI引导项
+- 开机选择这个新增的引导项启动,会自动完成如下启动流程
+   - 搜索 `NTFS分区:/OS-img/nixos.raw`
+   - 搜索物理机机上现有的Windows的引导文件
+   - 加载nixos.raw内部efi分区的grub.cfg
+   - 绘制一个 可以选择nixos不同generation 和 Windows 的可选启动菜单
+   - 根据选择的启动项完成后续efi启动逻辑
+
+### 虚拟机启动
+
+以qemu在Windows的启动方法为例
+```powershell
+& "C:\Program Files\qemu\qemu-system-x86_64.exe" `
+  -machine q35,accel=whpx `
+  -cpu max `
+  -m 8G `
+  -smp 4 `
+  -drive "if=pflash,format=raw,readonly=on,file=C:\Program Files\qemu\share\edk2-x86_64-code.fd" `
+  -drive "if=pflash,format=raw,file=D:\OS-img\OVMF-vars.fd" `
+  -drive "if=virtio,format=raw,file=D:\OS-img\nixos.raw,cache=writeback" `
+  -device virtio-vga-gl,max_outputs=1 `
+  -display sdl,gl=on `
+  -netdev user,id=net0 `
+  -device virtio-net-pci,netdev=net0 `
+  -serial stdio
 ```
+
+<a id="raw-os-runtime-update"></a>
+
+### Raw OS 内nixos-rebulid方法
+
+以下命令必须在已经启动的 raw OS 内执行，并且在仓库根目录运行。根据实际硬件设置 `target`：AMD 使用 `raw_os_work_amd`，Intel 使用 `raw_os_work_intel`。
+
+```bash
+sudo nixos-rebuild switch --flake .#raw_os_work_amd \
+  --option substituters https://cache.nixos.org
+```
+
 
 ## 测试、扩容和 QEMU
 
 - 测试和验收流程见：[Raw OS 测试和验证方法](docs_script/测试和验证方法.md)。
 - 引导链路、GRUB、UKI 和 initrd 服务说明见：[Raw OS 引导架构与 UKI 说明](docs_script/UKI启动说明.md)。
 - raw 镜像扩容见：[raw 镜像扩容方法](docs_script/raw扩容方法.md)。
-- QEMU 启动脚本和固件位于 `kvm-config/`。
+- QEMU fd固件位于 `kvm-config/`,也可以自己从qemu安装目录获取。
