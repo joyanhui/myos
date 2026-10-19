@@ -45,10 +45,11 @@ in
     isNormalUser = true;
     extraGroups = [ "wheel" ];
     password = "nixos";
-    shell = pkgs.bash;
+    shell = lib.mkForce pkgs.bash;
   };
   security.sudo.wheelNeedsPassword = false;
 
+  programs.zsh.enable = lib.mkForce false;
   programs.fish.enable = true;
   programs.git.enable = true;
   system.stateVersion = global_settings.stateVersion;
