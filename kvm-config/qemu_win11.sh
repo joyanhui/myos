@@ -36,8 +36,8 @@ sudo -E qemu-system-x86_64 \
   "${INPUT_OPTS[@]}" \
   -drive "if=pflash,format=raw,readonly=on,file=${FW_DIR}/OVMF.fd" \
   -drive "if=pflash,format=raw,file=${FW_DIR}/OVMF_VARS.fd" \
-  -drive "if=none,id=system,file=/mnt_auto/autofs/NVME_NTFS/win11.vhd,format=vpc,cache=writeback,aio=io_uring" \
+  -drive "if=none,id=system,file=/mnt/NVME_NTFS/win11.vhd,format=vpc,cache=writeback,aio=io_uring" \
   -device nvme,drive=system,serial=win11vhd0 \
-  -drive file=/mnt_auto/autofs/DATA128G/Core_File/ISO/HotPE-V2.8.251018.iso,media=cdrom,index=1 \
-  -drive file=/mnt_auto/autofs/DATA128G/Core_File/ISO/virtio-win-0.1.285.iso,media=cdrom,index=2 \
+  -drive file=/mnt/DATA128G/Core_File/ISO/HotPE-V2.8.251018.iso,media=cdrom,index=1 \
+  -drive file=/mnt/DATA128G/Core_File/ISO/virtio-win-0.1.285.iso,media=cdrom,index=2 \
   -nic user,hostfwd=tcp::3391-:3389,model=e1000e
