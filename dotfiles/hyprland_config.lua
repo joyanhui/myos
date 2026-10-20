@@ -99,6 +99,15 @@ hl.config({
 })
 
 hl.window_rule({
+	name = "kitty-tiled",
+	match = { class = "^kitty$" },
+	float = false,
+	tile = true,
+	fullscreen_state = "0 0",
+	suppress_event = "fullscreen maximize fullscreenoutput",
+})
+
+hl.window_rule({
 	name = "brave-default-floating",
 	match = { class = "^brave-.*-Default$" },
 	float = true,
