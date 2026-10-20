@@ -17,11 +17,18 @@ has_display() {
 
 if has_display; then
   echo "检测到桌面环境，启用图形显示"
-  DISPLAY_OPTS=("-display" "gtk" "-device" "virtio-vga")
+  DISPLAY_OPTS=(
+    -display gtk,gl=on
+    -device virtio-vga-gl,hostmem=2G,blob=true,venus=true
+  )
   INPUT_OPTS=("-device" "qemu-xhci" "-device" "usb-tablet" "-device" "usb-kbd")
 else
   echo "无桌面环境，启用 headless 模式（RDP 访问端口 3391）"
-  DISPLAY_OPTS=("-display" "none" "-vga" "none")
+  DISPLAY_OPTS=(
+    -display none
+    -vga none
+    -device virtio-vga,hostmem=2G
+  )
   INPUT_OPTS=("-device" "qemu-xhci" "-device" "usb-tablet" "-device" "usb-kbd")
 fi
 
