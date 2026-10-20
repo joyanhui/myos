@@ -7,8 +7,7 @@ set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 FW_DIR="${SCRIPT_DIR}/firmware"
 
-ROM_MODE="vbios"
-
+ROM_MODE="none"
 declare -A ROM_FILES
 ROM_FILES["1002:1681"]="vbios_6800h.bin"
 ROM_FILES["1002:1640"]="AMDGopDriver_6800H.rom"
@@ -16,13 +15,6 @@ ROM_FILES["1002:1640"]="AMDGopDriver_6800H.rom"
 DEVICES_PASSTHROUGH=(
   "1002:1681 amdgpu"
   "1002:1640 snd_hda_intel"
-  "1217:8621 sdhci-pci"
-  "1022:161d xhci_hcd"
-  # "1022:161e xhci_hcd          # USB 控制器 #4"
-  # "1022:161f xhci_hcd          # USB 控制器 #8"
-  # "1022:15d6 xhci_hcd          # USB 控制器 #5"
-  # "1022:15d7 xhci_hcd          # USB 控制器 #6"
-  # "1022:162e xhci_hcd          # USB4 NHI 控制器 #1"
 )
 
 DEVICES_PERMANENT=(
@@ -32,8 +24,6 @@ DEVICES_PERMANENT=(
 declare -A ADDR_FALLBACK
 ADDR_FALLBACK["1002:1681"]="0000:75:00.0"
 ADDR_FALLBACK["1002:1640"]="0000:75:00.1"
-ADDR_FALLBACK["1217:8621"]="0000:04:00.0"
-ADDR_FALLBACK["1022:161d"]="0000:75:00.3"
 
 INPUT_DEVICES=(
   "/dev/input/by-path/platform-i8042-serio-0-event-kbd"
