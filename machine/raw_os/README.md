@@ -95,20 +95,21 @@ machine/raw_os/docs_script/creat-rawOsExternalBootEfi.sh -o ./nixos-img.efi
 
 以qemu在Windows的启动方法为例
 ```powershell
-& "C:\Program Files\qemu\qemu-system-x86_64.exe" `
-  -machine q35,accel=whpx `
-  -cpu max `
-  -m 8G `
-  -smp 4 `
-  -drive "if=pflash,format=raw,readonly=on,file=C:\Program Files\qemu\share\edk2-x86_64-code.fd" `
-  -drive "if=pflash,format=raw,file=N:\OS-img\OVMF-vars.fd" `
-  -drive "if=virtio,format=raw,file=N:\OS-img\nixos.raw,cache=writeback" `
-  -device virtio-vga-gl,max_outputs=1 `
-  -display sdl,gl=on `
-  -netdev user,id=net0 `
-  -device virtio-net-pci,netdev=net0 `
-  -serial stdio
+    & "C:\Program Files\qemu\qemu-system-x86_64.exe" `
+      -machine q35,accel=whpx -cpu max -m 8G -smp 4 `
+      -drive "if=pflash,format=raw,readonly=on,file=C:\Program Files\qemu\share\edk2-x86_64-code.fd" `
+      -drive "if=pflash,format=raw,file=N:\OS-img\OVMF-vars.fd" `
+      -drive "if=virtio,format=raw,file=N:\OS-img\nixos.raw,cache=writeback" `
+      -device virtio-vga  -display sdl `
+      -device qemu-xhci -device usb-tablet `
+      -netdev user,id=net0  -device virtio-net-pci,netdev=net0 `
+      -serial stdio
 ```
+如果没能启动而是进入到了efi shell 输入 ` FS0:\EFI\BOOT\BOOTX64.EFI`  即可手动选择启动。
+获取 OVMF-vars.fd 可以从qemu的安装目录获取。
+`Copy-Item "C:\Program Files\qemu\share\edk2-x86_64-code.fd" "N:\OS-img\OVMF-vars.fd" `
+
+
 
 <a id="raw-os-runtime-update"></a>
 
