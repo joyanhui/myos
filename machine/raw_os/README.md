@@ -101,8 +101,8 @@ machine/raw_os/docs_script/creat-rawOsExternalBootEfi.sh -o ./nixos-img.efi
   -m 8G `
   -smp 4 `
   -drive "if=pflash,format=raw,readonly=on,file=C:\Program Files\qemu\share\edk2-x86_64-code.fd" `
-  -drive "if=pflash,format=raw,file=D:\OS-img\OVMF-vars.fd" `
-  -drive "if=virtio,format=raw,file=D:\OS-img\nixos.raw,cache=writeback" `
+  -drive "if=pflash,format=raw,file=N:\OS-img\OVMF-vars.fd" `
+  -drive "if=virtio,format=raw,file=N:\OS-img\nixos.raw,cache=writeback" `
   -device virtio-vga-gl,max_outputs=1 `
   -display sdl,gl=on `
   -netdev user,id=net0 `
