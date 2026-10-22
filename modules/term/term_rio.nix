@@ -5,6 +5,19 @@
   ...
 }:
 let
+  rioHelp = pkgs.writeShellScriptBin "rio-help" ''
+    cat <<'EOF'
+    Rio 快捷键（默认及当前配置）
+
+    Ctrl+Shift+N       新建窗口
+    Ctrl+Shift+W       关闭窗口
+    Ctrl+Shift+T       新建标签页
+    Ctrl+Shift+PageUp  上一个标签页
+    Ctrl+Shift+PageDown 下一个标签页
+    Ctrl+Shift+Enter   切换全屏
+    当前配置 navigation.mode = Tab：通过标签页切换导航
+    EOF
+  '';
   font = global_settings.font;
   backgroundColors = [
     "#0A181A"
@@ -18,6 +31,9 @@ let
     [fonts]
     family = "${font.mono}"
     size = 18
+
+    [cursor]
+    shape = "beam"
 
     [window]
     opacity = 0.88
@@ -63,6 +79,7 @@ in
     home.packages = [
       pkgs.unstable.rio
       rioRandomBg
+      rioHelp
     ];
 
     xdg.configFile = rioConfigFiles;

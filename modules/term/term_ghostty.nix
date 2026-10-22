@@ -10,6 +10,21 @@ let
 
     ghostty 默认快捷 是 Ctrl + Shift + O（左右分 ）Ctrl + Shift + E （上下分）
   '';
+  ghosttyHelp = pkgs.writeShellScriptBin "ghostty-help" ''
+    cat <<'EOF'
+    Ghostty 快捷键（默认及当前配置）
+
+    Ctrl+Shift+O  左右分屏
+    Ctrl+Shift+E  上下分屏
+    Ctrl+Shift+方向键  在分屏间切换
+    Ctrl+Shift+W  关闭当前分屏
+    Ctrl+Shift+N  新建窗口
+    Ctrl+Shift+T  新建标签页
+    Ctrl+Tab      下一个标签页
+    Ctrl+Shift+Tab 上一个标签页
+    Ctrl+Shift+R  重新加载配置
+    EOF
+  '';
   font = global_settings.font;
   backgroundColors = [
     "#0A181A"
@@ -65,6 +80,7 @@ in
     home.packages = [
       pkgs.ghostty
       ghosttyRandomBg
+      ghosttyHelp
     ];
 
     xdg.configFile = ghosttyConfigFiles // {

@@ -1,0 +1,75 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 38,
+  "spacing": 8,
+  "modules-left": ["niri/workspaces"],
+  "modules-center": ["niri/window"],
+  "modules-right": ["cpu", "memory", "network", "battery", "backlight", "tray", "pulseaudio", "clock"],
+  "niri/workspaces": {
+    "all-outputs": false,
+    "format": "{name}",
+    "disable-scroll": true
+  },
+  "niri/window": {
+    "format": "{title}",
+    "max-length": 80
+  },
+  "cpu": {
+    "interval": 2,
+    "format": "<span font='20'>󰻠</span> {usage}%",
+    "tooltip": true
+  },
+  "memory": {
+    "interval": 10,
+    "format": "<span font='20'>󰍛</span> {percentage}%",
+    "tooltip": true
+  },
+  "network": {
+    "interface": "wlo*",
+    "format-wifi": "<span font='20'>󰤨</span> {essid} {signalStrength}%",
+    "format-ethernet": "<span font='20'>󰈀</span> {ifname}",
+    "format-linked": "<span font='20'>󰤭</span> {ifname}",
+    "format-disconnected": "<span font='20'>󰤭</span> offline",
+    "tooltip-format": "{ifname}: {ipaddr}/{cidr}",
+    "on-click": "nm-connection-editor"
+  },
+  "battery": {
+    "states": {
+      "warning": 30,
+      "critical": 15
+    },
+    "format": "<span size='xx-large'>{icon}</span> {capacity}%",
+    "format-charging": "<span size='xx-large'>󱐋</span> {capacity}%",
+    "format-plugged": "<span size='xx-large'>󰚥</span> {capacity}%",
+    "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂"],
+    "tooltip": true
+  },
+  "backlight": {
+    "format": "<span font='20'>󰃠</span> {percent}%",
+    "format-icons": ["󰃠"],
+    "scroll-step": 5,
+    "tooltip": true
+  },
+  "tray": {
+    "icon-size": 16,
+    "spacing": 6,
+    "show-passive-items": false,
+    "icons": {
+      "Fcitx": "input-keyboard"
+    }
+  },
+  "pulseaudio": {
+    "format": "<span font='20'>󰕾</span> {volume}%",
+    "format-muted": "<span font='20'>󰝟</span> muted",
+    "format-icons": ["󰕿", "󰖀", "󰕾"],
+    "max-volume": 100,
+    "scroll-step": 5,
+    "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+    "on-click-right": "pavucontrol"
+  },
+  "clock": {
+    "format": "<span font='20'>󰥔</span>  {:%a %d %b  %H:%M}",
+    "tooltip-format": "{:%A, %B %d, %Y}"
+  }
+}

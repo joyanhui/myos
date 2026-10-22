@@ -203,6 +203,7 @@ hl.bind(
 	hl.dsp.exec_cmd("thunar"),
 	{ description = "file manager (thunar) | 文件管理器 (thunar)" }
 )
+hl.bind(mod_key("SHIFT + B"), hl.dsp.exec_cmd("brave"), { description = "web browser (brave) | 浏览器 (brave)" })
 hl.bind(
 	mod_key("CTRL + SHIFT + RETURN"),
 	hl.dsp.exec_cmd("kitty"),

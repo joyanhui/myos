@@ -1,0 +1,106 @@
+* {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  font-family: "Symbols Nerd Font", "Noto Sans", "Noto Sans CJK SC", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #e3e8e2;
+}
+
+window#waybar {
+  background: rgba(18, 22, 25, 0.72);
+  border: 1px solid rgba(224, 240, 229, 0.16);
+  border-radius: 18px;
+}
+
+.modules-left, .modules-center, .modules-right {
+  background: transparent;
+  margin: 3px 6px;
+}
+
+#workspaces button, #window, #cpu, #memory, #tray, #wireplumber, #clock {
+  color: #e3e8e2;
+  border-radius: 999px;
+  padding: 3px 10px;
+  margin: 0 4px;
+}
+
+#workspaces button {
+  color: rgba(227, 232, 226, 0.68);
+  padding: 3px 9px;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+#workspaces button:hover {
+  background: rgba(255, 255, 255, 0.10);
+  box-shadow: none;
+}
+
+#workspaces button.active {
+  color: #102019;
+  background: #a8d5b5;
+}
+
+#workspaces button.urgent {
+  color: #ffb4ab;
+}
+
+#window {
+  color: #e3e8e2;
+}
+
+#network, #battery, #backlight {
+  color: #e3e8e2;
+  border-radius: 999px;
+  padding: 3px 10px;
+  margin: 0 4px;
+  min-height: 30px;
+}
+
+#network label, #battery label, #backlight label {
+  font-size: 17px;
+}
+
+#network {
+  background: rgba(45, 105, 111, 0.88);
+}
+
+#battery {
+  background: rgba(133, 70, 76, 0.88);
+}
+
+#backlight {
+  background: rgba(117, 77, 48, 0.88);
+}
+
+#cpu {
+  background: rgba(117, 77, 48, 0.88);
+}
+
+#memory, #tray {
+  background: rgba(91, 75, 125, 0.88);
+}
+
+#pulseaudio, #pulseaudio.bluetooth {
+  color: #e3e8e2;
+  background: rgba(45, 105, 111, 0.88);
+  border-radius: 999px;
+  padding: 3px 10px;
+  margin: 0 4px;
+}
+
+#wireplumber {
+  background: rgba(45, 105, 111, 0.88);
+}
+
+#clock {
+  background: rgba(133, 70, 76, 0.88);
+}
+
+tooltip {
+  color: #e3e8e2;
+  background: rgba(29, 35, 32, 0.94);
+  border: 1px solid rgba(224, 240, 229, 0.14);
+  border-radius: 16px;
+}

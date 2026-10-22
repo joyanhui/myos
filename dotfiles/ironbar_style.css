@@ -35,6 +35,37 @@
   background-color: rgba(45, 105, 111, 0.88);
 }
 
+#volume {
+  background-color: rgba(45, 105, 111, 0.88);
+  border-radius: 999px;
+  padding: 3px 10px;
+  margin: 0 4px;
+}
+
+#network_manager, #networkmanager, #network-manager,
+.network_manager, .network-manager, .networkmanager,
+#brightness, .brightness {
+  color: #e3e8e2;
+  border-radius: 999px;
+  padding: 3px 10px;
+  margin: 0 4px;
+}
+
+#network_manager, #networkmanager, #network-manager,
+.network_manager, .network-manager, .networkmanager {
+  background-color: rgba(45, 105, 111, 0.88);
+}
+
+#brightness, .brightness {
+  background-color: rgba(117, 77, 48, 0.88);
+}
+
+#network_manager label, #networkmanager label, #network-manager label,
+.network_manager label, .network-manager label, .networkmanager label,
+#brightness label, .brightness label {
+  font-size: 17px;
+}
+
 .clock {
   background-color: rgba(133, 70, 76, 0.88);
 }

@@ -20,6 +20,24 @@
       "format": ["<span size='xx-large'>󰍛</span> {memory_percent}%"],
       "interval": { "memory": 10 }
     },
+    {
+      "type": "network_manager",
+      "types_whitelist": ["ethernet", "wifi"],
+      "format": "{icon} {ssid} {signal_strength}%",
+      "format_disconnected": "󰤭 offline"
+    },
+    {
+      "type": "battery",
+      "icon_size": 24,
+      "format": "<span size='xx-large'>{icon}</span> {percentage}%",
+      "show_if": "ls /sys/class/power_supply/ | grep --quiet '^BAT'"
+    },
+    {
+      "type": "brightness",
+      "icon_size": 24,
+      "format": "<span size='xx-large'>󰃠</span> {percentage}%",
+      "step": 5
+    },
     { "type": "tray" },
     {
       "type": "volume",

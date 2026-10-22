@@ -65,8 +65,9 @@ in
     ++ importIf (hasTag "desktop") ./modules/desktop/wayland_rofi.nix
     ++ importIf (hasTag "desktop") ./modules/desktop/wayland_wm_niri.nix
     ++ importIf (hasTag "desktop") ./modules/desktop/wayland_wm_hyprland.nix
-    ++ importIf (hasTag "desktop") ./modules/desktop/wayland_dms.nix
+    ## ++ importIf (hasTag "desktop") ./modules/desktop/wayland_dms.nix
     ++ importIf (hasTag "desktop") ./modules/desktop/wayland_ironbar.nix
+    ++ importIf (hasTag "desktop") ./modules/desktop/wayland_waybar.nix
     ++ importIf (hasTag "desktop") ./modules/desktop/screenshot.nix
     # ++ importIf (hasTag "desktop") ./modules/system/desktopfile_manager.nix
 
