@@ -32,7 +32,7 @@ hl.config({
 		layout = "master",
 	},
 	decoration = {
-		rounding = 0,
+		rounding = 5,
 		active_opacity = 1.0,
 		inactive_opacity = 1.0,
 		shadow = {
@@ -43,7 +43,9 @@ hl.config({
 			color = 0x77000000,
 		},
 		blur = {
-			enabled = false,
+			enabled = true,
+			size = 8,
+			passes = 3,
 		},
 	},
 	animations = {

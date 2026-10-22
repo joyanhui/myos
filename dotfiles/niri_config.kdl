@@ -49,7 +49,7 @@ prefer-no-csd
    }
 
 window-rule {
-    geometry-corner-radius 12
+    geometry-corner-radius 5
     clip-to-geometry true
 }
 
