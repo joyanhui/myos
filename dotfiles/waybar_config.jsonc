@@ -1,17 +1,21 @@
 {
   "layer": "top",
   "position": "top",
-  "height": 38,
+  "height": 44,
   "spacing": 8,
-  "modules-left": ["niri/workspaces"],
-  "modules-center": ["niri/window"],
+  "modules-left": ["niri/workspaces", "hyprland/workspaces"],
+  "modules-center": ["niri/window", "hyprland/window"],
   "modules-right": ["cpu", "memory", "network", "battery", "backlight", "tray", "pulseaudio", "clock"],
   "niri/workspaces": {
     "all-outputs": false,
-    "format": "{name}",
+    "format": "{id}",
     "disable-scroll": true
   },
-  "niri/window": {
+  "hyprland/workspaces": {
+    "disable-scroll": true,
+    "format": "{name}"
+  },
+  "hyprland/window": {
     "format": "{title}",
     "max-length": 80
   },
@@ -47,7 +51,6 @@
   },
   "backlight": {
     "format": "<span font='16'>◐</span> {percent}%",
-    "format-icons": [],
     "scroll-step": 5,
     "tooltip": true
   },
@@ -55,11 +58,13 @@
     "icon-size": 16,
     "spacing": 6,
     "show-passive-items": false,
+    "icon-theme": "Papirus-Dark",
     "icons": {
-      "Fcitx": "input-keyboard"
+      "Fcitx": "input-keyboard",
+      "StatusNotifierItem": "kdeconnectindicatordark"
     }
   },
-  "pulseaudio": {
+
     "format": "<span font='16'>󰕾</span> {volume}%",
     "format-muted": "<span font='16'>󰝟</span> muted",
     "format-icons": ["󰕿", "󰖀", "󰕾"],

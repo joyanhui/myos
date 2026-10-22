@@ -42,6 +42,10 @@ window#waybar {
   background: #a8d5b5;
 }
 
+#workspaces button.active label {
+  color: #102019;
+}
+
 #workspaces button.urgent {
   color: #ffb4ab;
 }
