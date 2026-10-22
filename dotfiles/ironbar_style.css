@@ -1,23 +1,53 @@
 * {
   border: none;
   box-shadow: none;
+  background-color: transparent;
   font-family: "Symbols Nerd Font", "Noto Sans", "Noto Sans CJK SC", sans-serif;
   font-size: 13px;
   font-weight: 500;
   color: #e3e8e2;
 }
 
-#bar, #start, #center, #end, .workspaces, .focused, .sys-info, .clock, .volume, .tray {
-  background-color: rgba(24, 29, 27, 0.94);
+.background {
+  background-color: rgba(18, 22, 25, 0.72);
+}
+
+.sysinfo {
   color: #e3e8e2;
+  border-radius: 999px;
+  padding: 3px 10px;
+  margin: 0 4px;
+}
+
+#cpu {
+  background-color: rgba(117, 77, 48, 0.88);
+}
+
+#memory {
+  background-color: rgba(91, 75, 125, 0.88);
+}
+
+.tray {
+  background-color: rgba(91, 75, 125, 0.88);
+}
+
+.volume {
+  background-color: rgba(45, 105, 111, 0.88);
+}
+
+.clock {
+  background-color: rgba(133, 70, 76, 0.88);
 }
 
 #bar {
+  background-color: rgba(18, 22, 25, 0.72);
   border: 1px solid rgba(224, 240, 229, 0.16);
   border-radius: 18px;
+  padding: 3px 6px;
 }
 
 #start, #center, #end {
+  background-color: transparent;
   border-radius: 16px;
 }
 
@@ -75,8 +105,9 @@ scale highlight {
   border-radius: 8px;
 }
 
-.sys-info, .clock, .volume, .tray {
-  background: transparent;
+.workspaces, .focused, .clock, .volume, .tray {
   color: #e3e8e2;
-  padding: 0 5px;
+  border-radius: 999px;
+  padding: 3px 8px;
+  margin: 0 4px;
 }

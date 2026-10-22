@@ -10,13 +10,20 @@
   "end": [
     {
       "type": "sys_info",
-      "format": ["󰻠 {cpu_percent}%", "󰍛 {memory_percent}%"],
-      "interval": { "cpu": 2, "memory": 10 }
+      "name": "cpu",
+      "format": ["<span size='xx-large'>󰻠</span> {cpu_percent}%"],
+      "interval": { "cpu": 2 }
+    },
+    {
+      "type": "sys_info",
+      "name": "memory",
+      "format": ["<span size='xx-large'>󰍛</span> {memory_percent}%"],
+      "interval": { "memory": 10 }
     },
     { "type": "tray" },
     {
       "type": "volume",
-      "format": "{icon} {percentage}%",
+      "format": "<span size='xx-large'>{icon}</span> {percentage}%",
       "max_volume": 100,
       "icons": {
         "muted": "󰝟",
@@ -25,6 +32,6 @@
         "volume_high": "󰕾"
       }
     },
-    { "type": "clock", "format": "󰥔  %a %d %b  %H:%M" }
+    { "type": "clock", "format": "<span size='xx-large'>󰥔</span>  %a %d %b  %H:%M" }
   ]
 }

@@ -80,9 +80,7 @@ let
 in
 if hmStandalone then
   {
-    home.packages = fontPackages;
-
-    fonts.fontconfig.enable = true;
+    home.packages = fontPackages ++ [ pkgs.nerd-fonts.symbols-only ];
 
     home.file.".config/font.readme.md".text = readme;
 
