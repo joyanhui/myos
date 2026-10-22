@@ -477,12 +477,6 @@ in
     options = [ "compress=zstd" ];
   };
 
-  fileSystems."/var" = {
-    device = "tmpfs";
-    fsType = "tmpfs";
-    options = [ "mode=755" ];
-  };
-
   fileSystems."/tmp" = {
     device = "tmpfs";
     fsType = "tmpfs";
