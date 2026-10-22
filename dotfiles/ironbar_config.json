@@ -35,7 +35,7 @@
     {
       "type": "brightness",
       "icon_size": 24,
-      "format": "<span size='xx-large'>󰃠</span> {percentage}%",
+      "format": "<span size='xx-large'>◐</span>{percentage}%",
       "step": 5
     },
     { "type": "tray" },

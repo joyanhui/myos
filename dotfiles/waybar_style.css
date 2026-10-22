@@ -59,7 +59,7 @@ window#waybar {
 }
 
 #network label, #battery label, #backlight label {
-  font-size: 17px;
+  font-size: 13px;
 }
 
 #network {
