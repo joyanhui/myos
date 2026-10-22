@@ -3,14 +3,6 @@
     "type": "api_key",
     "key": "PLACEHOLDER_API_KEY"
   },
-  "aihub.top": {
-    "type": "api_key",
-    "key": "PLACEHOLDER_API_KEY"
-  },
-  "LinuxDoGpt": {
-    "type": "api_key",
-    "key": "PLACEHOLDER_API_KEY"
-  },
   "deepseek": {
     "type": "api_key",
     "key": "PLACEHOLDER_API_KEY"
@@ -20,6 +12,22 @@
     "key": "PLACEHOLDER_API_KEY"
   },
   "aihub-sol-astra": {
+    "type": "api_key",
+    "key": "PLACEHOLDER_API_KEY"
+  },
+  "aihub-luna": {
+    "type": "api_key",
+    "key": "PLACEHOLDER_API_KEY"
+  },
+  "aihub-ds": {
+    "type": "api_key",
+    "key": "PLACEHOLDER_API_KEY"
+  },
+  "aihub-zhipu": {
+    "type": "api_key",
+    "key": "PLACEHOLDER_API_KEY"
+  },
+  "aihub-kimi": {
     "type": "api_key",
     "key": "PLACEHOLDER_API_KEY"
   }

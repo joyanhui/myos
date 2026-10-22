@@ -1,201 +1,5 @@
 {
   "providers": {
-    "LinuxDoGpt": {
-      "baseUrl": "https://hub.linux.do/v1",
-      "api": "openai-completions",
-      "models": [
-        {
-          "api": "openai-completions",
-          "cost": {
-            "input": 0,
-            "output": 0,
-            "cacheRead": 0,
-            "cacheWrite": 0
-          },
-          "compat": {
-            "supportsStore": false,
-            "supportsDeveloperRole": false,
-            "maxTokensField": "max_tokens"
-          },
-          "id": "gpt-5.6-sol",
-          "name": "GPT-5.6 Sol",
-          "reasoning": true,
-          "input": [
-            "text",
-            "image"
-          ],
-          "contextWindow": 270000,
-          "maxTokens": 128000,
-          "thinkingLevelMap": {
-            "minimal": null,
-            "low": "low",
-            "medium": "medium",
-            "high": "high",
-            "xhigh": "xhigh",
-            "max": "max"
-          }
-        },
-        {
-          "api": "openai-completions",
-          "cost": {
-            "input": 0,
-            "output": 0,
-            "cacheRead": 0,
-            "cacheWrite": 0
-          },
-          "compat": {
-            "supportsStore": false,
-            "supportsDeveloperRole": false,
-            "maxTokensField": "max_tokens"
-          },
-          "id": "gpt-5.6-terra",
-          "name": "GPT-5.6 Terra",
-          "reasoning": true,
-          "input": [
-            "text",
-            "image"
-          ],
-          "contextWindow": 270000,
-          "maxTokens": 128000,
-          "thinkingLevelMap": {
-            "minimal": null,
-            "low": "low",
-            "medium": "medium",
-            "high": "high",
-            "xhigh": "xhigh",
-            "max": "max"
-          }
-        },
-        {
-          "api": "openai-completions",
-          "cost": {
-            "input": 0,
-            "output": 0,
-            "cacheRead": 0,
-            "cacheWrite": 0
-          },
-          "compat": {
-            "supportsStore": false,
-            "supportsDeveloperRole": false,
-            "maxTokensField": "max_tokens"
-          },
-          "id": "gpt-5.6-luna",
-          "name": "GPT-5.6 Luna",
-          "reasoning": true,
-          "input": [
-            "text",
-            "image"
-          ],
-          "contextWindow": 270000,
-          "maxTokens": 128000,
-          "thinkingLevelMap": {
-            "minimal": null,
-            "low": "low",
-            "medium": "medium",
-            "high": "high",
-            "xhigh": "xhigh",
-            "max": "max"
-          }
-        },
-        {
-          "api": "openai-completions",
-          "cost": {
-            "input": 0,
-            "output": 0,
-            "cacheRead": 0,
-            "cacheWrite": 0
-          },
-          "compat": {
-            "supportsStore": false,
-            "supportsDeveloperRole": false,
-            "maxTokensField": "max_tokens"
-          },
-          "id": "gpt-5.5",
-          "name": "GPT-5.5",
-          "reasoning": true,
-          "input": [
-            "text",
-            "image"
-          ],
-          "contextWindow": 270000,
-          "maxTokens": 128000,
-          "thinkingLevelMap": {
-            "minimal": null,
-            "low": "low",
-            "medium": "medium",
-            "high": "high",
-            "xhigh": "xhigh",
-            "max": "max"
-          }
-        },
-        {
-          "id": "grok-4.5-free",
-          "name": "grok-4.5-free",
-          "reasoning": true,
-          "input": [
-            "text",
-            "image"
-          ],
-          "contextWindow": 500000,
-          "maxTokens": 64000,
-          "thinkingLevelMap": {
-            "minimal": null,
-            "xhigh": null,
-            "max": null
-          }
-        },
-        {
-          "id": "grok-4.6",
-          "name": "grok-4.6",
-          "reasoning": true,
-          "input": [
-            "text",
-            "image"
-          ],
-          "contextWindow": 500000,
-          "maxTokens": 64000
-        }
-      ]
-    },
-    "aihub.top": {
-      "name": "AIHub",
-      "baseUrl": "https://aihub.top/v1",
-      "api": "openai-completions",
-      "models": [
-        {
-          "api": "openai-completions",
-          "cost": {
-            "input": 0,
-            "output": 0,
-            "cacheRead": 0,
-            "cacheWrite": 0
-          },
-          "compat": {
-            "supportsStore": false,
-            "supportsDeveloperRole": false,
-            "maxTokensField": "max_tokens"
-          },
-          "id": "gpt-5.6-luna",
-          "name": "GPT-5.6 Luna",
-          "reasoning": true,
-          "input": [
-            "text",
-            "image"
-          ],
-          "contextWindow": 272000,
-          "maxTokens": 128000,
-          "thinkingLevelMap": {
-            "off": "none",
-            "minimal": null,
-            "low": "low",
-            "medium": "medium",
-            "high": "high",
-            "xhigh": "xhigh",
-            "max": "max"
-          }
-        }
-      ]
-    },
     "4router-luna": {
       "name": "4Router Luna",
       "baseUrl": "https://4router.net/v1",
@@ -332,6 +136,103 @@
             "xhigh": "xhigh",
             "max": "max"
           }
+        }
+      ]
+    },
+    "aihub-luna": {
+      "name": "AIHub Luna 5.6",
+      "baseUrl": "https://aihub.top/v1",
+      "api": "openai-completions",
+      "models": [
+        {
+          "api": "openai-completions",
+          "cost": {
+            "input": 0,
+            "output": 0,
+            "cacheRead": 0,
+            "cacheWrite": 0
+          },
+          "compat": {
+            "supportsStore": false,
+            "supportsDeveloperRole": false,
+            "maxTokensField": "max_tokens"
+          },
+          "id": "gpt-5.6-luna",
+          "name": "GPT-5.6 Luna",
+          "reasoning": true,
+          "input": [
+            "text",
+            "image"
+          ],
+          "contextWindow": 272000,
+          "maxTokens": 128000,
+          "thinkingLevelMap": {
+            "off": "none",
+            "minimal": null,
+            "low": "low",
+            "medium": "medium",
+            "high": "high",
+            "xhigh": "xhigh",
+            "max": "max"
+          }
+        }
+      ]
+    },
+    "aihub-ds": {
+      "name": "AIHub DeepSeek",
+      "baseUrl": "https://aihub.top/v1",
+      "api": "openai-completions",
+      "models": [
+        {
+          "id": "deepseek-v4.1-flash",
+          "name": "DeepSeek V4.1 Flash",
+          "reasoning": true,
+          "input": [
+            "text"
+          ],
+          "contextWindow": 1000000,
+          "maxTokens": 384000,
+          "compat": {
+            "supportsStore": false,
+            "supportsDeveloperRole": false,
+            "supportsReasoningEffort": true,
+            "thinkingFormat": "deepseek",
+            "requiresReasoningContentOnAssistantMessages": true
+          }
+        }
+      ]
+    },
+    "aihub-zhipu": {
+      "name": "AIHub Zhipu",
+      "baseUrl": "https://aihub.top/v1",
+      "api": "openai-completions",
+      "models": [
+        {
+          "id": "glm-5.3",
+          "name": "GLM-5.3",
+          "reasoning": true,
+          "input": [
+            "text"
+          ],
+          "contextWindow": 1000000,
+          "maxTokens": 128000
+        }
+      ]
+    },
+    "aihub-kimi": {
+      "name": "AIHub Kimi",
+      "baseUrl": "https://aihub.top/v1",
+      "api": "openai-completions",
+      "models": [
+        {
+          "id": "kimi-k3",
+          "name": "Kimi K3",
+          "reasoning": true,
+          "input": [
+            "text"
+          ],
+          "contextWindow": 1048576,
+          "maxTokens": 1048576
         }
       ]
     }
