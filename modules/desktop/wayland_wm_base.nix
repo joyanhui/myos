@@ -7,24 +7,24 @@
 {
   environment.systemPackages = with pkgs; [
     awww
+
     mpvpaper
     swaybg
+
     brightnessctl
+
     xdg-desktop-portal-gtk
 
     wl-clip-persist
     glib
+
     wayland
-    direnv
     wl-clipboard-rs
+
     playerctl
-    bluez
-    bluez-tools
 
     kanshi
     wtype
-    brightnessctl
-    kitty
 
     libnotify
     dex

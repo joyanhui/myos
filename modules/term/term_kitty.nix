@@ -9,16 +9,14 @@ let
     cat <<'EOF'
     Kitty 快捷键（默认及当前配置）
 
-    Ctrl+Shift+Enter  新建窗口
-    Ctrl+Shift+W      关闭窗口
+    Ctrl+Shift+Enter  新建分屏窗
+    Ctrl+Shift+W      关闭分屏窗
     Ctrl+Shift+T      新建标签页
     Ctrl+Shift+Right  下一个标签页
     Ctrl+Shift+Left   上一个标签页
     Ctrl+D            当前配置：新建水平分屏
     Ctrl+R            当前配置：新建垂直分屏
     Ctrl+Alt+W        当前配置：关闭窗口
-    Ctrl+H/J/K/L      当前配置：切换相邻窗口
-    Alt+H/J/K/L       当前配置：调整窗口大小
     EOF
   '';
   font = global_settings.font;
@@ -78,13 +76,10 @@ let
         value.text = kittyConfig (builtins.elemAt backgroundColors 0);
       }
     ]
-    ++ builtins.genList (
-      index:
-      {
-        name = "kitty/kitty_${toString index}.conf";
-        value.text = kittyConfig (builtins.elemAt backgroundColors index);
-      }
-    ) (builtins.length backgroundColors)
+    ++ builtins.genList (index: {
+      name = "kitty/kitty_${toString index}.conf";
+      value.text = kittyConfig (builtins.elemAt backgroundColors index);
+    }) (builtins.length backgroundColors)
   );
   lastConfigIndex = builtins.length backgroundColors - 1;
   kittyRandomBg = pkgs.writeShellScriptBin "kitty-random-bg" ''
