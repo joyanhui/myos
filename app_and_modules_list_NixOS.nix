@@ -56,6 +56,8 @@ in
     ++ importIf ((hasTag "amd" || hasTag "intel") && hasTag "gui") ./modules/apps/recovery_testdisk.nix
     ++ importIf (hasTag "amd") ./modules/system/hardware_amd.nix
     ++ importIf (hasTag "intel") ./modules/system/hardware_intel.nix
+    ++ importIf (hasTag "gui") ./modules/apps/graphics_tools.nix
+    ++ importIf (hasTag "gui") ./modules/apps/bleachbit.nix
     ++ importIf (hasTag "common") ./modules/apps/fastfetch.nix
 
     ++ importIf (hasTag "inputKeyd") ./modules/services/input_keyd.nix
@@ -102,6 +104,7 @@ in
     ++ importIf (hasTag "wsl") ./modules/input-method/fcitx5_rime_wsl.nix
     ++ importIf (hasTag "input-method") ./modules/input-method/voxtype.nix
 
+    ++ importIf (hasTag "gui") ./modules/apps/graphics_tools.nix
     ++ importIf (hasTag "gui") ./modules/apps/filemanager_thunar.nix
     ++ importIf (hasTag "gui") ./modules/apps/graphics_gimp3.nix
     ++ importIf (hasTag "gui") ./modules/apps/browser/brave.nix
@@ -110,7 +113,6 @@ in
     #./modules/apps/browser/free_download_manager.nix
     ++ importIf (hasTag "gui") ./modules/apps/browser/google_chrome.nix
     ++ importIf (hasTag "gui") ./modules/apps/office_obsidian.nix
-    # ++ importIf (hasTag "gui") ./modules/apps/obs-studio.nix
     #++ importIf (hasTag "dailyPC") ./modules/apps/office_wps.nix
     # ++ importIf (hasTag "dailyPC") ./modules/apps/im/qq.nix
     ++ importIf (hasTag "gui") ./modules/apps/im/telegram.nix
@@ -118,13 +120,14 @@ in
     # ++ importIf (hasTag "dailyPC") ./modules/apps/im/wechat_devtools.nix
     ## ++ importIf (hasTag "dailyPC") ./modules/apps/android_mobile_connect.nix
     #++ importIf (hasTag "dailyPC") ./modules/apps/compat_wine_bottles.nix
-    # ++ importIf (hasTag "dailyPC") ./modules/apps/download_motrix.nix
+    ++ importIf (hasTag "gui") ./modules/apps/download_motrix.nix
     ++ importIf (hasTag "gui") ./modules/apps/media_vlc.nix
     ++ importIf (hasTag "gui") ./modules/apps/music_musicfree.nix
     # ++ importIf (hasTag "dailyPC") ./modules/apps/office_trilium_next_desktop.nix
     #++ importIf (hasTag "services") ./modules/apps/pkg_nginx.nix
     # ./modules/apps/remote_todesk.nix
     ++ importIf (hasTag "dailyPC") ./modules/services/virtualisation_kvm_libvirtd.nix
+    ++ importIf (hasTag "wsl") ./modules/services/virtualisation_qemu_tools.nix
     ## ++ importIf (hasTag "dailyPC") ./modules/services/virtualisation_waydroid.nix
     # ./modules/services/xrdp.nix
     # ++ importIf (hasTag "dailyPC") ./modules/services/remote_sunshine.nix
@@ -132,11 +135,12 @@ in
     # ++ importIf (hasTag "dailyPC") ./modules/services/virtualisation_virtualbox.nix
     # ++ importIf (hasTag "dailyPC") ./modules/services/virtualisation_vbox_serv.nix
     ++ importIf (hasTag "services") ./modules/services/virtualisation_docker.nix
-    ++ importIf (hasTag "wsl") ./modules/services/virtualisation_qemu_tools.nix
 
     # ++ importIf (hasTag "services") ./modules/services/db_postgresql.nix
     # ++ importIf (hasTag "services") ./modules/services/db_valkey.nix
-    ++ importIf (hasTag "services") ./modules/services/dev_db_tools.nix
+    ++ importIf (hasTag "services") ./modules/dev/dev_db_tools.nix
+    ++ importIf (hasTag "gui") ./modules/dev/creativeTools_blender.nix
+    ++ importIf (hasTag "gui") ./modules/dev/creativeTools_obs_studio.nix
     # ++ importIf (hasTag "services") ./modules/services/opencode_web.nix
     #  ++ importIf (hasTag "desktop") ./modules/services/pkg_flatpak.nix
     ++ importIf (hasTag "ai") ./modules/ai/ai_common.nix
@@ -145,47 +149,38 @@ in
   # ++ importIf (hasTag "ai") ./modules/ai/ollama_llama_cpp.nix
   ;
 
-  environment.systemPackages =
-    with pkgs;
-    [
-      coreutils-full
-      expect
-      psmisc
-      iftop
-      fd
-      htop
-      jq
-      dos2unix
-      tree
-      unzip
-      p7zip
-      unrar
-      wget
-      curl
-      bat
-      ttyd
-      inetutils
-      pciutils
-      usbutils
-      dig
-      dnslookup
-      doggo
-      knot-dns
-      direnv
+  environment.systemPackages = with pkgs; [
+    coreutils-full
+    expect
+    psmisc
+    iftop
+    fd
+    htop
+    jq
+    dos2unix
+    tree
+    unzip
+    p7zip
+    unrar
+    wget
+    curl
+    bat
+    ttyd
+    inetutils
+    pciutils
+    usbutils
+    dig
+    dnslookup
+    doggo
+    knot-dns
+    direnv
 
-      dosfstools
-      exfat
-      btrfs-progs
-      btrfs-snap
-      ntfs3g
-      davfs2
-      fuse3
-    ]
-    ++ lib.optionals (hasTag "gui") [
-      dex
-      imv
-      libnotify
-      viewnior
-      bleachbit
-    ];
+    dosfstools
+    exfat
+    btrfs-progs
+    btrfs-snap
+    ntfs3g
+    davfs2
+    fuse3
+  ];
 }

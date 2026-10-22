@@ -74,6 +74,7 @@ in
     ++ importIf (hasTag "gui") (extract ./modules/apps/browser/google_chrome.nix)
     ++ importIf (hasTag "gui") (extract ./modules/apps/im/telegram.nix)
     ++ importIf (hasTag "gui") (extract ./modules/apps/im/wechat.nix)
+    ++ importIf (hasTag "gui") (extract ./modules/apps/graphics_tools.nix)
     ++ importIf (hasTag "gui") (extract ./modules/apps/media_vlc.nix)
     ++ importIf (hasTag "gui") (extract ./modules/apps/music_musicfree.nix)
     ++ importIf (hasTag "gui") (extract ./modules/apps/office_obsidian.nix)

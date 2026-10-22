@@ -4,7 +4,6 @@
   ...
 }:
 let
-  qtscrcpyQss = builtins.readFile ./qtscrcpy_psblack.css;
   myPyScrcpy = pkgs.writeShellScriptBin "myPyScrcpy" ''
     exec ${
       pkgs.python3.withPackages (ps: [ ps.tkinter ])
@@ -30,12 +29,10 @@ in
         myPyScrcpy
       ];
 
-      home.file.".config/qtscrcpy/psblack.css".text = qtscrcpyQss;
-
       xdg.desktopEntries."QtScrcpy" = {
         name = "QtScrcpy";
         genericName = "Android Display Control";
-        exec = "env QT_QPA_PLATFORM=\"wayland;xcb\" QtScrcpy -stylesheet ${config.home.homeDirectory}/.config/qtscrcpy/psblack.css %U";
+        exec = "env QT_QPA_PLATFORM=\"wayland;xcb\" QtScrcpy %U";
         icon = "qtscrcpy";
         categories = [
           "Utility"

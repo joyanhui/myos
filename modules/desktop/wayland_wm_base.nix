@@ -11,7 +11,6 @@
     swaybg
     brightnessctl
     xdg-desktop-portal-gtk
-    libnotify
 
     wl-clip-persist
     glib
@@ -26,6 +25,9 @@
     wtype
     brightnessctl
     kitty
+
+    libnotify
+    dex
   ];
 
   programs.dconf.enable = true;

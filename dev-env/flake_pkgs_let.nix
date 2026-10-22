@@ -147,7 +147,6 @@ let
         vips
         imagemagick
         ffmpeg-full
-        blender
         hugo
       ]
       ++ jsPackages;

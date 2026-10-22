@@ -1,6 +1,7 @@
 {
   pkgs,
   username,
+  global_settings,
   ...
 }:
 {
@@ -9,9 +10,8 @@
       { config, ... }:
       {
         home.packages = with pkgs; [
-          
-                    obs-studio
-        ];
+     obs-studio
+                ];
       };
   };
 }
