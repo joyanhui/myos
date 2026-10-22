@@ -31,11 +31,11 @@ home-manager switch --flake .#linux
 
 RAW OS 是基于nixos的make-disk-image.nix 构建一个包含完整启动链的一个镜像文件`nixos.raw`，无视硬件差异，并支持直接在虚拟机启动或者烧录到磁盘/u盘物理机启动，并支持通过外部efi文件直接引导ntfs分区上`nixos.raw`文件物理启动。 `raw_os_work_intel/amd` 是工作在raw镜像上的host配置，用于日常使用。
 
-Raw OS 的构建、部署和运行时更新命令统一维护在 [Raw OS 主文档](machine/raw_os/README.md#raw-os-build-and-deploy)。
+Raw OS 的构建、部署和运行时更新命令统一维护在 [Raw OS 主文档](docs/RawOS说明.md#raw-os-build-and-deploy)。
 
-- [Raw OS 主文档](machine/raw_os/README.md)
-- [Raw OS 引导架构与 UKI 说明](machine/raw_os/docs_script/UKI启动说明.md)
-- [Raw OS 测试和验证方法](machine/raw_os/docs_script/测试和验证方法.md)
+- [Raw OS 主文档](docs/RawOS说明.md)
+- [Raw OS 引导架构与 UKI 说明](docs/RawOS引导架构与UKI说明.md)
+- [Raw OS 测试和验证方法](docs/RawOS测试与验证方法.md)
 
 ## 功能调度
 
@@ -87,8 +87,11 @@ transcrypt
 ## 目录结构
 
 ```text
-├── AGENTS.md                  # AI agent 开发和配置规则
-├── README.md                  # 项目说明、使用方式和目录说明
+├── docs/                      # 项目文档
+│   ├── 开发规范.md
+│   ├── RawOS说明.md
+│   ├── 系统与Nix设置说明.md
+│   └── NixOS安装说明.md
 ├── flake.nix                  # 入口，定义 inputs、NixOS 与 home-manager 输出
 ├── flake.lock                 # Flake inputs 锁定文件
 ├── .gitattributes             # Git 属性及敏感文件加密规则
@@ -100,12 +103,12 @@ transcrypt
 ├── dev-env/                   # 项目级开发环境模板
 ├── dotfiles/                  # 集中存放由 Nix 软链接管理的非敏感配置文件
 ├── machine/                   # 机器配置
-│   ├── README.md              # 机器配置说明
+│   └── 机器配置说明.md        # 机器配置说明
 │   ├── tb_amd/                # ThinkBook 14p AMD 的硬件和机器配置
 │   ├── raw_os/                # Raw OS 核心和工作环境配置
 │   └── wsl.nix                # WSL 入口，导入 nixos-wsl 模块
 ├── modules/
-│   ├── system/                # 系统全局：环境变量、用户、Nix、网络、防火墙、引导、字体、主题、存储
+│   └── 系统与Nix设置说明.md   # 系统与 Nix 设置说明
 │   ├── desktop/               # 桌面会话：Wayland、niri、锁屏、DMS、截图及相关配置
 │   ├── term/                  # Shell、终端、命令行工具和 Shell 配置
 │   ├── services/              # SSH、定时任务、数据库、虚拟化、网络服务和其他系统服务
@@ -113,10 +116,10 @@ transcrypt
 │   ├── dev/                   # 开发环境、编辑器、Git、语言运行时和开发工具
 │   ├── input-method/          # fcitx5、Rime 和语音输入配置
 │   └── ai/                    # AI 工具、模型配置、MCP、Pi 和 skills
-├── security/                  # 敏感文件目录，规则见 README.md 的敏感信息说明
+├── security/                  # 敏感文件目录，规则见 docs/敏感信息说明.md
 ├── script/                    # 自动化脚本和辅助程序
 ├── static_file/               # 壁纸、图标、头像和其他静态资源
 ├── kvm-config/                # 虚拟机脚本、固件和虚拟机配置
 ├── win11/                     # Windows 11 相关配置和脚本
-└── nixos_install.md           # NixOS 安装说明
+└── docs/NixOS安装说明.md      # NixOS 安装说明
 ```

@@ -1,6 +1,6 @@
 # Raw OS 引导架构与 UKI 说明
 
-本文档是 Raw OS 的引导架构参考，不重复维护构建、部署和运行时更新命令。实际操作统一使用 [Raw OS 主文档的构建与部署章节](../README.md#raw-os-build-and-deploy)。
+本文档是 Raw OS 的引导架构参考，不重复维护构建、部署和运行时更新命令。实际操作统一使用 [Raw OS 主文档的构建与部署章节](RawOS说明.md#raw-os-build-and-deploy)。
 
 ## 产物
 
@@ -81,7 +81,7 @@ EFI/NixOS/raw-os/nixos-generation-<generation>.efi
 
 ## 外部固定 EFI 的生命周期
 
-外部固定 EFI 的部署命令见主文档的[初次构建外部固定 EFI](../README.md#raw-os-external-efi-build)。它只需要在以下情况重新构建并手动替换宿主 ESP 上的文件：
+外部固定 EFI 的部署命令见主文档的[初次构建外部固定 EFI](RawOS说明.md#raw-os-external-efi-build)。它只需要在以下情况重新构建并手动替换宿主 ESP 上的文件：
 
 - 修改外部 GRUB 的搜索路径或启动逻辑；
 - 修改 raw 内部菜单路径；
@@ -126,4 +126,4 @@ ESP/EFI/NixOS/nixos-img.efi
 NTFS/OS-img/nixos.raw
 ```
 
-测试和验收流程见：[Raw OS 测试和验证方法](测试和验证方法.md)。
+测试和验收流程见：[Raw OS 测试和验证方法](RawOS测试与验证方法.md)。

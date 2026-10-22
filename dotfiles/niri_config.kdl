@@ -49,6 +49,11 @@ prefer-no-csd
    }
 
 window-rule {
+    geometry-corner-radius 12
+    clip-to-geometry true
+}
+
+window-rule {
     match app-id=r#"^brave-.*-Default$"#
     open-floating true
 }

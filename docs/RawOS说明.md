@@ -72,7 +72,7 @@ machine/raw_os/docs_script/creat-rawOsExternalBootEfi.sh -o ./nixos-img.efi
 
 在win下可以使用DiskGenius找到自己的ESP分区把这个文件复制过去，然后用DiskGenius的工具里面的UEFI管理功能新增一个启动项指向这个文件。
 
-外部启动链路和文件职责见：[Raw OS 引导架构与 UKI 说明](docs_script/UKI启动说明.md)。
+外部启动链路和文件职责见：[Raw OS 引导架构与 UKI 说明](RawOS引导架构与UKI说明.md)。
 
 ### 直接写盘启动(写到U盘或者硬盘方式)
 
@@ -125,7 +125,7 @@ sudo nixos-rebuild switch --flake .#raw_os_work_amd \
 
 ## 测试、扩容和 QEMU
 
-- 测试和验收流程见：[Raw OS 测试和验证方法](docs_script/测试和验证方法.md)。
-- 引导链路、GRUB、UKI 和 initrd 服务说明见：[Raw OS 引导架构与 UKI 说明](docs_script/UKI启动说明.md)。
-- raw 镜像扩容见：[raw 镜像扩容方法](docs_script/raw扩容方法.md)。
+- 测试和验收流程见：[Raw OS 测试和验证方法](RawOS测试与验证方法.md)。
+- 引导链路、GRUB、UKI 和 initrd 服务说明见：[Raw OS 引导架构与 UKI 说明](RawOS引导架构与UKI说明.md)。
+- raw 镜像扩容见：[raw 镜像扩容方法](Raw镜像扩容方法.md)。
 - QEMU fd固件位于 `kvm-config/`,也可以自己从qemu安装目录获取。

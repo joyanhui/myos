@@ -1,3 +1,3 @@
 security/_protected/** filter=crypt diff=crypt merge=crypt
-security/README.md -filter -diff
+docs/敏感信息说明.md -filter -diff
 security/placeholder_files/** -filter -diff

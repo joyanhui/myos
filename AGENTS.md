@@ -29,7 +29,7 @@ AI agents may read and reference this file, but MUST NEVER modify it in any way.
 
 ## 敏感数据和环境变量
 
-- 敏感信息统一由 transcrypt 管理，真实文件放在 `security/_protected/`，未解密时自动降级使用 `security/placeholder_files/` 的占位文件；完整规则见 [README.md 的敏感信息说明](README.md#security-secrets)。
+- 敏感信息统一由 transcrypt 管理，真实文件放在 `security/_protected/`，未解密时自动降级使用 `security/placeholder_files/` 的占位文件；完整规则见 [敏感信息说明](docs/敏感信息说明.md)。
 - 所有敏感信息必须储存到 `.gitattributes` 加密规则包含的文件（`security/_protected/` 目录）。
 
 ## 开发环境模板

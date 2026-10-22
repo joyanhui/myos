@@ -12,7 +12,7 @@
 
 ## 产物准备
 
-测试使用主文档构建的基础产物，不在此处复制 Raw OS 构建命令。请先执行[初次构建](../README.md#raw-os-initial-build)和[初次构建外部固定 EFI](../README.md#raw-os-external-efi-build)，并准备以下文件：
+测试使用主文档构建的基础产物，不在此处复制 Raw OS 构建命令。请先执行[初次构建](RawOS说明.md#raw-os-initial-build)和[初次构建外部固定 EFI](RawOS说明.md#raw-os-external-efi-build)，并准备以下文件：
 
 ```text
 ./nixos.raw
@@ -80,7 +80,7 @@ IMGLOOP:done
 - 菜单包含当前系统、generation 和 Windows Boot Manager；
 - `nixos-current.efi` 存在；
 - generation UKI 数量不超过 8 个；
-- 按主文档的 [Raw OS 内更新工作环境](../README.md#raw-os-runtime-update) 执行 `nixos-rebuild switch` 后，输出内部 EFI 更新结果。
+- 按主文档的 [Raw OS 内更新工作环境](RawOS说明.md#raw-os-runtime-update) 执行 `nixos-rebuild switch` 后，输出内部 EFI 更新结果。
 
 ## 外部测试盘
 
