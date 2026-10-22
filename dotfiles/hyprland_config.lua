@@ -367,11 +367,6 @@ hl.bind(
 )
 
 hl.bind(
-	mod_key("SHIFT + F"),
-	hl.dsp.layout("swapwithmaster master"),
-	{ description = "maximize column | 最大化列" }
-)
-hl.bind(
 	mod_key("CTRL + SHIFT + F"),
 	hl.dsp.window.fullscreen({ mode = "fullscreen" }),
 	{ description = "fullscreen window | 全屏窗口" }
@@ -441,7 +436,12 @@ end, { description = "consume/expel window (left) | 并入/移出列 (左)" })
 hl.bind(mod_key("BRACKETRIGHT"), function()
 	consume_or_expel("right")
 end, { description = "consume/expel window (right) | 并入/移出列 (右)" })
-hl.bind(mod_key("SHIFT + C"), hl.dsp.layout("orientationcenter"), { description = "center column | 居中列" })
+-- hl.bind(mod_key("SHIFT + C"), hl.dsp.layout("orientationcenter"), { description = "center column | 居中列" })
+-- hl.bind(
+-- 	mod_key("CTRL + SHIFT + C"),
+-- 	hl.dsp.layout("orientationleft"),
+-- 	{ description = "set column orientation left | 设置列方向为左" }
+-- )
 
 hl.bind(
 	mod_key("SHIFT + O"),
