@@ -8,7 +8,7 @@
   "modules-right": ["cpu", "memory", "network", "battery", "backlight", "tray", "pulseaudio", "clock"],
   "niri/workspaces": {
     "all-outputs": false,
-    "format": "{id}",
+    "format": "{index}",
     "disable-scroll": true
   },
   "hyprland/workspaces": {
@@ -65,6 +65,7 @@
     }
   },
 
+  "pulseaudio": {
     "format": "<span font='16'>󰕾</span> {volume}%",
     "format-muted": "<span font='16'>󰝟</span> muted",
     "format-icons": ["󰕿", "󰖀", "󰕾"],
