@@ -14,23 +14,6 @@ in
   imports =
     [ ]
 
-    ++ importIf (hasTag "wsl") {
-      environment.variables.PATH = lib.mkForce [ "$PATH" ];
-      wsl.wslConf.network.generateResolvConf = lib.mkDefault false;
-      wsl.interop.register = lib.mkDefault true;
-      networking.wireless.enable = lib.mkForce false;
-      networking.networkmanager.wifi.backend = lib.mkForce "iwd";
-      systemd.tmpfiles.rules = [
-        "d /tmp/.X11-unix 1777 root root -"
-      ];
-      hardware.graphics = {
-        enable = true;
-        enable32Bit = true;
-      };
-      services.power-profiles-daemon.enable = lib.mkForce false;
-      hardware.i2c.enable = lib.mkForce false;
-    }
-
     ++ importIf (hasTag "common") ./modules/system/env_manager.nix
     ++ importIf (hasTag "desktop") ./modules/system/env_manager_wayland.nix
     ++ importIf (hasTag "wsl") ./modules/system/env_manager_wsl.nix
@@ -54,10 +37,9 @@ in
     ++ importIf (hasTag "amd" || hasTag "intel") ./modules/services/bluetooth.nix
     ++ importIf (hasTag "amd" || hasTag "intel") ./modules/services/mnt_autofs.nix
     ++ importIf ((hasTag "amd" || hasTag "intel") && hasTag "gui") ./modules/apps/recovery_testdisk.nix
-    ++ importIf (hasTag "amd") ./modules/system/hardware_amd.nix
-    ++ importIf (hasTag "intel") ./modules/system/hardware_intel.nix
+    ++ importIf (hasTag "amd") ./machine/hardware/amd.nix
+    ++ importIf (hasTag "intel") ./machine/hardware/intel.nix
     ++ importIf (hasTag "gui") ./modules/apps/graphics_tools.nix
-    ++ importIf (hasTag "gui") ./modules/apps/bleachbit.nix
     ++ importIf (hasTag "common") ./modules/apps/fastfetch.nix
 
     ++ importIf (hasTag "inputKeyd") ./modules/services/input_keyd.nix
@@ -81,7 +63,7 @@ in
     ++ importIf (hasTag "dev") ./modules/system/nix_ld.nix
     ++ importIf (hasTag "dev") ./modules/term/term_kitty.nix
     ++ importIf (hasTag "dev") ./modules/term/term_rio.nix
-    ++ importIf (hasTag "dev" && !hasTag "wsl") ./modules/term/term_vte.nix
+    ++ importIf (hasTag "gui" && !hasTag "wsl") ./modules/term/term_vte.nix
     ++ importIf (hasTag "dev") ./modules/term/term_ghostty.nix
     ++ importIf (hasTag "dev") ./modules/term/tool_grc.nix
     ++ importIf (hasTag "dev") ./modules/term/tool_xclip.nix
@@ -119,7 +101,7 @@ in
     ++ importIf (hasTag "gui") ./modules/apps/im/wechat.nix
     # ++ importIf (hasTag "dailyPC") ./modules/apps/im/wechat_devtools.nix
     ## ++ importIf (hasTag "dailyPC") ./modules/apps/android_mobile_connect.nix
-    #++ importIf (hasTag "dailyPC") ./modules/apps/compat_wine_bottles.nix
+    ++ importIf (hasTag "dailyPC") ./modules/apps/compat_wine_bottles.nix
     ++ importIf (hasTag "gui") ./modules/apps/download_motrix.nix
     ++ importIf (hasTag "gui") ./modules/apps/media_vlc.nix
     ++ importIf (hasTag "gui") ./modules/apps/music_musicfree.nix
@@ -139,8 +121,8 @@ in
     # ++ importIf (hasTag "services") ./modules/services/db_postgresql.nix
     # ++ importIf (hasTag "services") ./modules/services/db_valkey.nix
     ++ importIf (hasTag "services") ./modules/dev/dev_db_tools.nix
-    ++ importIf (hasTag "gui") ./modules/dev/creativeTools_blender.nix
-    ++ importIf (hasTag "gui") ./modules/dev/creativeTools_obs_studio.nix
+    ++ importIf (hasTag "gui") ./modules/apps/creativeTools_blender.nix
+    ++ importIf (hasTag "gui") ./modules/apps/creativeTools_obs_studio.nix
     # ++ importIf (hasTag "services") ./modules/services/opencode_web.nix
     #  ++ importIf (hasTag "desktop") ./modules/services/pkg_flatpak.nix
     ++ importIf (hasTag "ai") ./modules/ai/ai_common.nix

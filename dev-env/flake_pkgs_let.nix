@@ -129,7 +129,7 @@ let
         nil
         nixpkgs-fmt
         shfmt
-        bruno
+        # bruno
         yaak
         jq
         ripgrep

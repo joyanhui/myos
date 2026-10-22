@@ -118,7 +118,7 @@ hl.window_rule({
 local function start_session_services()
 	hl.exec_cmd("ironbar")
 	hl.exec_cmd(
-		"wallpaper=$(find \"$(dirname \"$(readlink -f \"$HOME/.config/hypr/hyprland.lua\")\")/../static_file/wallpaper\" -type f -name '*.mp4' | shuf -n 1); [ -n \"$wallpaper\" ] && mpvpaper -o 'no-audio loop panscan=1' '*' \"$wallpaper\""
+		"wallpaper=$(find \"$(dirname \"$(readlink -f \"$HOME/.config/hypr/hyprland.lua\")\")/../static_file/wallpaper\" -type f -name '*.mp4' | shuf -n 1); [ -n \"$wallpaper\" ] && mpvpaper --auto-pause -o 'no-audio loop panscan=1 hwdec=auto-safe vf=fps=30' '*' \"$wallpaper\""
 	)
 	hl.exec_cmd(
 		"systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE HYPRLAND_INSTANCE_SIGNATURE; systemctl --user restart fcitx5"
