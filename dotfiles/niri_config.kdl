@@ -60,7 +60,8 @@ window-rule {
 
 screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
-spawn-at-startup "dms" "run"
+spawn-at-startup "ironbar"
+spawn-sh-at-startup "wallpaper=$(find \"$(dirname \"$(readlink -f \"$HOME/.config/niri/config.kdl\")\")/../static_file/wallpaper\" -type f -name '*.mp4' | shuf -n 1); [ -n \"$wallpaper\" ] && mpvpaper -o 'no-audio loop panscan=1' '*' \"$wallpaper\" &"
 spawn-sh-at-startup "systemctl --user import-environment WAYLAND_DISPLAY NIRI_SOCKET XDG_CURRENT_DESKTOP XDG_SESSION_TYPE; systemctl --user restart fcitx5"
 spawn-sh-at-startup "swayidle -w timeout 600 'swaylock -f' timeout 660 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' before-sleep 'swaylock -f'"
 spawn-sh-at-startup "dbus-update-activation-environment WAYLAND_DISPLAY DISPLAY NIRI_SOCKET XDG_CURRENT_DESKTOP XDG_SESSION_TYPE; systemctl --user restart xdg-desktop-portal"
@@ -101,6 +102,8 @@ binds {
     Mod+Shift+Right hotkey-overlay-title="focus column right | 聚焦右列" { focus-column-right; }
     Mod+Shift+Up hotkey-overlay-title="focus window up | 聚焦上方窗口" { focus-window-up; }
     Mod+Shift+Down hotkey-overlay-title="focus window down | 聚焦下方窗口" { focus-window-down; }
+    Mod+Shift+WheelScrollUp hotkey-overlay-title="focus column left | 聚焦左列" { focus-column-left; }
+    Mod+Shift+WheelScrollDown hotkey-overlay-title="focus column right | 聚焦右列" { focus-column-right; }
     Mod+Ctrl+Shift+Left hotkey-overlay-title="move column left | 移动列到左侧" { move-column-left; }
     Mod+Ctrl+Shift+Right hotkey-overlay-title="move column right | 移动列到右侧" { move-column-right; }
     Mod+Ctrl+Shift+Up hotkey-overlay-title="move window up | 移动窗口向上" { move-window-up; }

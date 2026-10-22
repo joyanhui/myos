@@ -1,0 +1,82 @@
+* {
+  border: none;
+  box-shadow: none;
+  font-family: "Symbols Nerd Font", "Noto Sans", "Noto Sans CJK SC", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #e3e8e2;
+}
+
+#bar, #start, #center, #end, .workspaces, .focused, .sys-info, .clock, .volume, .tray {
+  background-color: rgba(24, 29, 27, 0.94);
+  color: #e3e8e2;
+}
+
+#bar {
+  border: 1px solid rgba(224, 240, 229, 0.16);
+  border-radius: 18px;
+}
+
+#start, #center, #end {
+  border-radius: 16px;
+}
+
+button, label {
+  color: #e3e8e2;
+  background: transparent;
+  border-radius: 14px;
+  padding: 3px 8px;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+button:hover, button:active {
+  background: rgba(255, 255, 255, 0.10);
+}
+
+.workspaces .item {
+  color: rgba(227, 232, 226, 0.68);
+  padding: 3px 9px;
+  border-radius: 14px;
+}
+
+.workspaces .item.focused {
+  color: #102019;
+  background: #a8d5b5;
+  border-radius: 14px;
+}
+
+.workspaces .item.focused label,
+.workspaces .item.focused * {
+  color: #102019;
+}
+
+.workspaces .item.urgent {
+  color: #ffb4ab;
+}
+
+.focused {
+  color: #e3e8e2;
+}
+
+popover, popover contents, menu {
+  color: #e3e8e2;
+  background: rgba(29, 35, 32, 0.94);
+  border: 1px solid rgba(224, 240, 229, 0.14);
+  border-radius: 16px;
+}
+
+scale trough {
+  background: rgba(227, 232, 226, 0.16);
+  border-radius: 8px;
+}
+
+scale highlight {
+  background: #a8d5b5;
+  border-radius: 8px;
+}
+
+.sys-info, .clock, .volume, .tray {
+  background: transparent;
+  color: #e3e8e2;
+  padding: 0 5px;
+}

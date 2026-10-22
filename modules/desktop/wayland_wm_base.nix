@@ -7,6 +7,8 @@
 {
   environment.systemPackages = with pkgs; [
     awww
+    mpvpaper
+    swaybg
     brightnessctl
     xdg-desktop-portal-gtk
     libnotify

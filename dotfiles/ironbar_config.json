@@ -1,0 +1,30 @@
+{
+  "position": "top",
+  "height": 38,
+  "start": [
+    { "type": "workspaces", "all_monitors": false }
+  ],
+  "center": [
+    { "type": "focused", "icon_size": 16, "truncate": "end" }
+  ],
+  "end": [
+    {
+      "type": "sys_info",
+      "format": ["󰻠 {cpu_percent}%", "󰍛 {memory_percent}%"],
+      "interval": { "cpu": 2, "memory": 10 }
+    },
+    { "type": "tray" },
+    {
+      "type": "volume",
+      "format": "{icon} {percentage}%",
+      "max_volume": 100,
+      "icons": {
+        "muted": "󰝟",
+        "volume_low": "󰕿",
+        "volume_medium": "󰖀",
+        "volume_high": "󰕾"
+      }
+    },
+    { "type": "clock", "format": "󰥔  %a %d %b  %H:%M" }
+  ]
+}

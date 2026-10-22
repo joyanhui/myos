@@ -119,6 +119,7 @@ else
       packages =
         fontPackages
         ++ [
+          pkgs.nerd-fonts.symbols-only
           #pingfangSC
           #pkgs.maple-mono.NF-CN
           #sfMono
