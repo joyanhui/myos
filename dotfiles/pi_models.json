@@ -78,7 +78,7 @@
       "api": "openai-completions",
       "models": [
         {
-          "id": "gpt6.1-sol",
+          "id": "gpt-6.1-sol",
           "name": "GPT-6.1 Sol",
           "reasoning": true,
           "input": [

@@ -5,7 +5,8 @@
   "defaultThinkingLevel": "max",
   "enabledModels": [
     "4router-luna/gpt-6-luna",
-    "aihub-ds/deepseek-v4.1-flash"
+    "aihub-ds/deepseek-v4.1-flash",
+    "aihub-sol-astra/gpt-6.1-sol"
   ],
   "packages": [
     "npm:@joyanhui/pi-ext-bar-cursor",

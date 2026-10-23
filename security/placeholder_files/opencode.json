@@ -331,7 +331,7 @@
             "max": {}
           }
         },
-        "gpt6.1-sol": {
+        "gpt-6.1-sol": {
           "limit": {
             "context": 272000,
             "output": 272000

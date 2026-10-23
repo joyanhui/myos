@@ -76,7 +76,7 @@ EFI/NixOS/raw-os/nixos-generation-<generation>.efi
 - 当前 generation 必须保留；
 - `nixos-current.efi` 独立保留，不计入 generation 数量限制；
 - generation UKI 按编号从新到旧最多保留 8 个；
-- 新 UKI、菜单和内部 loader 安装成功后，才删除未选中的旧 generation 文件；
+- 在安装新 UKI、菜单和内部 loader 前，先清理未选中的旧 generation 文件；这样可避免 1 GiB ESP 因暂存新 UKI 而空间不足，但若后续安装失败，旧 generation 已被删除，回滚选择会减少。
 - `boot.loader.efi.canTouchEfiVariables = false`，不会修改 UEFI NVRAM 启动变量。
 
 ## 外部固定 EFI 的生命周期

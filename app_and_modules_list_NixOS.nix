@@ -107,11 +107,12 @@ in
     ++ importIf (hasTag "gui") ./modules/apps/music_musicfree.nix
     # ++ importIf (hasTag "dailyPC") ./modules/apps/office_trilium_next_desktop.nix
     #++ importIf (hasTag "services") ./modules/apps/pkg_nginx.nix
-    # ./modules/apps/remote_todesk.nix
+    #  ++ importIf (hasTag "gui")./modules/apps/remote_todesk.nix
+    ++ importIf (hasTag "gui") ./modules/apps/remote_remmina.nix
     ++ importIf (hasTag "dailyPC") ./modules/services/virtualisation_kvm_libvirtd.nix
     ++ importIf (hasTag "wsl") ./modules/services/virtualisation_qemu_tools.nix
     ## ++ importIf (hasTag "dailyPC") ./modules/services/virtualisation_waydroid.nix
-    # ./modules/services/xrdp.nix
+    #  ++ importIf (hasTag "desktop")./modules/services/xrdp.nix
     # ++ importIf (hasTag "dailyPC") ./modules/services/remote_sunshine.nix
     ++ importIf (hasTag "services") ./modules/services/share_samba.nix
     # ++ importIf (hasTag "dailyPC") ./modules/services/virtualisation_virtualbox.nix
