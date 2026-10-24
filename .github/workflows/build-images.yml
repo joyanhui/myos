@@ -63,6 +63,11 @@ jobs:
           extra_nix_config: |
             sandbox = false
 
+      - name: Configure raw image build
+        run: |
+          echo 'sandbox = false' | sudo tee -a /etc/nix/nix.conf
+          sudo systemctl restart nix-daemon
+
       - name: Install 7-Zip
         run: |
           sudo apt-get update
@@ -114,6 +119,11 @@ jobs:
         run: |
           sudo rm -rf /usr/local/share/boost /usr/local/lib/android /opt/hostedtoolcache/CodeQL /usr/share/dotnet
           df -h /
+
+      - name: Configure ISO build storage
+        run: |
+          echo 'sandbox = false' | sudo tee -a /etc/nix/nix.conf
+          sudo systemctl restart nix-daemon
 
       - name: Build maintenance ISO
         run: |
