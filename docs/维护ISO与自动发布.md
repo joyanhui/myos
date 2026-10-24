@@ -2,7 +2,7 @@
 
 `iso_installer` 构建不含桌面环境的 NixOS 维护介质，提供网络、诊断、磁盘、文件系统和加密工具，支持 Flakes 和 `nix-command`，可用于物理机或云主机维护及重新安装。
 
-GitHub Actions 会在 ISO 构建前清理 runner 上的大型预装 SDK，以释放 squashfs 构建所需临时磁盘空间。
+GitHub Actions 在现有 runner 磁盘空间内构建 squashfs，发布前检查每个 Release 资产均低于单文件大小上限。
 
 ## 手动构建
 
