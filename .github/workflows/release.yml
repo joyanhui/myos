@@ -18,6 +18,7 @@ jobs:
     outputs:
       build: ${{ steps.detect.outputs.build }}
       tag: ${{ steps.metadata.outputs.tag }}
+      title: ${{ steps.metadata.outputs.title }}
     steps:
       - name: Check out repository history
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -27,7 +28,9 @@ jobs:
       - name: Determine release version
         id: metadata
         run: |
-          echo "tag=images-${GITHUB_SHA:0:12}" >> "$GITHUB_OUTPUT"
+          release_time=$(TZ=Asia/Shanghai date +%Y%m%d%H%M%S)
+          echo "tag=images-$release_time" >> "$GITHUB_OUTPUT"
+          echo "title=System images-$release_time" >> "$GITHUB_OUTPUT"
 
       - name: Skip unchanged scheduled builds
         id: detect
@@ -156,6 +159,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ needs.detect-changes.outputs.tag }}
+          RELEASE_TITLE: ${{ needs.detect-changes.outputs.title }}
           SOURCE_SHA: ${{ github.sha }}
         run: |
           mkdir release-assets
@@ -168,5 +172,5 @@ jobs:
           gh release create "$RELEASE_TAG" release-assets/* \
             --repo "$GITHUB_REPOSITORY" \
             --target "$SOURCE_SHA" \
-            --title "System images $RELEASE_TAG" \
+            --title "$RELEASE_TITLE" \
             --notes "Automated maintenance ISO and Raw OS artifacts built from $SOURCE_SHA. The raw image archive may be split into volumes; keep all .7z volumes together before extraction. Verify downloads with SHA256SUMS."
