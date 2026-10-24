@@ -41,7 +41,7 @@ jobs:
             echo "build=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          latest_sha=$(gh run list --repo "$GH_REPOSITORY" --workflow build-images.yml --branch main --event schedule --status success --limit 1 --json headSha --jq '.[0].headSha // empty')
+          latest_sha=$(gh run list --repo "$GH_REPOSITORY" --workflow release.yml --branch main --event schedule --status success --limit 1 --json headSha --jq '.[0].headSha // empty')
           if [ -z "$latest_sha" ] || [ "$latest_sha" != "$GITHUB_SHA" ]; then
             echo "build=true" >> "$GITHUB_OUTPUT"
           else
@@ -75,8 +75,6 @@ jobs:
 
       - name: Build raw image and external EFI
         run: |
-          mkdir -p artifacts
-          echo "Building raw image"
           mkdir -p artifacts
           echo "Building raw image"
           nix build --show-trace --print-build-logs --no-link --print-out-paths .#nixosConfigurations.raw_os_core_img_creat.config.system.build.image > raw-path
