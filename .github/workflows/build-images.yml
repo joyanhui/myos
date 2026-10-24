@@ -41,7 +41,8 @@ jobs:
             echo "build=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          latest_sha=$(gh run list --repo "$GH_REPOSITORY" --workflow "$GH_WORKFLOW" --branch main --event workflow_dispatch --status success --limit 1 --json headSha --jq '.[0].headSha // empty')
+          workflow_id=$(gh api "repos/$GH_REPOSITORY/actions/workflows" --jq ".workflows[] | select(.name == \\\"$GH_WORKFLOW\\\") | .id")
+          latest_sha=$(gh run list --repo "$GH_REPOSITORY" --workflow "$workflow_id" --branch main --event schedule --status success --limit 1 --json headSha --jq '.[0].headSha // empty')
           if [ -z "$latest_sha" ] || [ "$latest_sha" != "$GITHUB_SHA" ]; then
             echo "build=true" >> "$GITHUB_OUTPUT"
           else
@@ -75,8 +76,8 @@ jobs:
 
       - name: Build raw image and external EFI
         run: |
-          nix build --no-link --print-out-paths .#nixosConfigurations.raw_os_core_img_creat.config.system.build.image > raw-path
-          nix build --no-link --print-out-paths .#nixosConfigurations.raw_os_core_img_creat.config.system.build.rawOsExternalBootEfi > efi-path
+          nix build --show-trace --print-build-logs --no-link --print-out-paths .#nixosConfigurations.raw_os_core_img_creat.config.system.build.image > raw-path
+          nix build --show-trace --print-build-logs --no-link --print-out-paths .#nixosConfigurations.raw_os_core_img_creat.config.system.build.rawOsExternalBootEfi > efi-path
           mkdir -p artifacts
           raw_dir=$(cat raw-path)
           cp "$raw_dir/nixos.raw" artifacts/nixos.raw
@@ -127,7 +128,7 @@ jobs:
 
       - name: Build maintenance ISO
         run: |
-          nix build --no-link --print-out-paths .#nixosConfigurations.iso_installer.config.system.build.isoImage > iso-path
+          nix build --show-trace --print-build-logs --no-link --print-out-paths .#nixosConfigurations.iso_installer.config.system.build.isoImage > iso-path
           mkdir -p artifacts
           iso=$(find "$(cat iso-path)" -maxdepth 1 -type f -name '*.iso' -print -quit)
           test -n "$iso"
