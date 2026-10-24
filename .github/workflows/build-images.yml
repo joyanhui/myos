@@ -1,0 +1,157 @@
+name: Build and release system images
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 4 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: system-image-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.detect.outputs.build }}
+      tag: ${{ steps.metadata.outputs.tag }}
+    steps:
+      - name: Check out repository history
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - name: Determine release version
+        id: metadata
+        run: |
+          echo "tag=images-${GITHUB_SHA:0:12}" >> "$GITHUB_OUTPUT"
+
+      - name: Skip unchanged scheduled builds
+        id: detect
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          GH_REPOSITORY: ${{ github.repository }}
+          GH_WORKFLOW: ${{ github.workflow }}
+        run: |
+          if [ "$EVENT_NAME" = workflow_dispatch ]; then
+            echo "build=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          latest_sha=$(gh run list --repo "$GH_REPOSITORY" --workflow "$GH_WORKFLOW" --branch main --event workflow_dispatch --status success --limit 1 --json headSha --jq '.[0].headSha // empty')
+          if [ -z "$latest_sha" ] || [ "$latest_sha" != "$GITHUB_SHA" ]; then
+            echo "build=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "build=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  build-raw:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.build == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+
+      - uses: cachix/install-nix-action@9280e7aca88deada44c930f1e2b78e627a3f20d2
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+
+      - name: Install 7-Zip
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y 7zip
+
+      - name: Build raw image and external EFI
+        run: |
+          nix build --no-link --print-out-paths .#nixosConfigurations.raw_os_core_img_creat.config.system.build.image > raw-path
+          nix build --no-link --print-out-paths .#nixosConfigurations.raw_os_core_img_creat.config.system.build.rawOsExternalBootEfi > efi-path
+          mkdir -p artifacts
+          raw_dir=$(cat raw-path)
+          cp "$raw_dir/nixos.raw" artifacts/nixos.raw
+          cp "$(cat efi-path)" artifacts/nixos-img.efi
+          raw_size=$(stat -c %s artifacts/nixos.raw)
+          parts=$(( (raw_size + 1887436800 - 1) / 1887436800 ))
+          if [ "$parts" -gt 1 ]; then
+            7z a -t7z -mx=1 -v1800m artifacts/nixos.raw.7z artifacts/nixos.raw
+            7z t artifacts/nixos.raw.7z.001
+            find artifacts -maxdepth 1 -name 'nixos.raw.7z.*' -print -quit | grep -q .
+          else
+            7z a -t7z -mx=1 artifacts/nixos.raw.7z artifacts/nixos.raw
+            7z t artifacts/nixos.raw.7z
+            test -s artifacts/nixos.raw.7z
+          fi
+          rm artifacts/nixos.raw
+          test -s artifacts/nixos-img.efi
+          (cd artifacts && sha256sum nixos-img.efi nixos.raw.7z* > SHA256SUMS)
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: raw-artifacts
+          path: artifacts/*
+          if-no-files-found: error
+          retention-days: 3
+
+  build-iso:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.build == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+
+      - uses: cachix/install-nix-action@9280e7aca88deada44c930f1e2b78e627a3f20d2
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+
+      - name: Build maintenance ISO
+        run: |
+          nix build --no-link --print-out-paths .#nixosConfigurations.iso_installer.config.system.build.isoImage > iso-path
+          mkdir -p artifacts
+          iso=$(find "$(cat iso-path)" -maxdepth 1 -type f -name '*.iso' -print -quit)
+          test -n "$iso"
+          cp "$iso" artifacts/iso-installer-x86_64-linux.iso
+          (cd artifacts && sha256sum iso-installer-x86_64-linux.iso > SHA256SUMS)
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: iso-artifacts
+          path: artifacts/*
+          if-no-files-found: error
+          retention-days: 3
+
+  publish:
+    needs:
+      - detect-changes
+      - build-raw
+      - build-iso
+    if: needs.detect-changes.outputs.build == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          path: artifacts
+
+      - name: Verify and publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.detect-changes.outputs.tag }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          mkdir release-assets
+          cp artifacts/raw-artifacts/* release-assets/
+          cp artifacts/iso-artifacts/iso-installer-x86_64-linux.iso release-assets/
+          (cd release-assets && sha256sum iso-installer-x86_64-linux.iso >> SHA256SUMS && sha256sum -c SHA256SUMS)
+          for asset in release-assets/*; do
+            test "$(stat -c %s "$asset")" -lt 2147483648
+          done
+          gh release create "$RELEASE_TAG" release-assets/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$SOURCE_SHA" \
+            --title "System images $RELEASE_TAG" \
+            --notes "Automated maintenance ISO and Raw OS artifacts built from $SOURCE_SHA. The raw image archive may be split into volumes; keep all .7z volumes together before extraction. Verify downloads with SHA256SUMS."

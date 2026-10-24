@@ -104,6 +104,11 @@
     in
     {
       nixosConfigurations = {
+        iso_installer = nixpkgs.lib.nixosSystem {
+          inherit system;
+          modules = [ ./machine/iso/installer.nix ];
+          specialArgs = { inherit global_settings; };
+        };
         raw_os_core_img_creat = nixpkgs.lib.nixosSystem {
           inherit system;
           modules = [ ./machine/raw_os/raw-os-core-img-creat.nix ];

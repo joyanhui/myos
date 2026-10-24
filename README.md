@@ -9,6 +9,7 @@
 - `raw_os_core_img_creat`：Raw OS 基础镜像构建配置，生成初始 raw 镜像以及内部、外部引导产物，不绑定 AMD 或 Intel 工作环境。
 - `raw_os_work_amd`：运行在 raw 镜像内的 AMD 工作环境配置，包含 AMD IOMMU、KVM 和 VFIO 设置。
 - `raw_os_work_intel`：运行在 raw 镜像内的 Intel 工作环境配置，包含 Intel IOMMU、KVM 和 VFIO 设置。
+- `iso_installer`：不含桌面的维护和重装安装介质配置，构建 EFI/BIOS 可启动 ISO。
 - `homeConfigurations.linux`：Debian、Ubuntu 等基于 glibc Linux 的 standalone 配置。
 
 ## 常用命令
@@ -26,6 +27,10 @@ nix build .#homeConfigurations.linux.activationPackage
 # 或
 home-manager switch --flake .#linux
 ```
+
+### 维护 ISO
+
+维护 ISO 的下载、SHA256 校验和启动说明见[维护 ISO 与自动发布](docs/维护ISO与自动发布.md)。GitHub Actions 支持手动构建发布，并在每周检测默认分支变化后自动构建。
 
 ### Raw OS
 

@@ -82,7 +82,7 @@ in
     fish
     networkmanager
     helix
-    nvim
+    neovim
     vim
     usbutils
     pciutils
