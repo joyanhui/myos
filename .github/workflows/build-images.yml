@@ -41,8 +41,7 @@ jobs:
             echo "build=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          workflow_id=$(gh api "repos/$GH_REPOSITORY/actions/workflows" --jq ".workflows[] | select(.name == \\\"$GH_WORKFLOW\\\") | .id")
-          latest_sha=$(gh run list --repo "$GH_REPOSITORY" --workflow "$workflow_id" --branch main --event schedule --status success --limit 1 --json headSha --jq '.[0].headSha // empty')
+          latest_sha=$(gh run list --repo "$GH_REPOSITORY" --workflow build-images.yml --branch main --event schedule --status success --limit 1 --json headSha --jq '.[0].headSha // empty')
           if [ -z "$latest_sha" ] || [ "$latest_sha" != "$GITHUB_SHA" ]; then
             echo "build=true" >> "$GITHUB_OUTPUT"
           else
@@ -115,11 +114,6 @@ jobs:
       - uses: cachix/install-nix-action@75c75c31ebece974e48ebc36b4ad125bd97bd97b
         with:
           nix_path: nixpkgs=channel:nixos-unstable
-
-      - name: Configure ISO build storage
-        run: |
-          echo 'sandbox = false' | sudo tee -a /etc/nix/nix.conf
-          sudo systemctl restart nix-daemon
 
       - name: Build maintenance ISO
         run: |
