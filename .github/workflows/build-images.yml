@@ -75,12 +75,14 @@ jobs:
 
       - name: Build raw image and external EFI
         run: |
-          nix build --show-trace --print-build-logs --no-link --print-out-paths .#nixosConfigurations.raw_os_core_img_creat.config.system.build.image > raw-path
-          nix build --show-trace --print-build-logs --no-link --print-out-paths .#nixosConfigurations.raw_os_core_img_creat.config.system.build.rawOsExternalBootEfi > efi-path
           mkdir -p artifacts
+          echo "Building raw image"
+          mkdir -p artifacts
+          echo "Building raw image"
+          nix build --show-trace --print-build-logs --no-link --print-out-paths .#nixosConfigurations.raw_os_core_img_creat.config.system.build.image > raw-path
           raw_dir=$(cat raw-path)
           cp "$raw_dir/nixos.raw" artifacts/nixos.raw
-          cp "$(cat efi-path)" artifacts/nixos-img.efi
+          echo "Compressing raw image"
           raw_size=$(stat -c %s artifacts/nixos.raw)
           parts=$(( (raw_size + 1887436800 - 1) / 1887436800 ))
           if [ "$parts" -gt 1 ]; then
@@ -93,6 +95,9 @@ jobs:
             test -s artifacts/nixos.raw.7z
           fi
           rm artifacts/nixos.raw
+          echo "Building external EFI"
+          nix build --show-trace --print-build-logs --no-link --print-out-paths .#nixosConfigurations.raw_os_core_img_creat.config.system.build.rawOsExternalBootEfi > efi-path
+          cp "$(cat efi-path)" artifacts/nixos-img.efi
           test -s artifacts/nixos-img.efi
           (cd artifacts && sha256sum nixos-img.efi nixos.raw.7z* > SHA256SUMS)
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
