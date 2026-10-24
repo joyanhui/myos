@@ -68,7 +68,7 @@ jobs:
 
       - name: Build raw image and external EFI
         run: |
-          nix build --no-link --print-out-paths .#nixosConfigurations.raw_os_core_img_creat.config.system.build.image > raw-path
+          nix build --option sandbox false --no-link --print-out-paths .#nixosConfigurations.raw_os_core_img_creat.config.system.build.image > raw-path
           nix build --no-link --print-out-paths .#nixosConfigurations.raw_os_core_img_creat.config.system.build.rawOsExternalBootEfi > efi-path
           mkdir -p artifacts
           raw_dir=$(cat raw-path)
