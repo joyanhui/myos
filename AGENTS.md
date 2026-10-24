@@ -16,7 +16,7 @@ AI agents may read and reference this file, but MUST NEVER modify it in any way.
 
 - `wsl`、`tb_amd`、`raw_os_work_amd` 和 `raw_os_work_intel` 使用 `mkHost "tag1|tag2"` 构建。
 - `raw_os_core_img_creat` 是用来创建可供虚拟机启动或者DD到硬盘启动 以及可以使用外部外部efi或者loop等方式直接启动的 raw格式的镜像构建，不参与nix flake host，不参与`nixos-rebuild`。
-- `raw_os_work_amd` 和 `raw_os_work_intel` 是基于`raw_os_core_img_creat`构建的Raw OS 工作环境 AMD/Intel，通过 `raw-amd` 和 `raw-intel` tag 控制。
+- `raw_os_work_amd` 和 `raw_os_work_intel` 是基于`raw_os_core_img_creat`构建的Raw OS 工作环境 AMD/Intel，通过 `amd` 和 `intel` tag 控制。
 - NixOS/Nix 模块只能由 `app_and_modules_list_NixOS.nix`或者`app_and_modules_list_OtherLinux.nix` 调度，其他nix文件不得有对host/tag的判断。
 - tag 白名单、`importIf` 和 `hasTag` 统一由 `module_list_lib.nix` 提供。
 - 新增 tag 时，必须同步更新 `module_list_lib.nix` 和 `flake.nix`；未知 tag 必须显式失败，不得静默继续构建。
