@@ -89,14 +89,14 @@ jobs:
           raw_dir=$(cat raw-path)
           cp "$raw_dir/nixos.raw" artifacts/nixos.raw
           echo "Compressing raw image"
-          raw_size=$(stat -c %s artifacts/nixos.raw)
-          parts=$(( (raw_size + 1887436800 - 1) / 1887436800 ))
-          if [ "$parts" -gt 1 ]; then
+          7z a -t7z -mx=1 artifacts/nixos.raw.7z artifacts/nixos.raw
+          archive_size=$(stat -c %s artifacts/nixos.raw.7z)
+          if [ "$archive_size" -ge 1887436800 ]; then
+            rm artifacts/nixos.raw.7z
             7z a -t7z -mx=1 -v1800m artifacts/nixos.raw.7z artifacts/nixos.raw
             7z t artifacts/nixos.raw.7z.001
             find artifacts -maxdepth 1 -name 'nixos.raw.7z.*' -print -quit | grep -q .
           else
-            7z a -t7z -mx=1 artifacts/nixos.raw.7z artifacts/nixos.raw
             7z t artifacts/nixos.raw.7z
             test -s artifacts/nixos.raw.7z
           fi
