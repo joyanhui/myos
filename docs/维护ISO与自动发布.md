@@ -2,7 +2,7 @@
 
 `iso_installer` 构建不含桌面环境的 NixOS 维护介质，提供网络、诊断、磁盘、文件系统和加密工具，支持 Flakes 和 `nix-command`，可用于物理机或云主机维护及重新安装。
 
-ISO 将 squashfs 的 Zstandard 压缩等级设为 3，降低受限 runner 的构建峰值；发布的 ISO 大小仍以 Release 实际构建为准。
+GitHub Actions 会在 ISO 构建前清理 runner 上的大型预装 SDK，以释放 squashfs 构建所需临时磁盘空间。
 
 ## 手动构建
 
