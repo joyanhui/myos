@@ -116,11 +116,6 @@ jobs:
         with:
           nix_path: nixpkgs=channel:nixos-unstable
 
-      - name: Grow runner temporary storage
-        run: |
-          sudo rm -rf /usr/local/share/boost /usr/local/lib/android /opt/hostedtoolcache/CodeQL /usr/share/dotnet
-          df -h /
-
       - name: Configure ISO build storage
         run: |
           echo 'sandbox = false' | sudo tee -a /etc/nix/nix.conf
@@ -130,7 +125,7 @@ jobs:
         run: |
           nix build --show-trace --print-build-logs --no-link --print-out-paths .#nixosConfigurations.iso_installer.config.system.build.isoImage > iso-path
           mkdir -p artifacts
-          iso=$(find "$(cat iso-path)" -maxdepth 1 -type f -name '*.iso' -print -quit)
+          iso=$(find "$(cat iso-path)" -maxdepth 2 -type f -name '*.iso' -print -quit)
           test -n "$iso"
           cp "$iso" artifacts/iso-installer-x86_64-linux.iso
           (cd artifacts && sha256sum iso-installer-x86_64-linux.iso > SHA256SUMS)

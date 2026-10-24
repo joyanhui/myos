@@ -15,6 +15,7 @@
   isoImage.edition = lib.mkForce "maintenance";
   isoImage.makeBiosBootable = true;
   isoImage.squashfsCompression = "zstd -Xcompression-level 3";
+  isoImage.squashfsCompression = "zstd -Xcompression-level 3";
 
   nix.settings.experimental-features = [
     "nix-command"
