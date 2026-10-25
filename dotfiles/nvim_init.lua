@@ -110,6 +110,7 @@ if vim.version.ge(vim.version(), { 0, 12, 0 }) then
 		vim.opt.path:append({ "**" })
 		vim.opt.splitright = true -- more natural split
 		vim.opt.splitbelow = true -- more natural split
+		vim.opt.signcolumn = "yes:1"
 
 		pack.add({
 			{ src = "https://github.com/nvim-lua/plenary.nvim" },
@@ -212,7 +213,12 @@ if vim.version.ge(vim.version(), { 0, 12, 0 }) then
 		end
 
 		require("mini.git").setup()
-		require("mini.diff").setup()
+		require("mini.diff").setup({
+			view = {
+				style = "sign",
+				signs = { add = "▎", change = "▎", delete = "▎" },
+			},
+		})
 
 		require("nvim-highlight-colors").setup({
 			render = "virtual",

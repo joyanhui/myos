@@ -1,12 +1,13 @@
 {
   "lastChangelogVersion": "1.4.0",
-  "defaultProvider": "aihub.top",
+  "defaultProvider": "aihub-luna",
   "defaultModel": "gpt-5.6-luna",
   "defaultThinkingLevel": "max",
   "enabledModels": [
     "4router-luna/gpt-6-luna",
     "aihub-ds/deepseek-v4.1-flash",
-    "aihub-sol-astra/gpt-6.1-sol"
+    "aihub-sol-astra/gpt-6.1-sol",
+    "aihub-luna/gpt-5.6-luna"
   ],
   "packages": [
     "npm:@joyanhui/pi-ext-bar-cursor",
@@ -15,8 +16,7 @@
     "npm:pi-web-access",
     "npm:@cortexkit/pi-magic-context",
     "../../myws/pi-extension/pi-ext-float-term",
-    "../../myws/pi-extension/pi-ext-git-changes",
-    "npm:pi-subagents"
+    "../../myws/pi-extension/pi-ext-git-changes"
   ],
   "defaultTools": [
     "+codemode"

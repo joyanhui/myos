@@ -12,6 +12,7 @@ let
     "dailyPC"
     "services"
     "wsl"
+    "raw_os_work_amd"
     "amd"
     "intel"
   ];

@@ -22,6 +22,7 @@ in
     ++ importIf (hasTag "common") ./modules/system/nix_config.nix
     ++ importIf (hasTag "common") ./modules/system/system_defaults.nix
     ++ importIf (hasTag "common") ./modules/system/zram.nix
+    ++ importIf (hasTag "raw_os_work_amd") ./modules/system/no_sleep.nix
     ++ importIf (hasTag "wsl") ./modules/system/swap_zram_wsl.nix
     ++ importIf (hasTag "common") ./modules/services/openssh.nix
     ++ importIf (hasTag "common") ./modules/services/cron.nix

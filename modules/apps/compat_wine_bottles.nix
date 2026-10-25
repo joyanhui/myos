@@ -111,7 +111,7 @@ in
   home-manager.users.${username} = {
     home.packages = [
       bottleCompat
-      pkgsNoOpenldapCheck.bottles.override { removeWarningPopup = true; }
+      (pkgsNoOpenldapCheck.bottles.override { removeWarningPopup = true; })
       pkgs.winetricks
       pkgs.cabextract
       bottlesOpenGuide

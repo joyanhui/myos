@@ -63,7 +63,7 @@ screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 spawn-at-startup "ironbar"
 spawn-sh-at-startup "wallpaper=$(find \"$(dirname \"$(readlink -f \"$HOME/.config/niri/config.kdl\")\")/../static_file/wallpaper\" -type f -name '*.mp4' | shuf -n 1); [ -n \"$wallpaper\" ] && mpvpaper --auto-pause -o 'no-audio loop panscan=1 hwdec=auto-safe vf=fps=30' '*' \"$wallpaper\" &"
 spawn-sh-at-startup "systemctl --user import-environment WAYLAND_DISPLAY NIRI_SOCKET XDG_CURRENT_DESKTOP XDG_SESSION_TYPE; systemctl --user restart fcitx5"
-spawn-sh-at-startup "swayidle -w timeout 600 'swaylock -f' timeout 660 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' before-sleep 'swaylock -f'"
+spawn-sh-at-startup "swayidle -w timeout 1800 'swaylock -f' timeout 2700 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' before-sleep 'swaylock -f'"
 spawn-sh-at-startup "dbus-update-activation-environment WAYLAND_DISPLAY DISPLAY NIRI_SOCKET XDG_CURRENT_DESKTOP XDG_SESSION_TYPE; systemctl --user restart xdg-desktop-portal"
 
 binds {
