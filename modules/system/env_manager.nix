@@ -10,17 +10,24 @@ let
   extraEnvVars = config.envManager.extraVars or { };
   theme = global_settings.theme;
   iconPkg = pkgs.${theme.iconThemePkg};
-  fcitx5Pkg = lib.attrByPath [ "i18n" "inputMethod" "package" ] pkgs.qt6Packages.fcitx5-with-addons config;
+  fcitx5Pkg = lib.attrByPath [
+    "i18n"
+    "inputMethod"
+    "package"
+  ] pkgs.qt6Packages.fcitx5-with-addons config;
   gstOut = pkg: lib.getOutput "out" pkg;
   gstPluginPath = lib.concatStringsSep ":" (
-    map (pkg: "${gstOut pkg}/lib/gstreamer-1.0") (with pkgs.gst_all_1; [
-      gstreamer
-      gst-plugins-base
-      gst-plugins-good
-      gst-plugins-bad
-      gst-plugins-ugly
-      gst-libav
-    ])
+    map (pkg: "${gstOut pkg}/lib/gstreamer-1.0") (
+      with pkgs.gst_all_1;
+      [
+        gstreamer
+        gst-plugins-base
+        gst-plugins-good
+        gst-plugins-bad
+        gst-plugins-ugly
+        gst-libav
+      ]
+    )
   );
 
   xdgDataDirsBase = lib.concatStringsSep ":" [
@@ -39,6 +46,7 @@ let
   envVars = {
     REPO_DIR = global_settings.repoDir;
     LOT_CFG_FILE = "$HOME/myws/lot-manager-aio";
+    LOT_CFG_DIR = "$HOME/myws/lot-aio/";
     EDITOR = global_settings.editor;
     VISUAL = global_settings.editor;
     SUDO_EDITOR = global_settings.editor;
@@ -59,7 +67,8 @@ let
     XCURSOR_THEME = theme.cursorTheme;
     FONTCONFIG_PATH = "/etc/fonts";
 
-    GTK_IM_MODULE = "fcitx";    QT_IM_MODULE = "fcitx";
+    GTK_IM_MODULE = "fcitx";
+    QT_IM_MODULE = "fcitx";
     QT6_IM_MODULE = "fcitx";
     QT_IM_MODULES = "fcitx;wayland;ibus";
     SDL_IM_MODULE = "fcitx";
@@ -122,7 +131,12 @@ in
   };
 
   config = {
-    environment.sessionVariables = lib.removeAttrs envVars [ "XMODIFIERS" "XDG_DATA_DIRS" "PATH" "GIO_EXTRA_MODULES" ];
+    environment.sessionVariables = lib.removeAttrs envVars [
+      "XMODIFIERS"
+      "XDG_DATA_DIRS"
+      "PATH"
+      "GIO_EXTRA_MODULES"
+    ];
     environment.variables.XMODIFIERS = envVars.XMODIFIERS;
 
     home-manager.users.${username} = {
@@ -131,12 +145,9 @@ in
 
       xdg.configFile."fish/conf.d/90-env.fish".text = fishEnvFile;
 
-      xdg.configFile."environment.d/20-session-vars.conf".text =
-        lib.concatStringsSep "\n" (
-          lib.mapAttrsToList (name: value: "${name}=${toString value}") (
-            lib.removeAttrs envVars [ "PATH" ]
-          )
-        );
+      xdg.configFile."environment.d/20-session-vars.conf".text = lib.concatStringsSep "\n" (
+        lib.mapAttrsToList (name: value: "${name}=${toString value}") (lib.removeAttrs envVars [ "PATH" ])
+      );
     };
   };
 }

@@ -37,6 +37,10 @@ in
             source = config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/dotfiles/pi_settings.json";
             force = true;
           };
+          ".pi/agent/pi-goal.json" = {
+            source = config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/dotfiles/pi_goal.json";
+            force = true;
+          };
           ".pi/agent/SYSTEM.md" = {
             source = config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/dotfiles/pi_global_AGENTS.md";
             force = true;

@@ -1,7 +1,7 @@
 {
   "lastChangelogVersion": "1.4.0",
-  "defaultProvider": "aihub-luna",
-  "defaultModel": "gpt-5.6-luna",
+  "defaultProvider": "4router-luna",
+  "defaultModel": "gpt-6-luna",
   "defaultThinkingLevel": "max",
   "enabledModels": [
     "4router-luna/gpt-6-luna",
