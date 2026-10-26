@@ -54,6 +54,12 @@ in
           source ${pkgs.grc}/etc/profile.d/grc.sh
 
           bindkey -e
+          [[ -n ''${terminfo[khome]} ]] && bindkey "''${terminfo[khome]}" beginning-of-line
+          [[ -n ''${terminfo[kend]} ]] && bindkey "''${terminfo[kend]}" end-of-line
+          [[ -n ''${terminfo[kich1]} ]] && bindkey "''${terminfo[kich1]}" overwrite-mode
+          [[ -n ''${terminfo[kdch1]} ]] && bindkey "''${terminfo[kdch1]}" delete-char
+          [[ -n ''${terminfo[kpp]} ]] && bindkey "''${terminfo[kpp]}" beginning-of-buffer-or-history
+          [[ -n ''${terminfo[knp]} ]] && bindkey "''${terminfo[knp]}" end-of-buffer-or-history
           WORDCHARS=''${WORDCHARS//[\/~]/}
           bindkey '^[[1;5C' emacs-forward-word
           bindkey '^[[5C' emacs-forward-word
