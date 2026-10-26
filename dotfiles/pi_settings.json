@@ -1,7 +1,7 @@
 {
   "lastChangelogVersion": "1.4.0",
-  "defaultProvider": "4router-luna",
-  "defaultModel": "gpt-6-luna",
+  "defaultProvider": "aihub-ds",
+  "defaultModel": "deepseek-v4.1-flash",
   "defaultThinkingLevel": "max",
   "enabledModels": [
     "4router-luna/gpt-6-luna",
