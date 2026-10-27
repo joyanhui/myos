@@ -17,7 +17,8 @@
     "npm:pi-web-access",
     "npm:@cortexkit/pi-magic-context",
     "../../myws/pi-extension/pi-ext-float-term",
-    "../../myws/pi-extension/pi-ext-git-changes"
+    "../../myws/pi-extension/pi-ext-git-changes",
+    "npm:pi-subagents"
   ],
   "defaultTools": [
     "+codemode"
