@@ -33,8 +33,8 @@
     neofetch = "echo fastfetch && fastfetch";
     # aitools = "bun install -g @google/gemini-cli && bun install -g opencode-ai";
 
-    cdos = "cd /home/nixos/myws/os-config/";
-    cdlot = "cd /home/nixos/myws/lot-manager-aio/";
-    cdbmh = "cd /home/nixos/myws/baomihua.eu.org/";
+    cdos = "cd /home/nixos/myws/myos/";
+    cdlot = "cd /home/nixos/myws/lot-aio/";
+    cdcf = "cd /home/nixos/myws/cf-aui/";
   };
 }
