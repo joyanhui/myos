@@ -210,7 +210,7 @@
           "input": [
             "text"
           ],
-          "contextWindow": 1000000,
+          "contextWindow": 272000,
           "maxTokens": 384000,
           "compat": {
             "supportsStore": false,
