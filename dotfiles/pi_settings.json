@@ -7,7 +7,8 @@
     "4router-luna/gpt-6-luna",
     "aihub-ds/deepseek-v4.1-flash",
     "aihub-sol-astra/gpt-6.1-sol",
-    "aihub-luna/gpt-5.6-luna"
+    "aihub-sol-astra/gpt-6.1-terra",
+    "aihub-luna/gpt-6-luna"
   ],
   "packages": [
     "npm:@joyanhui/pi-ext-bar-cursor",
