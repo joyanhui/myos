@@ -12,10 +12,6 @@ cursor {
     xcursor-theme "__CURSOR_THEME__"
 }
 
-output "eDP-1" {
-    scale 1
-}
-
 layout {
     gaps 8
     center-focused-column "never"
@@ -55,6 +51,11 @@ window-rule {
 
 window-rule {
     match app-id=r#"^brave-.*-Default$"#
+    open-floating true
+}
+
+window-rule {
+    match app-id=r#"^Tk$"#
     open-floating true
 }
 
@@ -110,7 +111,8 @@ binds {
     Mod+Ctrl+Shift+Up hotkey-overlay-title="move window up | 移动窗口向上" { move-window-up; }
     Mod+Ctrl+Shift+Down hotkey-overlay-title="move window down | 移动窗口向下" { move-window-down; }
 
-    Mod+Shift+F hotkey-overlay-title="maximize column | 最大化列" { maximize-column; }
+    Mod+Shift+F hotkey-overlay-title="toggle floating window | 切换窗口浮动/平铺" { toggle-window-floating; }
+    Mod+Ctrl+Shift+M hotkey-overlay-title="maximize column | 最大化列" { maximize-column; }
     Mod+Ctrl+Shift+F hotkey-overlay-title="fullscreen window | 全屏窗口" { fullscreen-window; }
     Mod+Shift+M hotkey-overlay-title="maximize window to edges | 最大化窗口到边缘" { maximize-window-to-edges; }
     Mod+Shift+V hotkey-overlay-title="toggle clipboard | 切换剪切板" { spawn "dms" "ipc" "call" "clipboard" "toggle"; }

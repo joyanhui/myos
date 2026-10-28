@@ -12,7 +12,7 @@ local function mod_key(key)
 end
 
 hl.monitor({
-	output = "eDP-1",
+	output = "",
 	mode = "preferred",
 	position = "auto",
 	scale = 1,
@@ -376,6 +376,11 @@ hl.bind(
 	mod_key("CTRL + SHIFT + F"),
 	hl.dsp.window.fullscreen({ mode = "fullscreen" }),
 	{ description = "fullscreen window | 全屏窗口" }
+)
+hl.bind(
+	mod_key("SHIFT + F"),
+	hl.dsp.window.float({ action = "toggle" }),
+	{ description = "toggle floating window | 切换窗口浮动/平铺" }
 )
 hl.bind(
 	mod_key("CTRL + SHIFT + M"),

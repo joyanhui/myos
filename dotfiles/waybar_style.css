@@ -19,7 +19,7 @@ window#waybar {
   margin: 3px 6px;
 }
 
-#workspaces button, #window, #cpu, #memory, #tray, #wireplumber, #clock {
+#workspaces button, #window, #cpu, #temperature, #memory, #tray, #wireplumber, #custom-lunar, #custom-weather {
   color: #e3e8e2;
   border-radius: 999px;
   padding: 3px 10px;
@@ -78,7 +78,7 @@ window#waybar {
   background: rgba(117, 77, 48, 0.88);
 }
 
-#cpu {
+#cpu, #temperature {
   background: rgba(117, 77, 48, 0.88);
 }
 
@@ -98,8 +98,16 @@ window#waybar {
   background: rgba(45, 105, 111, 0.88);
 }
 
-#clock {
+#custom-lunar {
   background: rgba(133, 70, 76, 0.88);
+}
+
+#custom-weather {
+  background: rgba(45, 105, 111, 0.88);
+}
+
+#custom-weather.warn, #custom-weather.error, #custom-weather.unset {
+  color: #ffb4ab;
 }
 
 tooltip {

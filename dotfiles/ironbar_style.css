@@ -19,7 +19,7 @@
   margin: 0 4px;
 }
 
-#cpu {
+#cpu, #cpu_temp {
   background-color: rgba(117, 77, 48, 0.88);
 }
 
@@ -68,6 +68,23 @@
 
 .clock {
   background-color: rgba(133, 70, 76, 0.88);
+}
+
+#weather, .weather {
+  background-color: rgba(45, 105, 111, 0.88);
+}
+
+#lunar, .lunar {
+  background-color: rgba(133, 70, 76, 0.88);
+}
+
+.weather_city, #weather_city {
+  color: #e3e8e2;
+  background: transparent;
+}
+
+#weather_title, .weather_title {
+  color: rgba(227, 232, 226, 0.72);
 }
 
 #bar {
@@ -136,7 +153,7 @@ scale highlight {
   border-radius: 8px;
 }
 
-.workspaces, .focused, .clock, .volume, .tray {
+.workspaces, .focused, .clock, .volume, .tray, .weather, .lunar {
   color: #e3e8e2;
   border-radius: 999px;
   padding: 3px 8px;

@@ -50,6 +50,24 @@
         "volume_high": "󰕾"
       }
     },
-    { "type": "clock", "format": "<span size='xx-large'>󰥔</span>  %a %d %b  %H:%M" }
+    {
+      "type": "custom",
+      "name": "weather",
+      "class": "weather",
+      "disable_popup": true,
+      "tooltip": "{{120000:bar-weather --tooltip}}",
+      "on_click_left": "bar-weather --detail",
+      "on_click_right": "bar-weather --picker",
+      "on_scroll_up": "bar-weather --prev",
+      "on_scroll_down": "bar-weather --next",
+      "bar": [{ "type": "label", "label": "{{10000:bar-weather --text}}" }]
+    },
+    {
+      "type": "label",
+      "name": "lunar",
+      "class": "lunar",
+      "label": "{{2000:bar-lunar}}",
+      "on_click_left": "xdg-open https://www.51wnl.com/webcalandar/index.html"
+    }
   ]
 }

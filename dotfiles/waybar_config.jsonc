@@ -5,7 +5,7 @@
   "spacing": 8,
   "modules-left": ["niri/workspaces", "hyprland/workspaces"],
   "modules-center": ["niri/window", "hyprland/window"],
-  "modules-right": ["cpu", "memory", "network", "battery", "backlight", "tray", "pulseaudio", "clock"],
+  "modules-right": ["cpu", "temperature", "memory", "network", "battery", "backlight", "tray", "pulseaudio", "custom/weather", "custom/lunar"],
   "niri/workspaces": {
     "all-outputs": false,
     "format": "{index}",
@@ -22,6 +22,13 @@
   "cpu": {
     "interval": 2,
     "format": "<span font='16'>󰻠</span> {usage}%",
+    "tooltip": true
+  },
+  "temperature": {
+    "interval": 2,
+    "hwmon-path-abs": "/sys/devices/pci0000:00/0000:00:18.3/hwmon",
+    "input-filename": "temp1_input",
+    "format": "<span font='16'>󰔏</span> {temperatureC}°C",
     "tooltip": true
   },
   "memory": {
@@ -74,8 +81,21 @@
     "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
     "on-click-right": "pavucontrol"
   },
-  "clock": {
-    "format": "<span font='16'>󰥔</span>  {:%a %d %b  %H:%M}",
-    "tooltip-format": "{:%A, %B %d, %Y}"
+  "custom/weather": {
+    "exec": "bar-weather --waybar",
+    "interval": 30,
+    "return-type": "json",
+    "tooltip": true,
+    "on-click": "bar-weather --detail",
+    "on-click-middle": "bar-weather --picker",
+    "on-scroll-up": "bar-weather --prev",
+    "on-scroll-down": "bar-weather --next"
+  },
+  "custom/lunar": {
+    "exec": "bar-lunar",
+    "interval": 2,
+    "format": "<span font='16'>󰥔</span>  {}",
+    "tooltip-format": "点击打开万年历",
+    "on-click": "xdg-open https://www.51wnl.com/webcalandar/index.html"
   }
 }
