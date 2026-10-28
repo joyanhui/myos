@@ -97,17 +97,18 @@ machine/raw_os/docs_script/creat-rawOsExternalBootEfi.sh -o ./nixos-img.efi
 ```powershell
     & "C:\Program Files\qemu\qemu-system-x86_64.exe" `
       -machine q35,accel=whpx -cpu max -m 8G -smp 4 `
-      -drive "if=pflash,format=raw,readonly=on,file=C:\Program Files\qemu\share\edk2-x86_64-code.fd" `
-      -drive "if=pflash,format=raw,file=N:\OS-img\OVMF-vars.fd" `
+      -smbios type=11,value=io.systemd.stub.kernel-cmdline-extra=nomodeset `
+      -bios N:\OS-img\OVMF.fd `
       -drive "if=virtio,format=raw,file=N:\OS-img\nixos.raw,cache=writeback" `
-      -device virtio-vga  -display sdl `
+      -vga std -display sdl `
       -device qemu-xhci -device usb-tablet `
       -netdev user,id=net0  -device virtio-net-pci,netdev=net0 `
-      -serial stdio
+      -serial "file:N:\OS-img\qemu-serial.log"
 ```
-如果没能启动而是进入到了efi shell 输入 ` FS0:\EFI\BOOT\BOOTX64.EFI`  即可手动选择启动。
-获取 OVMF-vars.fd 可以从qemu的安装目录获取。
-`Copy-Item "C:\Program Files\qemu\share\edk2-x86_64-code.fd" "N:\OS-img\OVMF-vars.fd" `
+
+- `-bios` 使用 4MB 合一的 `OVMF.fd`（`kvm-config/firmware/` 或 qemu 安装目录），变量每次启动重新枚举，不会进入 EFI shell。改用 pflash 对时，变量文件必须是 qemu 自带的 `share\edk2-i386-vars.fd`（528K），不能复用其他虚拟机的 `OVMF-vars.fd`，否则 OVMF 找不到可启动项会落到 EFI shell，需要手动输入 `FS0:\EFI\BOOT\BOOTX64.EFI`。
+- `-smbios type=11,value=io.systemd.stub.kernel-cmdline-extra=nomodeset` 让 UKI 里的 systemd-stub 给内核追加 `nomodeset`：Windows 版 qemu 的本地窗口（sdl/gtk）在 guest 早期 KMS modeset 时会死锁，表现为卡在 `A start job is running for Load Kernel Modules` 且 qemu 窗口无响应；加 `nomodeset` 延后 modeset 后正常。
+- 显卡用 `-vga std`。串口用 `-serial file:`，`-serial stdio` 在 Windows 控制台选中文本时会阻塞 guest 写串口。
 
 
 
