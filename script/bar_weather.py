@@ -34,6 +34,7 @@ CITIES = [
     {"id": "kyoto", "name": "日本京都", "short": "京都", "lat": 35.0116, "lon": 135.7681},
     {"id": "shanghai", "name": "上海市", "short": "上海", "lat": 31.2304, "lon": 121.4737},
     {"id": "penang", "name": "马来西亚滨城", "short": "滨城", "lat": 5.4200, "lon": 100.3300},
+    {"id": "johor", "name": "马来西亚新山市", "short": "新山", "lat": 1.4655, "lon": 103.7578},
 ]
 
 ICON_SUNNY = "\U000F0599"
