@@ -342,6 +342,11 @@ in
     "sd_mod"
     "virtio_pci"
     "virtio_blk"
+    "vmw_pvscsi"
+    "mptspi"
+    "mptsas"
+    "mpt3sas"
+    "vmxnet3"
     "usb-storage"
     "xhci_pci"
     "ehci_pci"
@@ -430,6 +435,8 @@ in
       exit 0
     '';
   };
+
+  virtualisation.vmware.guest.enable = true;
 
   hardware.enableAllHardware = true;
   hardware.enableAllFirmware = true;

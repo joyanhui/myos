@@ -109,6 +109,11 @@ machine/raw_os/docs_script/creat-rawOsExternalBootEfi.sh -o ./nixos-img.efi
 获取 OVMF-vars.fd 可以从qemu的安装目录获取。
 `Copy-Item "C:\Program Files\qemu\share\edk2-x86_64-code.fd" "N:\OS-img\OVMF-vars.fd" `
 
+VMware Workstation/ESXi 直接把 `nixos.raw` 作为虚拟磁盘启动，不需要转换格式：
+
+- raw OS 由 `virtualisation.vmware.guest.enable` 启用 VMware 客户机支持，虚拟机内条件启动 `vmtoolsd`。
+- initrd 包含 `vmw_pvscsi`、`mptspi`、`mptsas`、`mpt3sas` 和 `vmxnet3`，支持半虚拟化 SCSI 磁盘和 VMXNET3 网卡。
+
 
 
 <a id="raw-os-runtime-update"></a>
