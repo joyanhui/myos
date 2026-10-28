@@ -35,6 +35,6 @@
 
     cdos = "cd /home/nixos/myws/myos/";
     cdlot = "cd /home/nixos/myws/lot-aio/";
-    cdcf = "cd /home/nixos/myws/cf-aui/";
+    cdcf = "cd /home/nixos/myws/cf-aio/";
   };
 }

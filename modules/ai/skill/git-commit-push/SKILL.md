@@ -1,31 +1,34 @@
 ---
 name: git-commit-push
-description: 根据当前 Git 改动生成最多 4 个英文 commit，并推送当前分支。
+description: 仅生成规范英文 commit message，提交全部改动并推送；禁止任何非 Git 检查。
 disable-model-invocation: true
 ---
 
-# Git 提交并推送
+# Git 提交
 
-本技能的唯一职责是执行 Git 提交工作流：读取 Git 状态和 diff、生成 commit 信息、暂存、创建 commit、推送。除下列 Git 命令外，不得执行任何 shell 命令、脚本、工具或检查；不得以“验证结果”等名义扩展工作范围。
+本技能只做四件事：读取 Git 改动、生成 commit message、创建 commit、执行普通 `git push`。不要做其他工作。
 
-## 允许的操作
+## 操作白名单
 
-仅执行完成提交所需的 Git 操作，例如：
-- `git status`、`git diff`、`git diff --cached`、`git log`、`git branch`、`git remote`
-- `git add`、`git commit`、`git push`
+只允许运行完成上述四件事必需的 Git 命令：`git status`、`git diff`、`git log`、`git branch`、`git remote`、`git add`、`git commit`、`git push`。不得运行其他命令或工具；不得把其他命令与 Git 命令串接执行。
 
-允许使用 shell 仅为调用上述 Git 命令；不得在同一调用中串接其他程序或检查。若需查看 Git 忽略的未跟踪文件，仅使用 Git 命令确认并用 `git add -f -- <path>` 纳入。
+严禁运行任何检查、验证或辅助任务，包括但不限于 `git diff --check`、`cargo check`、`cargo test`、TypeScript/typecheck、测试、lint、格式化、构建、部署、脚本、依赖安装。不得修复、格式化或修改源文件。提交后只用 `git status`、`git log` 等白名单 Git 命令确认提交和推送结果。
 
-## 禁止的操作
+## 纳入与提交
 
-绝不运行 `cargo check`、`cargo test`、`cargo clippy`、TypeScript 或其他语言的类型检查、测试、lint、格式检查、构建、部署、基准测试，也不运行 `git diff --check`。不调用非 Git 工具，不运行自定义脚本，不安装依赖，不修复代码或格式，不处理与 Git 提交无关的事项。提交后只用 Git 命令确认 commit 和推送状态，不执行任何验证命令。
+- 用户未指定范围时，提交当前工作区全部已跟踪和未跟踪改动：隐藏文件、删除文件、敏感文件/凭据变更、看似无关的改动均包括在内。不得审查后排除、漏掉、拒绝或要求确认。
+- 仅查看必要 diff 来理解改动和撰写 message，不执行代码审查。最多创建 4 个 commit；初步功能组超过 4 组时适当合并，提交全部改动。
+- 使用 `git add -A` 暂存全部改动；确需包含被忽略的未跟踪文件时使用 `git add -f -- <path>`。
+- 每个 commit message 必须符合以下格式，全部为英文，scope 必填：
 
-## 提交规则
+  `<type>(<scope>): <description>`
 
-1. 检查当前分支和工作区状态，确认全部待提交改动。用户未指定范围时，纳入所有已跟踪和未跟踪改动，包括隐藏文件、删除文件、敏感配置、凭据变更及看似与当前任务无关的改动；不得自行排除、遗漏、要求确认或拒绝。
-2. 查看必要的 diff，仅用于按功能分组和生成准确的 commit 信息。按功能组织 commit，最多 4 个；超过 4 组时适当合并功能组，确保全部改动纳入且总数不超过 4。
-3. 暂存并提交全部改动。可使用 `git add -A`；需要纳入但被忽略的未跟踪文件，使用 `git add -f -- <path>`。提交信息使用英文，格式为 `<type>(<scope>): <description>`，scope 可省略。
-4. 确认 commit 成功后，对当前分支执行普通 `git push`。没有 remote 时仍完成本地提交，并说明无法推送。push 失败时保留 commit，报告 Git 错误，不强推。
-5. 无改动时报告工作区干净。最终只简要列出 commit 和 push 结果，不报告或执行其他验证。
+  `type` 只能是 `feat`、`fix`、`docs`、`style`、`refactor`、`perf`、`test`、`chore`、`build`、`ci`、`revert` 之一。`scope` 使用简短英文小写字母、数字或连字符，不能为空。description 使用英文，不得含中文。禁止 `docs: ...`、`fix: ...` 及任何省略 `(scope)` 的格式。
+- 提交前逐字检查每条最终 message：必须存在 `type(scope): description` 结构、括号内 scope 非空，且不得包含中文；不符合就改写 message。不得因此运行额外命令或检查。
+- 创建 commit 后执行当前分支的普通 `git push`。不得强推、amend 或改写既有提交。没有 remote 时仍完成本地提交并报告无法推送；push 失败时保留 commit 并报告 Git 错误。
 
-编译错误、测试失败、lint 问题、冲突标记文本、凭据或配置值的增删、隐藏文件、删除文件及改动量大，均不是拒绝提交的理由。不使用 `git commit --amend`、`--no-verify`、强制推送或其他改写既有提交的操作；不覆盖、恢复、清理或改写用户现有改动。
+## 不得中止或扩展
+
+编译错误、检查失败、冲突标记文本、凭据变更、文件删除、改动量大或看似无关，均不是拒绝、暂停或要求确认的理由。不要报告任何非 Git 检查结果，因为不得运行这些检查。若 Git 命令本身失败，只报告具体 Git 错误，并继续完成仍可执行的 Git 步骤。
+
+最终仅报告 commit 的短哈希与 message，以及 push 成功/失败状态；不附加测试、构建、检查或其他工作说明。
