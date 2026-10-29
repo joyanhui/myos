@@ -95,7 +95,10 @@ machine/raw_os/docs_script/creat-rawOsExternalBootEfi.sh -o ./nixos-img.efi
 
 #### VMware
 
-VMware 需要创建一个 VMDK 文件（具体可查阅VMware的文档）映射现有的 `nixos.raw`，并将客户机固件设置为 UEFI 启动即可。实际测试VMware的虚拟显卡性能最好，在关闭动态壁纸和毛玻璃，并配置好VMware客户机工具情况下，VMware内niri的使用体验接近物理机。
+VMware Workstation/ESXi 直接把 `nixos.raw` 作为虚拟磁盘启动，不需要转换格式；也可以创建一个 VMDK 文件（具体可查阅VMware的文档）映射现有的 `nixos.raw`，并将客户机固件设置为 UEFI 启动即可。实际测试VMware的虚拟显卡性能最好，在关闭动态壁纸和毛玻璃，并配置好VMware客户机工具情况下，VMware内niri的使用体验接近物理机。
+
+- raw OS 由 `virtualisation.vmware.guest.enable` 启用 VMware 客户机支持，虚拟机内条件启动 `vmtoolsd`。
+- initrd 包含 `vmw_pvscsi`、`mptspi`、`mptsas`、`mpt3sas` 和 `vmxnet3`，支持半虚拟化 SCSI 磁盘和 VMXNET3 网卡。
 
 #### VirtualBox
 
@@ -120,6 +123,10 @@ VirtualBox 默认就支持 raw 格式的虚拟磁盘，只需要配置使用 UEF
       -serial "file:N:\OS-img\qemu-serial.log"
 ```
 qemu 在window下坑较多，图形性能也一般。
+
+如果没能启动而是进入到了efi shell 输入 ` FS0:\EFI\BOOT\BOOTX64.EFI`  即可手动选择启动。使用 pflash 分离固件(`edk2-x86_64-code.fd` + 可写 `OVMF-vars.fd`)时，可这样生成变量文件：
+
+`Copy-Item "C:\Program Files\qemu\share\edk2-x86_64-code.fd" "N:\OS-img\OVMF-vars.fd" `
 
 <a id="raw-os-runtime-update"></a>
 
