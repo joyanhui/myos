@@ -93,6 +93,20 @@ machine/raw_os/docs_script/creat-rawOsExternalBootEfi.sh -o ./nixos-img.efi
 
 ### 虚拟机启动
 
+#### VMware
+
+VMware 需要创建一个 VMDK 文件（具体可查阅VMware的文档）映射现有的 `nixos.raw`，并将客户机固件设置为 UEFI 启动即可。实际测试VMware的虚拟显卡性能最好，在关闭动态壁纸和毛玻璃，并配置好VMware客户机工具情况下，VMware内niri的使用体验接近物理机。
+
+#### VirtualBox
+
+VirtualBox 默认就支持 raw 格式的虚拟磁盘，只需要配置使用 UEFI 启动即可，无须而外配置。
+
+#### Hyper-V
+
+先使用 Arsenal-Image-Mounter等同类软件 将 `nixos.raw` 挂载到物理机模拟为物理硬盘；然后在物理机的“磁盘管理”中将该磁盘设置为“脱机”。最后在 Hyper-V 中创建第二代虚拟机，并在虚拟机的磁盘设置中选择该物理硬盘即可。也可以在nix部分增加对hypr-v客户机的支持，提升体验。
+
+#### QEMU
+
 以qemu在Windows的启动方法为例
 ```powershell
     & "C:\Program Files\qemu\qemu-system-x86_64.exe" `
@@ -105,23 +119,13 @@ machine/raw_os/docs_script/creat-rawOsExternalBootEfi.sh -o ./nixos-img.efi
       -netdev user,id=net0  -device virtio-net-pci,netdev=net0 `
       -serial "file:N:\OS-img\qemu-serial.log"
 ```
-
-- `-bios` 使用 4MB 合一的 `OVMF.fd`（`kvm-config/firmware/` 或 qemu 安装目录），变量每次启动重新枚举，不会进入 EFI shell。改用 pflash 对时，变量文件必须是 qemu 自带的 `share\edk2-i386-vars.fd`（528K），不能复用其他虚拟机的 `OVMF-vars.fd`，否则 OVMF 找不到可启动项会落到 EFI shell，需要手动输入 `FS0:\EFI\BOOT\BOOTX64.EFI`。
-- `-smbios type=11,value=io.systemd.stub.kernel-cmdline-extra=nomodeset` 让 UKI 里的 systemd-stub 给内核追加 `nomodeset`：Windows 版 qemu 的本地窗口（sdl/gtk）在 guest 早期 KMS modeset 时会死锁，表现为卡在 `A start job is running for Load Kernel Modules` 且 qemu 窗口无响应；加 `nomodeset` 延后 modeset 后正常。
-- 显卡用 `-vga std`。串口用 `-serial file:`，`-serial stdio` 在 Windows 控制台选中文本时会阻塞 guest 写串口。
-
-
+qemu 在window下坑较多，图形性能也一般。
 
 <a id="raw-os-runtime-update"></a>
 
 ### Raw OS 内nixos-rebulid方法
 
-以下命令必须在已经启动的 raw OS 内执行，并且在仓库根目录运行。根据实际硬件设置 `target`：AMD 使用 `raw_os_work_amd`，Intel 使用 `raw_os_work_intel`。
-
-```bash
-sudo nixos-rebuild switch --flake .#raw_os_work_amd \
-  --option substituters https://cache.nixos.org
-```
+以下命令必须在已经启动的 raw OS 内执行，并且在仓库根目录运行。根据实际硬件设置 `target`：AMD 使用 `raw_os_work_amd`，Intel 使用 `raw_os_work_intel`。例如：`sudo nixos-rebuild switch --flake .#raw_os_work_amd  --option substituters https://cache.nixos.org`
 
 
 ## 测试、扩容和 QEMU
