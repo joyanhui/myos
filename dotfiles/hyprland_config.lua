@@ -5,6 +5,21 @@ hl.env("NIXOS_OZONE_WL", "1")
 hl.env("ELECTRON_OZONE_PLATFORM_HINT", "auto")
 hl.env("QT_QPA_PLATFORM", "wayland;xcb")
 
+local is_vmware = (function()
+	local file = io.open("/sys/class/dmi/id/sys_vendor")
+	if file == nil then
+		return false
+	end
+	local vendor = file:read("*l") or ""
+	file:close()
+	return vendor:find("VMware") ~= nil
+end)()
+
+if is_vmware then
+	hl.env("AQ_NO_MODIFIERS", "1")
+	hl.env("AQ_NO_ATOMIC", "1")
+end
+
 local mod = "ALT"
 
 local function mod_key(key)
@@ -37,13 +52,13 @@ hl.config({
 		inactive_opacity = 1.0,
 		shadow = {
 			enabled = true,
-			range = 20,
-			render_power = 3,
+			range = is_vmware and 8 or 20,
+			render_power = is_vmware and 2 or 3,
 			offset = { 0, 4 },
 			color = 0x77000000,
 		},
 		blur = {
-			enabled = true,
+			enabled = not is_vmware,
 			size = 8,
 			passes = 3,
 			xray = true,
@@ -100,6 +115,9 @@ hl.config({
 		force_default_wallpaper = 0,
 		disable_hyprland_logo = true,
 	},
+	cursor = {
+		no_hardware_cursors = is_vmware,
+	},
 })
 
 hl.window_rule({
@@ -118,12 +136,17 @@ hl.window_rule({
 })
 
 local function start_session_services()
-	hl.exec_cmd("ironbar")
+	local soft_render = is_vmware and "export LIBGL_ALWAYS_SOFTWARE=1; " or ""
+	local systemd_client_env = is_vmware and "systemctl --user set-environment LIBGL_ALWAYS_SOFTWARE=1; " or ""
+	local wallpaper_cmd = is_vmware
+			and "wallpaper_dir=$(dirname \"$(readlink -f \"$HOME/.config/hypr/hyprland.lua\")\")/../static_file/wallpaper; wallpaper=$(find \"$wallpaper_dir\" -type f \\( -name '*.jpg' -o -name '*.png' \\) | shuf -n 1); [ -n \"$wallpaper\" ] && swaybg -i \"$wallpaper\" -m fill"
+		or "wallpaper_dir=$(dirname \"$(readlink -f \"$HOME/.config/hypr/hyprland.lua\")\")/../static_file/wallpaper; wallpaper=$(find \"$wallpaper_dir\" -type f -name '*.mp4' | shuf -n 1); [ -n \"$wallpaper\" ] && mpvpaper --auto-pause -o 'no-audio loop panscan=1 hwdec=auto-safe vf=fps=30' '*' \"$wallpaper\""
+	hl.exec_cmd(soft_render .. "ironbar")
+	hl.exec_cmd(soft_render .. wallpaper_cmd)
 	hl.exec_cmd(
-		"wallpaper_dir=$(dirname \"$(readlink -f \"$HOME/.config/hypr/hyprland.lua\")\")/../static_file/wallpaper; wallpaper=$(find \"$wallpaper_dir\" -type f -name '*.mp4' | shuf -n 1); [ -n \"$wallpaper\" ] && mpvpaper --auto-pause -o 'no-audio loop panscan=1 hwdec=auto-safe vf=fps=30' '*' \"$wallpaper\""
-	)
-	hl.exec_cmd(
-		"systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE HYPRLAND_INSTANCE_SIGNATURE; systemctl --user restart fcitx5"
+		"systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE HYPRLAND_INSTANCE_SIGNATURE; "
+			.. systemd_client_env
+			.. "systemctl --user restart fcitx5"
 	)
 	hl.exec_cmd(
 		"swayidle -w timeout 1800 'swaylock -f' timeout 2700 \"hyprctl dispatch 'hl.dsp.dpms({ action = \\\"disable\\\" })'\" resume \"hyprctl dispatch 'hl.dsp.dpms({ action = \\\"enable\\\" })'\" before-sleep 'swaylock -f'"
