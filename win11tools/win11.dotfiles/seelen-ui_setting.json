@@ -1,0 +1,167 @@
+{
+  "activeIconPacks": [
+    "@system/icon-pack"
+  ],
+  "activeThemes": [
+    "@default/theme"
+  ],
+  "backupSyncEnabled": true,
+  "byTheme": {},
+  "byWallpaper": {},
+  "byWidget": {
+    "@seelen/fancy-toolbar": {
+      "$shortcuts": null,
+      "delayToHide": 800,
+      "delayToShow": 100,
+      "enabled": true,
+      "hideMode": "Never",
+      "itemSize": 14,
+      "margin": 0,
+      "padding": 12,
+      "position": "Top"
+    },
+    "@seelen/flyouts": {
+      "enabled": true,
+      "placement": "bottom"
+    },
+    "@seelen/keyboard-selector": {
+      "enabled": true
+    },
+    "@seelen/task-switcher": {
+      "enabled": true
+    },
+    "@seelen/wallpaper-manager": {
+      "$shortcuts": null,
+      "coveragePauseThreshold": 0.8,
+      "defaultCollection": "fd298e89-e06d-474e-a236-5760c615b40f",
+      "deprecatedBgs": null,
+      "enabled": true,
+      "interval": 300,
+      "multimonitorBehaviour": "PerMonitor",
+      "randomize": false,
+      "showPausedMessage": true,
+      "useAccentColor": false
+    },
+    "@seelen/weg": {
+      "$shortcuts": null,
+      "delayToHide": 800,
+      "delayToShow": 100,
+      "enabled": true,
+      "hideMode": "Never",
+      "margin": 8,
+      "middleClickAction": "OpenNewInstance",
+      "mode": "MinContent",
+      "padding": 8,
+      "pinnedItemsVisibility": "Always",
+      "position": "Bottom",
+      "revealOnAttention": "UntilActivated",
+      "showEndTask": false,
+      "showInstanceCounter": true,
+      "showWindowTitle": false,
+      "size": 40,
+      "spaceBetweenItems": 8,
+      "splitWindows": false,
+      "temporalItemsVisibility": "All"
+    },
+    "@seelen/window-manager": {
+      "$shortcuts": {
+        "wm-focus-down": [
+          "Alt",
+          "Shift",
+          "Down"
+        ],
+        "wm-focus-left": [
+          "Alt",
+          "Shift",
+          "Left"
+        ],
+        "wm-focus-right": [
+          "Alt",
+          "Shift",
+          "Right"
+        ],
+        "wm-focus-up": [
+          "Alt",
+          "Shift",
+          "Up"
+        ],
+        "wm-toggle-float": [
+          "Alt",
+          "Shift",
+          "F"
+        ]
+      },
+      "animations": {
+        "durationMs": 200,
+        "easeFunction": "EaseOut",
+        "enabled": true
+      },
+      "autoStackingByCategory": true,
+      "border": {
+        "enabled": false,
+        "offset": 0.0,
+        "width": 3.0
+      },
+      "dragBehavior": "Swap",
+      "enabled": true,
+      "floating": {
+        "height": 500.0,
+        "width": 800.0
+      },
+      "layout": "@default/wm-bspwm",
+      "resizeDelta": 10.0,
+      "stackBarVisibility": "Always",
+      "workspaceGap": 10,
+      "workspaceMargin": {
+        "bottom": 0,
+        "left": 0,
+        "right": 0,
+        "top": 0
+      },
+      "workspacePadding": 10
+    }
+  },
+  "dateFormat": "ddd D MMM, hh:mm A",
+  "devTools": true,
+  "drpc": false,
+  "hardwareAcceleration": true,
+  "language": "zh-CN",
+  "monitorsV3": {
+    "LEN91230_00_07E4_51": {
+      "byWidget": {},
+      "byWorkspace": {},
+      "wallpaperCollection": null
+    }
+  },
+  "oldActiveThemes": [],
+  "performanceMode": {
+    "default": "Disabled",
+    "onBattery": "Minimal",
+    "onEnergySaver": "Extreme"
+  },
+  "pollingInterval": 3,
+  "startOfWeek": "Monday",
+  "streamingMode": false,
+  "suspendOnGameMode": true,
+  "unlockShortcuts": false,
+  "unstableOptimizations": false,
+  "updater": {
+    "channel": "Release"
+  },
+  "wallpaperCollections": [
+    {
+      "hidden": false,
+      "id": "24a1fc07-f0ce-420b-801e-2c1ade860322",
+      "name": "my",
+      "wallpapers": []
+    },
+    {
+      "hidden": true,
+      "id": "fd298e89-e06d-474e-a236-5760c615b40f",
+      "name": "晴空云朵笑脸_屋顶阳光.mp4",
+      "wallpapers": [
+        "@user/x9d88ca6c587e40bab0aec8838eea3ce5"
+      ]
+    }
+  ]
+}
