@@ -23,6 +23,7 @@ DEFAULT_GHPROXY = "https://gh-proxy.net/"
 ALTSNAP_TITLE = "AltSnap"
 ALTSNAP_TASK = "AltSnap_AutoStart"
 MIHOMO_SVC = "mihomo"
+MIHOMO_TITLE = "mihomo"
 MIHOMO_WINGET_ID = "MetaCubeX.Mihomo"
 MIHOMO_CORE_VER = "1.19.33"
 MIHOMO_UI_VER = "1.273.0"
@@ -34,8 +35,22 @@ STATE_PATH = os.path.join(APP_DIR, "win11tools.json")
 
 FONT_UI = ("Microsoft YaHei UI", 10)
 FONT_UI_BOLD = ("Microsoft YaHei UI", 10, "bold")
+FONT_SMALL = ("Microsoft YaHei UI", 9)
 FONT_TITLE = ("Microsoft YaHei UI", 11, "bold")
+FONT_HEAD = ("Microsoft YaHei UI", 14, "bold")
 FONT_MONO = ("Consolas", 10)
+
+COLOR_BG = "#f3f4f6"
+COLOR_PANEL = "#ffffff"
+COLOR_FG = "#1f2328"
+COLOR_MUTED = "#5b6470"
+COLOR_LINE = "#d8dce2"
+COLOR_ACCENT = "#2f6feb"
+COLOR_ACCENT_DARK = "#1f5bd0"
+COLOR_SELECT = "#dce8ff"
+COLOR_OK = "#1a7f37"
+COLOR_WARN = "#b26a00"
+COLOR_ERR = "#c62828"
 
 CREATE_NO_WINDOW = 0x08000000
 CREATE_NEW_CONSOLE = 0x00000010
@@ -185,6 +200,12 @@ PACKAGE_GROUPS = (
             Package("Telegram", "telegram", "scoop", ("telegram",)),
         ),
     ),
+    (
+        "mihomo 服务",
+        (
+            Package(MIHOMO_TITLE, "MetaCubeX.Mihomo 代理核心与服务", "winget", (MIHOMO_WINGET_ID,)),
+        ),
+    ),
 )
 
 DOTFILES = (
@@ -260,10 +281,52 @@ def build_install_cmd(pkg: Package, scoop_dir: str) -> str:
 
 
 def build_uninstall_cmd(pkg: Package, scoop_dir: str) -> str:
+    if pkg.title == MIHOMO_TITLE:
+        return mihomo_purge_cmd()
     if pkg.backend == "winget":
         return "winget uninstall --id {0} -e".format(pkg.names[0])
     body = "scoop uninstall " + " ".join(pkg.names)
     return scoop_prefix(scoop_dir, body)
+
+
+def mihomo_purge_cmd() -> str:
+    parts = [
+        "net stop {0}".format(MIHOMO_SVC),
+        "sc.exe delete {0}".format(MIHOMO_SVC),
+        "winget uninstall --id {0} -e".format(MIHOMO_WINGET_ID),
+        'Remove-Item "{0}" -Recurse -Force -ErrorAction SilentlyContinue'.format(mihomo_home()),
+        'Remove-Item "{0}" -Recurse -Force -ErrorAction SilentlyContinue'.format(mihomo_data_home()),
+    ]
+    return "; ".join(parts)
+
+
+def mihomo_panel_cmd(proxy: str) -> str:
+    url = gh_url(proxy, "MetaCubeX/metacubexd/archive/refs/heads/gh-pages.zip")
+    return (
+        '$u = "{url}"; $t = "$env:TEMP/mihomo-ui.zip"; $tmp = "$env:TEMP/mihomo-ui"; '
+        '$d = "$env:LOCALAPPDATA/mihomo/ui"; '
+        'New-Item -ItemType Directory -Force -Path (Split-Path $d) | Out-Null; '
+        'Invoke-WebRequest $u -OutFile $t; '
+        'Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue; '
+        'Expand-Archive $t $tmp -Force; '
+        'Remove-Item $d -Recurse -Force -ErrorAction SilentlyContinue; '
+        'Move-Item (Get-ChildItem $tmp | Select-Object -First 1) $d; '
+        'Remove-Item $t; Write-Output "panel: $d"'
+    ).format(url=url)
+
+
+def mihomo_service_cmd(scoop_dir: str) -> str:
+    exe = find_mihomo_exe() or "mihomo.exe"
+    nssm = find_nssm(scoop_dir) or "nssm"
+    data = mihomo_data_home()
+    cfg = ensure_mihomo_cfg() or os.path.join(data, "config.yaml")
+    return (
+        "\"{nssm}\" install {svc} \"{exe}\"; "
+        "\"{nssm}\" set {svc} AppDirectory \"{data}\"; "
+        "\"{nssm}\" set {svc} AppParameters '-d \"{data}\" -f \"{cfg}\"'; "
+        "\"{nssm}\" set {svc} Start SERVICE_AUTO_START; "
+        "sc.exe start {svc}"
+    ).format(nssm=nssm, svc=MIHOMO_SVC, exe=exe, data=data, cfg=cfg)
 
 
 def norm_name(name: str) -> str:
@@ -757,12 +820,57 @@ echo "改配置 $CONFIG 后: /etc/init.d/mihomo reload"
 """
 
 
+class ScrollFrame(ttk.Frame):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.canvas = tk.Canvas(self, bg=COLOR_BG, highlightthickness=0, borderwidth=0,
+                                xscrollincrement=24, yscrollincrement=24)
+        self.vsb = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.hsb = ttk.Scrollbar(self, orient="horizontal", command=self.canvas.xview)
+        self.canvas.configure(yscrollcommand=self.vsb.set, xscrollcommand=self.hsb.set)
+        self.canvas.grid(row=0, column=0, sticky="nsew")
+        self.vsb.grid(row=0, column=1, sticky="ns")
+        self.hsb.grid(row=1, column=0, sticky="we")
+        self.rowconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
+        self.inner = ttk.Frame(self.canvas)
+        self._window = self.canvas.create_window((0, 0), window=self.inner, anchor="nw")
+        self.inner.bind("<Configure>", self._sync)
+        self.canvas.bind("<Configure>", self._sync)
+        self.canvas.bind("<Enter>", self._bind_wheel)
+        self.canvas.bind("<Leave>", self._unbind_wheel)
+
+    def _sync(self, _event=None):
+        canvas_width = self.canvas.winfo_width()
+        canvas_height = self.canvas.winfo_height()
+        if canvas_width <= 1:
+            return
+        width = max(canvas_width, self.inner.winfo_reqwidth())
+        height = max(canvas_height, self.inner.winfo_reqheight())
+        self.canvas.itemconfigure(self._window, width=width, height=height)
+        self.canvas.configure(scrollregion=(0, 0, width, height))
+
+    def _bind_wheel(self, _event=None):
+        self.canvas.bind_all("<MouseWheel>", self._on_wheel)
+        self.canvas.bind_all("<Shift-MouseWheel>", self._on_shift_wheel)
+
+    def _unbind_wheel(self, _event=None):
+        self.canvas.unbind_all("<MouseWheel>")
+        self.canvas.unbind_all("<Shift-MouseWheel>")
+
+    def _on_wheel(self, event):
+        self.canvas.yview_scroll(int(-event.delta / 120), "units")
+
+    def _on_shift_wheel(self, event):
+        self.canvas.xview_scroll(int(-event.delta / 120), "units")
+
+
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title(APP_TITLE)
-        self.geometry("1680x1050")
-        self.minsize(960, 600)
+        self.geometry("1440x900")
+        self.minsize(1040, 660)
         self.state_data = load_state()
         self.scoop_dir = self.state_data.get("scoop_dir") or default_scoop_dir()
         self.ghproxy = self.state_data.get("ghproxy") or DEFAULT_GHPROXY
@@ -772,76 +880,190 @@ class App(tk.Tk):
         self.dot_rows = {}
         self.pkg_queue = queue.Queue()
         self.pkg_gen = 0
+        self.altsnap_startup_btn = None
         self.setup_style()
         self.build_ui()
         self.refresh_packages()
         self.refresh_dotfiles()
         self.refresh_feature_status()
-        self.refresh_mihomo()
         self.set_status("就绪")
 
     def setup_style(self):
         style = ttk.Style(self)
         try:
-            style.theme_use("vista")
+            style.theme_use("clam")
         except tk.TclError:
             pass
-        style.configure(".", font=FONT_UI)
-        style.configure("Treeview", font=FONT_UI, rowheight=24)
-        style.configure("Treeview.Heading", font=FONT_UI_BOLD)
-        style.configure("Title.TLabel", font=FONT_TITLE)
-        style.configure("Desc.TLabel", foreground="#555555")
+        self.configure(bg=COLOR_BG)
+        style.configure(".", font=FONT_UI, background=COLOR_BG, foreground=COLOR_FG)
+        style.configure("TFrame", background=COLOR_BG)
+        style.configure("TLabel", background=COLOR_BG, foreground=COLOR_FG)
+        style.configure("Head.TLabel", font=FONT_HEAD, background=COLOR_BG, foreground=COLOR_FG)
+        style.configure("Title.TLabel", font=FONT_TITLE, background=COLOR_BG, foreground=COLOR_FG)
+        style.configure("Value.TLabel", font=FONT_UI_BOLD, background=COLOR_BG, foreground=COLOR_FG)
+        style.configure("Muted.TLabel", font=FONT_SMALL, background=COLOR_BG, foreground=COLOR_MUTED)
+        style.configure("Desc.TLabel", font=FONT_SMALL, background=COLOR_BG, foreground=COLOR_MUTED)
+        style.configure("Group.TLabel", font=FONT_UI_BOLD, background=COLOR_BG, foreground=COLOR_ACCENT)
+        style.configure("TLabelframe", background=COLOR_BG, bordercolor=COLOR_LINE,
+                        relief="solid", borderwidth=1)
+        style.configure("TLabelframe.Label", background=COLOR_BG, foreground=COLOR_ACCENT,
+                        font=FONT_UI_BOLD)
+        style.configure("TButton", font=FONT_UI, padding=(11, 5), background=COLOR_PANEL,
+                        bordercolor="#c9d0da", focusthickness=0, relief="flat")
+        style.map("TButton",
+                  background=[("pressed", "#dce8ff"), ("active", "#eaf0fb")],
+                  bordercolor=[("active", COLOR_ACCENT)],
+                  foreground=[("disabled", "#9aa3ad")])
+        style.configure("Accent.TButton", background=COLOR_ACCENT, foreground="#ffffff",
+                        bordercolor=COLOR_ACCENT)
+        style.map("Accent.TButton",
+                  background=[("pressed", COLOR_ACCENT_DARK), ("active", COLOR_ACCENT_DARK),
+                              ("disabled", "#9db7ef")],
+                  foreground=[("disabled", "#f2f6ff")])
+        style.configure("TEntry", fieldbackground=COLOR_PANEL, bordercolor="#c9d0da",
+                        padding=5, insertcolor=COLOR_FG)
+        style.configure("TNotebook", background=COLOR_BG, borderwidth=0,
+                        tabmargins=(0, 4, 0, 0))
+        style.configure("TNotebook.Tab", font=FONT_UI, padding=(20, 8),
+                        background="#e4e8ef", foreground=COLOR_MUTED, borderwidth=0)
+        style.map("TNotebook.Tab",
+                  background=[("selected", COLOR_PANEL)],
+                  foreground=[("selected", COLOR_ACCENT)],
+                  bordercolor=[("selected", COLOR_ACCENT)],
+                  expand=[("selected", (0, 0, 0, 0)), ("!selected", (0, 0, 0, 0))],
+                  padding=[("selected", (20, 8)), ("!selected", (20, 8))])
+        style.configure("Treeview", font=FONT_UI, rowheight=26, background=COLOR_PANEL,
+                        fieldbackground=COLOR_PANEL, borderwidth=0)
+        style.configure("Treeview.Heading", font=FONT_UI_BOLD, background="#eef1f6",
+                        foreground=COLOR_FG, relief="flat", padding=(8, 6))
+        style.map("Treeview.Heading", background=[("active", "#e2e7ef")])
+        style.map("Treeview", background=[("selected", COLOR_SELECT)],
+                  foreground=[("selected", COLOR_FG)])
+        style.configure("TScrollbar", background="#e4e8ef", troughcolor=COLOR_BG,
+                        bordercolor=COLOR_BG, arrowcolor=COLOR_MUTED)
+        style.configure("TProgressbar", troughcolor="#e8ecf2", background=COLOR_ACCENT,
+                        borderwidth=0, thickness=6)
+        style.configure("Status.TFrame", background="#e8ebf0")
+        style.configure("Status.TLabel", background="#e8ebf0", foreground=COLOR_MUTED)
+        style.configure("StatusValue.TLabel", background="#e8ebf0", foreground=COLOR_FG,
+                        font=FONT_SMALL)
 
     def build_ui(self):
-        status_bar = ttk.Frame(self, padding=(10, 4))
-        status_bar.pack(side="bottom", fill="x")
-        self.status_var = tk.StringVar(value="就绪")
-        ttk.Label(status_bar, textvariable=self.status_var, anchor="w").pack(side="left", fill="x", expand=True)
-        self.scoop_state_var = tk.StringVar(value="")
-        ttk.Label(status_bar, textvariable=self.scoop_state_var, anchor="e").pack(side="right")
+        self.build_status_bar()
 
-        self.build_packages_block(self)
-        self.build_features_block(self)
-        self.build_mihomo_block(self)
-        self.build_dotfiles_block(self)
+        self.scroller = ScrollFrame(self)
+        self.scroller.pack(fill="both", expand=True)
+        content = self.scroller.inner
+
+        self.build_header(content)
+        self.notebook = ttk.Notebook(content)
+        self.notebook.pack(fill="both", expand=True, padx=12, pady=(4, 0))
+        self.build_log_panel(content)
+
+        self.build_packages_tab(self.notebook)
+        self.build_features_tab(self.notebook)
+        self.build_dotfiles_tab(self.notebook)
+
+    def build_status_bar(self):
+        bar = ttk.Frame(self, style="Status.TFrame", padding=(14, 5))
+        bar.pack(side="bottom", fill="x")
+        self.status_var = tk.StringVar(value="就绪")
+        ttk.Label(bar, textvariable=self.status_var, style="Status.TLabel",
+                  anchor="w").pack(side="left", fill="x", expand=True)
+        self.scoop_state_var = tk.StringVar(value="")
+        ttk.Label(bar, textvariable=self.scoop_state_var, style="StatusValue.TLabel",
+                  anchor="e").pack(side="right")
+
+    def build_header(self, parent):
+        head = ttk.Frame(parent, padding=(14, 12, 14, 2))
+        head.pack(side="top", fill="x")
+        ttk.Label(head, text=APP_TITLE, style="Head.TLabel").pack(side="left")
+        ttk.Label(head, text="软件安装 · 功能开关 · dotfile 同步", style="Muted.TLabel").pack(
+            side="left", padx=(12, 0), pady=(8, 0))
+        ttk.Button(head, text="首选项", command=self.open_preferences).pack(side="right")
+
+    def build_log_panel(self, parent):
+        frame = ttk.LabelFrame(parent, text="日志", padding=(10, 8))
+        frame.pack(fill="x", padx=12, pady=(8, 12))
+
+        head = ttk.Frame(frame)
+        head.pack(fill="x")
+        ttk.Button(head, text="复制日志", command=self.copy_log).pack(side="right")
+        ttk.Button(head, text="清空", command=self.clear_log).pack(side="right", padx=(0, 6))
+
+        wrap = ttk.Frame(frame)
+        wrap.pack(fill="both", expand=True, pady=(8, 0))
+        self.log_text = tk.Text(wrap, width=1, height=6, wrap="none", font=FONT_MONO, state="disabled",
+                                bg=COLOR_PANEL, relief="flat", highlightthickness=1,
+                                highlightbackground=COLOR_LINE, padx=8, pady=6)
+        scroll = ttk.Scrollbar(wrap, orient="vertical", command=self.log_text.yview)
+        self.log_text.configure(yscrollcommand=scroll.set)
+        self.log_text.pack(side="left", fill="both", expand=True)
+        scroll.pack(side="right", fill="y")
+        for level, color in (("info", COLOR_FG), ("ok", COLOR_OK),
+                             ("warn", COLOR_WARN), ("error", COLOR_ERR)):
+            self.log_text.tag_config(level, foreground=color)
+
+    def copy_log(self):
+        text = self.log_text.get("1.0", "end").strip()
+        if not text:
+            self.set_status("日志为空")
+            return
+        self.clipboard_clear()
+        self.clipboard_append(text)
+        self.update_idletasks()
+        self.set_status("日志已复制到剪贴板")
+
+    def clear_log(self):
+        self.log_text.configure(state="normal")
+        self.log_text.delete("1.0", "end")
+        self.log_text.configure(state="disabled")
+        self.set_status("日志已清空")
 
     def set_status(self, msg: str):
         self.status_var.set(msg)
 
-    def build_packages_block(self, parent):
-        frame = ttk.LabelFrame(parent, text="常用软件", padding=10)
-        frame.pack(fill="both", expand=True, padx=10, pady=(10, 0))
+    def build_packages_tab(self, parent):
+        frame = ttk.Frame(parent, padding=12)
+        parent.add(frame, text="常用软件")
 
         top = ttk.Frame(frame)
         top.pack(fill="x")
         self.scoop_label_var = tk.StringVar()
-        ttk.Label(top, textvariable=self.scoop_label_var).pack(side="left")
-        ttk.Button(top, text="刷新检测", command=self.refresh_packages).pack(side="right")
-        ttk.Button(top, text="首选项", command=self.open_preferences).pack(side="right", padx=6)
+        ttk.Label(top, textvariable=self.scoop_label_var, style="Muted.TLabel").pack(
+            side="left", pady=(4, 0))
+        ttk.Button(top, text="刷新检测", style="Accent.TButton",
+                   command=self.refresh_packages).pack(side="right")
         self.update_scoop_label()
 
         body = ttk.Panedwindow(frame, orient="horizontal")
         body.pack(fill="both", expand=True, pady=(10, 0))
 
-        left = ttk.Frame(body, padding=(0, 0, 8, 0))
+        left = ttk.Frame(body)
         body.add(left, weight=1)
-        ttk.Label(left, text="分区", style="Title.TLabel").pack(anchor="w", pady=(0, 6))
-        self.group_list = tk.Listbox(left, exportselection=False, font=FONT_UI, activestyle="none")
-        self.group_list.pack(fill="both", expand=True)
+        ttk.Label(left, text="分区", style="Group.TLabel").pack(anchor="w", pady=(0, 6))
+        self.group_list = tk.Listbox(left, exportselection=False, font=FONT_UI, activestyle="none",
+                                     bg=COLOR_PANEL, relief="flat", highlightthickness=1,
+                                     highlightbackground=COLOR_LINE, highlightcolor=COLOR_ACCENT,
+                                     selectbackground=COLOR_SELECT, selectforeground=COLOR_FG,
+                                     borderwidth=0, width=16)
+        self.group_list.pack(side="left", fill="both", expand=True)
         for title, _ in PACKAGE_GROUPS:
-            self.group_list.insert("end", title)
+            self.group_list.insert("end", "  " + title)
         self.group_list.bind("<<ListboxSelect>>", lambda _e: self.show_group())
 
-        right = ttk.Frame(body)
-        body.add(right, weight=3)
-        ttk.Label(right, text="软件列表（双击可选行生成安装命令）", style="Title.TLabel").pack(anchor="w", pady=(0, 6))
+        right = ttk.Frame(body, padding=(12, 0, 0, 0))
+        body.add(right, weight=4)
+        ttk.Label(right, text="软件列表（双击可选行生成安装命令）", style="Group.TLabel").pack(
+            anchor="w", pady=(0, 6))
         tree_wrap = ttk.Frame(right)
         tree_wrap.pack(fill="both", expand=True)
-        self.pkg_tree = ttk.Treeview(tree_wrap, columns=("state", "desc"), show="tree headings", selectmode="browse")
-        self.pkg_tree.heading("#0", text="名称")
-        self.pkg_tree.column("#0", width=220, anchor="w")
+        self.pkg_tree = ttk.Treeview(tree_wrap, columns=("name", "state", "desc"),
+                                     show="headings", selectmode="browse")
+        self.pkg_tree.heading("name", text="名称")
+        self.pkg_tree.column("name", width=200, anchor="w")
         self.pkg_tree.heading("state", text="状态")
-        self.pkg_tree.column("state", width=120, anchor="w")
+        self.pkg_tree.column("state", width=150, anchor="w")
         self.pkg_tree.heading("desc", text="说明")
         self.pkg_tree.column("desc", width=420, anchor="w")
         scroll = ttk.Scrollbar(tree_wrap, orient="vertical", command=self.pkg_tree.yview)
@@ -850,376 +1072,211 @@ class App(tk.Tk):
         scroll.pack(side="right", fill="y")
         self.pkg_tree.bind("<<TreeviewSelect>>", lambda _e: self.on_pkg_select())
         self.pkg_tree.bind("<Double-1>", lambda _e: self.fill_cmd("install"))
-        self.pkg_tree.tag_configure("installed", foreground="#1a7f37")
+        self.pkg_tree.tag_configure("installed", foreground=COLOR_OK)
         self.pkg_tree.tag_configure("missing", foreground="#a8071a")
 
-        cmd_box = ttk.LabelFrame(frame, text="命令（可编辑后复制或运行）", padding=8)
-        cmd_box.pack(fill="x", pady=(10, 0))
+        cmd_box = ttk.LabelFrame(frame, text="命令（可编辑后复制或运行）", padding=10)
+        cmd_box.pack(fill="x", pady=(12, 0))
         self.cmd_var = tk.StringVar()
         ttk.Entry(cmd_box, textvariable=self.cmd_var, font=FONT_MONO).pack(fill="x")
         row = ttk.Frame(cmd_box)
-        row.pack(fill="x", pady=(8, 0))
-        ttk.Button(row, text="生成安装命令", command=lambda: self.fill_cmd("install")).pack(side="left")
-        ttk.Button(row, text="生成卸载命令", command=lambda: self.fill_cmd("uninstall")).pack(side="left", padx=6)
+        row.pack(fill="x", pady=(10, 0))
+        ttk.Button(row, text="生成安装命令", style="Accent.TButton",
+                   command=lambda: self.fill_cmd("install")).pack(side="left")
+        ttk.Button(row, text="生成卸载命令", command=lambda: self.fill_cmd("uninstall")).pack(
+            side="left", padx=6)
         ttk.Button(row, text="复制", command=self.copy_cmd).pack(side="left")
         ttk.Button(row, text="运行 (PowerShell)", command=self.run_cmd).pack(side="left", padx=6)
-        self.altsnap_startup_btn = ttk.Button(row, text="配置管理员开机启动",
-                                              command=self.toggle_altsnap_startup)
-        ttk.Label(row, text="提示：安装/卸载完成后点“刷新检测”更新状态", style="Desc.TLabel").pack(side="right")
+        ttk.Label(row, text="安装/卸载完成后点“刷新检测”更新状态", style="Desc.TLabel").pack(side="right")
+
+        self.extra_frame = ttk.Frame(cmd_box)
 
         self.group_list.selection_set(0)
         self.show_group()
 
-    def build_features_block(self, parent):
-        frame = ttk.LabelFrame(parent, text="功能区", padding=10)
-        frame.pack(fill="x", padx=10, pady=(10, 0))
+    def build_features_tab(self, parent):
+        frame = ttk.Frame(parent, padding=12)
+        parent.add(frame, text="功能")
 
-        grid = ttk.Frame(frame)
+        feature = ttk.LabelFrame(frame, text="onekey 快捷启动", padding=12)
+        feature.pack(fill="x")
+        grid = ttk.Frame(feature)
         grid.pack(fill="x", anchor="nw")
         for row, item in enumerate(FEATURE_ROWS):
-            ttk.Label(grid, text=item[0], style="Title.TLabel").grid(
+            ttk.Label(grid, text=item[0], style="Value.TLabel").grid(
                 row=row, column=0, sticky="w", padx=(0, 20), pady=6)
             for col, (label, method) in enumerate(item[1:], start=1):
-                btn = ttk.Button(grid, text=label, width=16, command=getattr(self, method))
+                style = "Accent.TButton" if col == 1 else "TButton"
+                btn = ttk.Button(grid, text=label, width=16, style=style, command=getattr(self, method))
                 btn.grid(row=row, column=col, sticky="w", padx=(0, 8), pady=6)
                 if method == "feature_toggle_startup":
                     self.startup_toggle_btn = btn
-        ttk.Label(frame, text="自动启动写入当前用户启动文件夹的 onekey_startup.lnk", style="Desc.TLabel").pack(
-            anchor="w", pady=(12, 0))
+        ttk.Label(feature, text="自动启动写入当前用户启动文件夹的 onekey_startup.lnk",
+                  style="Desc.TLabel").pack(anchor="w", pady=(10, 0))
 
-    def build_mihomo_block(self, parent):
-        frame = ttk.LabelFrame(parent, text="mihomo 管理", padding=10)
-        frame.pack(fill="x", padx=10, pady=(10, 0))
+    def log_line(self, level, text):
+        self.log_text.configure(state="normal")
+        self.log_text.insert("end", "[{0}] [{1}] {2}\n".format(time.strftime("%H:%M:%S"), level, text), level)
+        self.log_text.see("end")
+        self.log_text.configure(state="disabled")
 
-        self.mihomo_state_var = tk.StringVar(value="检测中 ...")
-        ttk.Label(frame, textvariable=self.mihomo_state_var, style="Desc.TLabel").pack(anchor="w")
-
-        buttons = ttk.Frame(frame)
-        buttons.pack(fill="x", pady=(8, 0))
-        specs = (
-            ("安装 / 更新（winget）", self.on_mihomo_install),
-            ("启动服务", lambda: self.on_mihomo_svc("start")),
-            ("停止服务", lambda: self.on_mihomo_svc("stop")),
-            ("卸载（服务 + 文件）", self.on_mihomo_uninstall),
-            ("查最新版", self.on_mihomo_latest),
-            ("打开配置", self.on_mihomo_open_cfg),
-            ("打开数据目录", lambda: self.on_mihomo_open(mihomo_data_home())),
-            ("打开安装目录", lambda: self.on_mihomo_open(mihomo_home())),
-            ("OpenWrt 命令", self.on_mihomo_openwrt),
-        )
-        self.mihomo_buttons = []
-        for idx, (text, command) in enumerate(specs):
-            btn = ttk.Button(buttons, text=text, command=command)
-            btn.grid(row=idx // 5, column=idx % 5, sticky="we", padx=3, pady=2)
-            self.mihomo_buttons.append(btn)
-        for col in range(5):
-            buttons.columnconfigure(col, weight=1)
-
-        self.mihomo_progress_bar = ttk.Progressbar(frame, maximum=100)
-        self.mihomo_progress_bar.pack(fill="x", pady=(8, 0))
-
-        log_wrap = ttk.Frame(frame)
-        log_wrap.pack(fill="x", pady=(6, 0))
-        self.mihomo_log_text = tk.Text(log_wrap, height=6, wrap="none", font=FONT_MONO, state="disabled")
-        scroll = ttk.Scrollbar(log_wrap, orient="vertical", command=self.mihomo_log_text.yview)
-        self.mihomo_log_text.configure(yscrollcommand=scroll.set)
-        self.mihomo_log_text.pack(side="left", fill="both", expand=True)
-        scroll.pack(side="right", fill="y")
-        for level, color in (("info", "#333333"), ("ok", "#1a7f37"), ("warn", "#b26a00"), ("error", "#a8071a")):
-            self.mihomo_log_text.tag_config(level, foreground=color)
-
-        self.mihomo_queue = queue.Queue()
-        self.mihomo_busy = False
-
-    def log_mihomo(self, level, text):
-        self.mihomo_log_text.configure(state="normal")
-        self.mihomo_log_text.insert("end", "[{0}] [{1}] {2}\n".format(time.strftime("%H:%M:%S"), level, text), level)
-        self.mihomo_log_text.see("end")
-        self.mihomo_log_text.configure(state="disabled")
-
-    def mihomo_log(self, level, text):
-        self.mihomo_queue.put(("log", level, text))
-
-    def mihomo_progress(self, value):
-        self.mihomo_queue.put(("progress", value))
-
-    def refresh_mihomo(self):
+    def mihomo_status_text(self) -> str:
         exe = find_mihomo_exe()
         core = "未安装"
         if exe:
             version = mihomo_core_version()
-            core = "已安装（{0}）".format(version) if version else "已安装"
+            core = "已安装 {0}".format(version) if version else "已安装"
         state = svc_state(MIHOMO_SVC)
         service = "运行中" if state == "RUNNING" else ("已停止" if state == "STOPPED" else "未注册")
         cfg = mihomo_cfg_path()
-        self.mihomo_state_var.set("核心: {0}    服务: {1}    面板: {2}    配置: {3}（{4}）".format(
-            core, service, mihomo_panel_ver(), cfg, "存在" if os.path.isfile(cfg) else "不存在"))
+        return "核心: {0}    服务: {1}    面板: {2}    配置: {3}（{4}）".format(
+            core, service, mihomo_panel_ver(), cfg, "存在" if os.path.isfile(cfg) else "不存在")
 
-    def set_mihomo_busy(self, busy):
-        self.mihomo_busy = busy
-        state = ["disabled"] if busy else ["!disabled"]
-        for btn in self.mihomo_buttons:
-            btn.state(state)
-        if not busy:
-            self.mihomo_progress_bar["value"] = 0
-
-    def run_mihomo_job(self, label, fn):
-        if self.mihomo_busy:
-            self.log_mihomo("warn", "已有任务在运行，稍后再试")
+    def update_selection_actions(self):
+        for child in self.extra_frame.winfo_children():
+            child.destroy()
+        pkg = self.current_pkg
+        if pkg is None or pkg.title not in (ALTSNAP_TITLE, MIHOMO_TITLE):
+            self.extra_frame.pack_forget()
             return
-        self.set_mihomo_busy(True)
-        self.set_status("{0} ...".format(label))
+        self.extra_frame.pack(fill="x", pady=(10, 0))
+        if pkg.title == ALTSNAP_TITLE:
+            self.build_altsnap_actions()
+        else:
+            self.build_mihomo_actions()
 
-        def work():
-            try:
-                fn()
-                self.mihomo_queue.put(("done", label))
-            except Exception as exc:
-                self.mihomo_queue.put(("error", label, str(exc)))
+    def build_altsnap_actions(self):
+        self.altsnap_startup_btn = ttk.Button(self.extra_frame, text="配置管理员开机启动",
+                                              command=self.toggle_altsnap_startup)
+        self.altsnap_startup_btn.pack(side="left")
+        self.refresh_altsnap_button()
 
-        threading.Thread(target=work, daemon=True).start()
-        self.after(120, self.poll_mihomo_job)
-
-    def poll_mihomo_job(self):
-        finished = False
-        try:
-            while True:
-                msg = self.mihomo_queue.get_nowait()
-                kind = msg[0]
-                if kind == "progress":
-                    self.mihomo_progress_bar["value"] = msg[1]
-                elif kind == "log":
-                    self.log_mihomo(msg[1], msg[2])
-                elif kind == "done":
-                    self.log_mihomo("ok", "{0} 完成".format(msg[1]))
-                    self.set_status("{0} 完成".format(msg[1]))
-                    finished = True
-                elif kind == "error":
-                    self.log_mihomo("error", "{0} 失败: {1}".format(msg[1], msg[2]))
-                    self.set_status("{0} 失败".format(msg[1]))
-                    finished = True
-        except queue.Empty:
-            pass
-        if finished:
-            self.set_mihomo_busy(False)
-            self.refresh_mihomo()
+    def refresh_altsnap_button(self):
+        if self.altsnap_startup_btn is None:
             return
-        if self.mihomo_busy:
-            self.after(150, self.poll_mihomo_job)
+        exists = task_exists(ALTSNAP_TASK)
+        self.altsnap_startup_btn.configure(
+            text="删除管理员开机启动" if exists else "配置管理员开机启动")
+        self.set_status("AltSnap：计划任务 {0} {1}".format(
+            ALTSNAP_TASK, "已存在" if exists else "不存在"))
 
-    def on_mihomo_install(self):
-        if svc_state(MIHOMO_SVC) and not messagebox.askyesno(
-                APP_TITLE, "mihomo 服务已存在，重新安装会用最新核心与面板覆盖？"):
-            return
-        self.run_mihomo_job("安装 / 更新 mihomo", self.job_mihomo_install)
+    def build_mihomo_actions(self):
+        ttk.Label(self.extra_frame, text=self.mihomo_status_text(),
+                  style="Muted.TLabel").pack(anchor="w")
+        buttons = ttk.Frame(self.extra_frame)
+        buttons.pack(fill="x", pady=(6, 0))
+        running = svc_state(MIHOMO_SVC) == "RUNNING"
+        specs = (
+            ("安装 / 更新面板", self.cmd_mihomo_panel, True),
+            ("注册服务", self.cmd_mihomo_service, False),
+            ("停止服务" if running else "启动服务", self.cmd_mihomo_toggle_service, False),
+            ("删除服务", self.cmd_mihomo_delete_service, False),
+            ("打开配置", self.open_mihomo_cfg, False),
+            ("打开数据目录", lambda: self.open_dir(mihomo_data_home()), False),
+            ("打开安装目录", lambda: self.open_dir(mihomo_home()), False),
+            ("OpenWrt 命令", self.show_mihomo_openwrt, False),
+        )
+        for idx, (text, command, accent) in enumerate(specs):
+            btn = ttk.Button(buttons, text=text, command=command,
+                             style="Accent.TButton" if accent else "TButton")
+            btn.grid(row=idx // 4, column=idx % 4, sticky="we", padx=3, pady=3)
+        for col in range(4):
+            buttons.columnconfigure(col, weight=1)
 
-    def on_mihomo_svc(self, action):
-        state = svc_state(MIHOMO_SVC)
-        if action == "start" and state == "RUNNING":
-            self.log_mihomo("warn", "服务已在运行")
-            return
-        if action == "stop" and state in ("", "STOPPED"):
-            self.log_mihomo("warn", "服务未在运行（{0}）".format("未注册" if not state else "已停止"))
-            return
-        label = "启动 mihomo 服务" if action == "start" else "停止 mihomo 服务"
-        self.run_mihomo_job(label, lambda: self.job_mihomo_svc(action))
+    def set_cmd(self, command: str, label: str):
+        self.cmd_var.set(command)
+        self.set_status("{0}：命令已生成，可编辑后复制或运行".format(label))
 
-    def on_mihomo_uninstall(self):
-        if not messagebox.askyesno(
-                APP_TITLE,
-                "停止并删除 mihomo 服务，删除安装目录 {0}，并卸载 winget 包 {1}？\n"
-                "（数据目录 {2} 保留）".format(mihomo_home(), MIHOMO_WINGET_ID, mihomo_data_home())):
-            return
-        self.run_mihomo_job("卸载 mihomo", self.job_mihomo_uninstall)
+    def cmd_mihomo_panel(self):
+        self.set_cmd(mihomo_panel_cmd(self.ghproxy), "mihomo 安装 / 更新面板")
 
-    def on_mihomo_latest(self):
-        self.run_mihomo_job("查询 mihomo 最新版", self.job_mihomo_latest)
+    def cmd_mihomo_service(self):
+        self.set_cmd(mihomo_service_cmd(self.scoop_dir), "mihomo 注册服务")
 
-    def on_mihomo_open_cfg(self):
-        path = ensure_mihomo_cfg()
-        if not path or not os.path.isfile(path):
-            self.log_mihomo("warn", "配置文件不存在且没有模板：security/placeholder_files/mihomo.yaml")
-            return
-        self.on_mihomo_open(path)
+    def cmd_mihomo_toggle_service(self):
+        action = "stop" if svc_state(MIHOMO_SVC) == "RUNNING" else "start"
+        self.set_cmd("net {0} {1}".format(action, MIHOMO_SVC),
+                     "mihomo {0}".format("停止服务" if action == "stop" else "启动服务"))
 
-    def on_mihomo_open(self, path):
-        if os.path.isdir(path):
-            os.makedirs(path, exist_ok=True)
-        if open_containing(path):
+    def cmd_mihomo_delete_service(self):
+        self.set_cmd("net stop {0}; sc.exe delete {0}".format(MIHOMO_SVC), "mihomo 删除服务")
+
+    def open_dir(self, path: str):
+        os.makedirs(path, exist_ok=True)
+        if open_path(path):
             self.set_status("已打开：{0}".format(path))
         else:
-            self.log_mihomo("warn", "路径不存在：{0}".format(path))
+            self.log_line("warn", "路径不存在：{0}".format(path))
 
-    def on_mihomo_openwrt(self):
+    def open_mihomo_cfg(self):
+        path = ensure_mihomo_cfg()
+        if not path or not os.path.isfile(path):
+            self.log_line("warn", "配置文件不存在且没有模板：security/placeholder_files/mihomo.yaml")
+            return
+        if open_path(path):
+            self.set_status("已打开：{0}".format(path))
+
+    def show_mihomo_openwrt(self):
         base = (self.ghproxy or "").strip().rstrip("/")
         gh_base = "https://github.com" if not base else base + "/https://github.com"
         text = OPENWRT_TPL.replace("@@VER@@", MIHOMO_CORE_VER).replace("@@GH_BASE@@", gh_base)
+
+        dlg = tk.Toplevel(self)
+        dlg.title("OpenWrt 安装命令")
+        dlg.transient(self)
+        dlg.geometry("900x520")
+        body = ttk.Frame(dlg, padding=12)
+        body.pack(fill="both", expand=True)
+        ttk.Label(body, text="核心 v{0}    下载前缀 {1}".format(MIHOMO_CORE_VER, gh_base),
+                  style="Muted.TLabel").pack(anchor="w")
+
+        wrap = ttk.Frame(body)
+        wrap.pack(fill="both", expand=True, pady=(8, 0))
+        editor = tk.Text(wrap, wrap="none", font=FONT_MONO, bg=COLOR_PANEL, relief="flat",
+                         highlightthickness=1, highlightbackground=COLOR_LINE, padx=8, pady=6)
+        vsb = ttk.Scrollbar(wrap, orient="vertical", command=editor.yview)
+        hsb = ttk.Scrollbar(wrap, orient="horizontal", command=editor.xview)
+        editor.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
+        editor.grid(row=0, column=0, sticky="nsew")
+        vsb.grid(row=0, column=1, sticky="ns")
+        hsb.grid(row=1, column=0, sticky="we")
+        wrap.rowconfigure(0, weight=1)
+        wrap.columnconfigure(0, weight=1)
+        editor.insert("1.0", text)
+
+        row = ttk.Frame(body)
+        row.pack(fill="x", pady=(10, 0))
+        ttk.Button(row, text="复制到剪贴板", style="Accent.TButton",
+                   command=lambda: self.copy_text(editor.get("1.0", "end").strip())).pack(side="left")
+        ttk.Button(row, text="关闭", command=dlg.destroy).pack(side="left", padx=6)
+
+        dlg.grab_set()
+        dlg.focus_set()
+
+    def copy_text(self, text: str):
         self.clipboard_clear()
         self.clipboard_append(text)
-        path = os.path.join(tempfile.gettempdir(), "mihomo-openwrt.sh")
-        try:
-            with open(path, "w", encoding="utf-8", newline="\n") as fh:
-                fh.write(text)
-        except OSError:
-            path = ""
-        self.log_mihomo("ok", "OpenWrt 安装命令已复制（核心 v{0}，下载前缀 {1}）".format(MIHOMO_CORE_VER, gh_base))
-        if path:
-            self.log_mihomo("info", "另存：{0}".format(path))
-        self.set_status("OpenWrt 安装命令已复制到剪贴板")
+        self.update_idletasks()
+        self.set_status("已复制到剪贴板")
 
-    def job_mihomo_install(self):
-        exe = find_mihomo_exe()
-        if not exe:
-            self.mihomo_log("info", "winget install --id {0} -e".format(MIHOMO_WINGET_ID))
-            rc, out = run_elevated_lines([
-                "winget install --id {0} -e --source winget "
-                "--accept-package-agreements --accept-source-agreements".format(MIHOMO_WINGET_ID),
-            ])
-            if rc != 0:
-                raise RuntimeError("winget 安装失败（rc={0}）: {1}".format(rc, (out or "").strip()[-400:]))
-            for _ in range(20):
-                exe = find_mihomo_exe()
-                if exe:
-                    break
-                time.sleep(0.5)
-            if not exe:
-                raise RuntimeError("winget 安装后仍找不到 mihomo.exe")
-        self.mihomo_log("ok", "核心：{0}".format(exe))
-
-        data = mihomo_data_home()
-        ui_dir = os.path.join(data, "ui")
-        staging = os.path.join(tempfile.gettempdir(), "win11tools_mihomo_ui")
-        url = gh_url(self.ghproxy, "MetaCubeX/metacubexd/archive/refs/heads/gh-pages.zip")
-        self.mihomo_log("info", "下载面板：{0}".format(url))
-        index_html = download_github_zip(self.ghproxy, "MetaCubeX/metacubexd/archive/refs/heads/gh-pages.zip",
-                                         "index.html", staging, self.mihomo_progress, self.mihomo_log)
-        ui_src = os.path.dirname(index_html)
-
-        cfg = ensure_mihomo_cfg()
-        if not cfg:
-            raise RuntimeError("配置模板缺失：security/placeholder_files/mihomo.yaml")
-        self.mihomo_log("ok", "配置：{0}".format(cfg))
-
-        nssm = find_nssm(self.scoop_dir)
-        if not nssm:
-            self.mihomo_log("info", "nssm 不在，下载 nssm 2.24")
-            member = download_zip_member("https://nssm.cc/release/nssm-2.24.zip", "nssm.exe",
-                                         os.path.join(tempfile.gettempdir(), "win11tools_nssm"),
-                                         self.mihomo_progress)
-            os.makedirs(mihomo_home(), exist_ok=True)
-            nssm = os.path.join(mihomo_home(), "nssm.exe")
-            shutil.copy2(member, nssm)
-        self.mihomo_log("ok", "nssm：{0}".format(nssm))
-
-        existed = bool(svc_state(MIHOMO_SVC))
-        backup_ui = os.path.join(tempfile.gettempdir(), "win11tools_mihomo_ui_bak")
-        shutil.rmtree(backup_ui, ignore_errors=True)
-        moved = False
-        try:
-            os.makedirs(data, exist_ok=True)
-            if os.path.isdir(ui_dir):
-                shutil.move(ui_dir, backup_ui)
-                moved = True
-            shutil.copytree(ui_src, ui_dir)
-            with open(os.path.join(data, ".win11tools_ui_ver"), "w", encoding="utf-8") as fh:
-                fh.write(MIHOMO_UI_VER)
-            params = '-d "{0}" -f "{1}"'.format(data, cfg)
-            lines = []
-            if existed:
-                lines.append('"{0}" stop {1}'.format(nssm, MIHOMO_SVC))
-            else:
-                lines.append('"{0}" install {1} "{2}"'.format(nssm, MIHOMO_SVC, exe))
-            lines += [
-                '"{0}" set {1} Application "{2}"'.format(nssm, MIHOMO_SVC, exe),
-                '"{0}" set {1} AppDirectory "{2}"'.format(nssm, MIHOMO_SVC, data),
-                '"{0}" set {1} AppParameters {2}'.format(nssm, MIHOMO_SVC, params),
-                '"{0}" set {1} Start SERVICE_AUTO_START'.format(nssm, MIHOMO_SVC),
-                '"{0}" set {1} DisplayName mihomo'.format(nssm, MIHOMO_SVC),
-                "sc.exe start {0}".format(MIHOMO_SVC),
-            ]
-            rc, out = run_elevated_lines(lines)
-            if rc != 0:
-                raise RuntimeError("服务注册失败（rc={0}）: {1}".format(rc, (out or "").strip()[-400:]))
-            state = ""
-            for _ in range(20):
-                state = svc_state(MIHOMO_SVC)
-                if state == "RUNNING":
-                    break
-                time.sleep(0.5)
-            if state != "RUNNING":
-                raise RuntimeError("服务没跑起来（{0}）".format(state or "未注册"))
-        except Exception:
-            shutil.rmtree(ui_dir, ignore_errors=True)
-            if moved:
-                shutil.move(backup_ui, ui_dir)
-            if not existed:
-                run_elevated_lines(["sc.exe delete {0}".format(MIHOMO_SVC)])
-            raise
-        finally:
-            shutil.rmtree(backup_ui, ignore_errors=True)
-            shutil.rmtree(staging, ignore_errors=True)
-        self.mihomo_log("ok", "服务已运行并开机自启（-d {0} -f {1}）".format(data, cfg))
-
-    def job_mihomo_svc(self, action):
-        rc, out = run_elevated_lines(["net {0} {1}".format(action, MIHOMO_SVC)])
-        time.sleep(1.5)
-        state = svc_state(MIHOMO_SVC)
-        ok = state == "RUNNING" if action == "start" else state in ("", "STOPPED")
-        if not ok:
-            raise RuntimeError("{0} 后状态异常：{1}（rc={2} {3}）".format(
-                action, state or "未注册", rc, (out or "").strip()[-200:]))
-        self.mihomo_log("ok", "服务已{0}".format("启动" if action == "start" else "停止"))
-
-    def job_mihomo_uninstall(self):
-        home = mihomo_home()
-        rc, out = run_elevated_lines([
-            "net stop {0}".format(MIHOMO_SVC),
-            "sc.exe delete {0}".format(MIHOMO_SVC),
-            'rmdir /s /q "{0}"'.format(home),
-            "winget uninstall --id {0} -e".format(MIHOMO_WINGET_ID),
-        ])
-        problems = []
-        if svc_state(MIHOMO_SVC):
-            problems.append("服务仍在")
-        if os.path.isfile(os.path.join(home, "mihomo.exe")):
-            problems.append("安装目录未清空")
-        if problems:
-            raise RuntimeError("卸载不彻底：{0}（rc={1} {2}）".format(
-                "; ".join(problems), rc, (out or "").strip()[-300:]))
-        self.mihomo_log("ok", "服务与安装目录已清除，数据目录保留：{0}".format(mihomo_data_home()))
-
-    def job_mihomo_latest(self):
-        url = gh_url(self.ghproxy, "https://api.github.com/repos/MetaCubeX/mihomo/releases?per_page=20")
-        self.mihomo_log("info", "查询：{0}".format(url))
-        releases = get_github_json(self.ghproxy,
-                                   "https://api.github.com/repos/MetaCubeX/mihomo/releases?per_page=20",
-                                   self.mihomo_log)
-        tag = ""
-        for release in releases:
-            if not release.get("prerelease") and not release.get("draft"):
-                tag = release.get("tag_name", "")
-                break
-        if not tag:
-            raise RuntimeError("没解析到最新 tag")
-        self.mihomo_log("ok", "mihomo 最新版 {0}（winget 安装始终取最新；OpenWrt 模板版本 v{1}）".format(
-            tag, MIHOMO_CORE_VER))
-
-    def build_dotfiles_block(self, parent):
-        frame = ttk.LabelFrame(parent, text="dotfile 管理", padding=10)
-        frame.pack(fill="both", expand=True, padx=10, pady=10)
+    def build_dotfiles_tab(self, parent):
+        frame = ttk.Frame(parent, padding=12)
+        parent.add(frame, text="dotfile 同步")
 
         head = ttk.Frame(frame)
         head.pack(fill="x")
-        ttk.Label(head, text="备份 = 系统文件覆盖仓库文件；恢复 = 仓库文件覆盖系统文件", style="Desc.TLabel").pack(side="left")
+        ttk.Label(head, text="备份 = 系统文件覆盖仓库文件；恢复 = 仓库文件覆盖系统文件",
+                  style="Muted.TLabel").pack(side="left", pady=(4, 0))
         ttk.Button(head, text="刷新", command=self.refresh_dotfiles).pack(side="right")
 
         wrap = ttk.Frame(frame)
         wrap.pack(fill="both", expand=True, pady=(10, 0))
-        self.dot_tree = ttk.Treeview(wrap, columns=("target", "repo", "state"), show="tree headings", selectmode="browse")
-        self.dot_tree.heading("#0", text="名称")
-        self.dot_tree.column("#0", width=190, anchor="w")
+        self.dot_tree = ttk.Treeview(wrap, columns=("name", "target", "repo", "state"),
+                                     show="headings", selectmode="browse")
+        self.dot_tree.heading("name", text="名称")
+        self.dot_tree.column("name", width=190, anchor="w")
         self.dot_tree.heading("target", text="系统文件")
-        self.dot_tree.column("target", width=380, anchor="w")
+        self.dot_tree.column("target", width=360, anchor="w")
         self.dot_tree.heading("repo", text="仓库文件（相对仓库根目录）")
         self.dot_tree.column("repo", width=300, anchor="w")
         self.dot_tree.heading("state", text="状态")
@@ -1228,7 +1285,7 @@ class App(tk.Tk):
         self.dot_tree.configure(yscrollcommand=scroll.set)
         self.dot_tree.pack(side="left", fill="both", expand=True)
         scroll.pack(side="right", fill="y")
-        self.dot_tree.tag_configure("ok", foreground="#1a7f37")
+        self.dot_tree.tag_configure("ok", foreground=COLOR_OK)
         self.dot_tree.tag_configure("bad", foreground="#a8071a")
         self.dot_tree.bind("<Double-1>", self.on_dot_double_click)
         self.dot_tree.bind("<<TreeviewSelect>>", lambda _e: self.set_status(
@@ -1236,10 +1293,13 @@ class App(tk.Tk):
 
         row = ttk.Frame(frame)
         row.pack(fill="x", pady=(10, 0))
-        ttk.Button(row, text="备份到仓库", command=lambda: self.dot_action("backup")).pack(side="left")
-        ttk.Button(row, text="从仓库恢复", command=lambda: self.dot_action("restore")).pack(side="left", padx=6)
+        ttk.Button(row, text="备份到仓库", style="Accent.TButton",
+                   command=lambda: self.dot_action("backup")).pack(side="left")
+        ttk.Button(row, text="从仓库恢复", command=lambda: self.dot_action("restore")).pack(
+            side="left", padx=6)
         ttk.Button(row, text="全部备份", command=lambda: self.dot_action("backup_all")).pack(side="right")
-        ttk.Button(row, text="全部恢复", command=lambda: self.dot_action("restore_all")).pack(side="right", padx=6)
+        ttk.Button(row, text="全部恢复", command=lambda: self.dot_action("restore_all")).pack(
+            side="right", padx=6)
 
     def update_scoop_label(self):
         self.scoop_label_var.set("scoop 目录：{0}".format(self.scoop_dir))
@@ -1308,8 +1368,8 @@ class App(tk.Tk):
         for pkg in pkgs:
             state = self.pkg_states.get(pkg.title, "未检测")
             tag = "missing" if "未安装" in state else "installed"
-            self.pkg_tree.insert("", "end", iid=pkg.title, text=pkg.title,
-                                 values=(state, pkg.desc), tags=(tag,))
+            self.pkg_tree.insert("", "end", iid=pkg.title,
+                                 values=(pkg.title, state, pkg.desc), tags=(tag,))
         self.current_pkg = None
         self.cmd_var.set("")
 
@@ -1347,7 +1407,7 @@ class App(tk.Tk):
         self.winget_text = text
         self.pkg_states = states
         self.show_group()
-        self.update_altsnap_button()
+        self.update_selection_actions()
         self.scoop_state_var.set("scoop: {0}".format("已安装" if scoop_installed(self.scoop_dir) else "未安装"))
         self.set_status("检测完成：{0}".format(time.strftime("%H:%M:%S")))
 
@@ -1364,19 +1424,7 @@ class App(tk.Tk):
 
     def on_pkg_select(self):
         self.current_pkg = self.selected_pkg()
-        self.update_altsnap_button()
-
-    def update_altsnap_button(self):
-        pkg = self.current_pkg
-        if pkg is None or pkg.title != ALTSNAP_TITLE:
-            self.altsnap_startup_btn.pack_forget()
-            return
-        exists = task_exists(ALTSNAP_TASK)
-        self.altsnap_startup_btn.configure(
-            text="删除管理员开机启动" if exists else "配置管理员开机启动")
-        self.altsnap_startup_btn.pack(side="left", padx=(18, 0))
-        self.set_status("AltSnap：计划任务 {0} {1}".format(
-            ALTSNAP_TASK, "已存在" if exists else "不存在"))
+        self.update_selection_actions()
 
     def toggle_altsnap_startup(self):
         if task_exists(ALTSNAP_TASK):
@@ -1385,7 +1433,7 @@ class App(tk.Tk):
             rc, out = run_elevated_script(altsnap_delete_script())
             if rc != 0:
                 messagebox.showerror(APP_TITLE, "删除失败：{0}".format(out.strip() or "已取消或权限不足"))
-            self.update_altsnap_button()
+            self.refresh_altsnap_button()
             self.set_status("计划任务 {0}：{1}".format(
                 ALTSNAP_TASK, "已删除" if not task_exists(ALTSNAP_TASK) else "仍存在"))
             return
@@ -1399,7 +1447,7 @@ class App(tk.Tk):
         rc, out = run_elevated_script(altsnap_startup_script(exe))
         if rc != 0:
             messagebox.showerror(APP_TITLE, "创建失败：{0}".format(out.strip() or "已取消或权限不足"))
-        self.update_altsnap_button()
+        self.refresh_altsnap_button()
         self.set_status("计划任务 {0}：{1}".format(
             ALTSNAP_TASK, "已创建" if task_exists(ALTSNAP_TASK) else "未创建"))
 
@@ -1511,8 +1559,8 @@ class App(tk.Tk):
                 elif os.path.getmtime(repo) > os.path.getmtime(target) + 1:
                     text += "（仓库更新）"
             self.dot_rows[item.title] = item
-            self.dot_tree.insert("", "end", iid=item.title, text=item.title,
-                                 values=(target, item.repo_display(), text), tags=(tag,))
+            self.dot_tree.insert("", "end", iid=item.title,
+                                 values=(item.title, target, item.repo_display(), text), tags=(tag,))
         self.set_status("dotfile 状态已刷新")
 
     def selected_dot(self):
@@ -1530,10 +1578,10 @@ class App(tk.Tk):
         item = self.dot_rows.get(row)
         if item is None:
             return
-        if column in ("#0", "#1"):
+        if column in ("#1", "#2"):
             path = item.target_path()
             label = "配置目录"
-        elif column == "#2":
+        elif column == "#3":
             path = item.repo_path()
             label = "仓库文件位置"
         else:

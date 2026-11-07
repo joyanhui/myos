@@ -471,7 +471,7 @@ MainEntry() {
     EnsureDirs()
     LogRaw("=== startup.ahk 启动 ===")
     StartEtu()          ; 必须最先：它自带键盘钩子，钩子后装的先拿到按键
-    StartYasb()
+    ; StartYasb()
     StartFlow()
     InstallHotkeys()
     SetupTray()

@@ -12,6 +12,7 @@
           NVME_NTFS  -fstype=ntfs3,force,uid=1000,gid=1000,umask=022,dmask=022,fmask=133 :/dev/disk/by-label/NTFS
           DATA128G  -fstype=ntfs3,force,uid=1000,gid=1000,umask=022,dmask=022,fmask=133 :/dev/disk/by-label/NTFS128G
           HDD25  -fstype=exfat,force,uid=1000,gid=1000,umask=022,dmask=022,fmask=133 :/dev/disk/by-label/HDD25
+          SMB_NAS   -fstype=cifs,credentials=/etc/nixos/,uid=1000,gid=1000,iocharset=utf8,vers=3.0 ://192.168.1.101/ShareName 
         '';
       in
       ''
