@@ -106,7 +106,7 @@ in
     ++ importIf (hasTag "dailyPC") ./modules/apps/compat_wine_bottles.nix
     ++ importIf (hasTag "gui") ./modules/apps/download_motrix.nix
     ++ importIf (hasTag "gui") ./modules/apps/media_vlc.nix
-    ++ importIf (hasTag "gui") ./modules/apps/music_musicfree.nix
+   # ++ importIf (hasTag "gui") ./modules/apps/music_musicfree.nix
     # ++ importIf (hasTag "dailyPC") ./modules/apps/office_trilium_next_desktop.nix
     #++ importIf (hasTag "services") ./modules/apps/pkg_nginx.nix
     #  ++ importIf (hasTag "gui")./modules/apps/remote_todesk.nix
