@@ -27,6 +27,13 @@ MIHOMO_TITLE = "mihomo"
 MIHOMO_WINGET_ID = "MetaCubeX.Mihomo"
 MIHOMO_CORE_VER = "1.19.33"
 MIHOMO_UI_VER = "1.273.0"
+GO_PROXY = "https://mirrors.aliyun.com/goproxy/,direct"
+GO_SUMDB = "sum.golang.google.cn"
+NODE_WINGET_ID = "OpenJS.NodeJS"
+PNPM_WINGET_ID = "pnpm.pnpm"
+GO_WINGET_ID = "GoLang.Go"
+BUN_WINGET_ID = "Oven-sh.Bun"
+WINGET_MANAGED_NOTE = "请使用 winget 管理"
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_DIR = os.path.dirname(APP_DIR)
 LOCAL_DOTFILES_DIR = os.path.join(APP_DIR, "win11.dotfiles")
@@ -140,6 +147,12 @@ class Package:
     extra_bucket: str = ""
     special: str = ""
     scoop_alias: str = ""
+    managed_by: str = ""
+
+    def kind(self) -> str:
+        if self.special or self.title == MIHOMO_TITLE:
+            return "自定义"
+        return self.backend
 
 
 @dataclass(frozen=True)
@@ -160,7 +173,7 @@ class DotFile:
 
 PACKAGE_GROUPS = (
     (
-        "winget 系统工具",
+        "系统工具",
         (
             Package("PowerShell 7", "Microsoft.PowerShell", "winget", ("Microsoft.PowerShell",)),
             Package("Coreutils", "Microsoft.Coreutils", "winget", ("Microsoft.Coreutils",)),
@@ -169,34 +182,41 @@ PACKAGE_GROUPS = (
             Package("Nushell", "Nushell.Nushell", "winget", ("Nushell.Nushell",)),
             Package("Helix", "Helix.Helix", "winget", ("Helix.Helix",)),
             Package("noctty", "AmanThanvi.noctty", "winget", ("AmanThanvi.noctty",)),
+            Package("7-Zip", "7zip.7zip", "winget", ("7zip.7zip",)),
+            Package("Git", "Git.Git", "winget", ("Git.Git",)),
             Package("lazygit", "JesseDuffield.lazygit", "winget", ("JesseDuffield.lazygit",)),
             Package("AltSnap", "AltSnap.AltSnap", "winget", ("AltSnap.AltSnap",)),
+        ),
+    ),
+    (
+        "开发环境",
+        (
+            Package("Node.js", "nodejs 由 winget 管理", "winget", (NODE_WINGET_ID,),
+                    managed_by="winget"),
+            Package("pnpm", "pnpm 由 winget 管理", "winget", (PNPM_WINGET_ID,),
+                    managed_by="winget"),
+            Package("golang", "go 工具链由 winget 管理", "winget", (GO_WINGET_ID,),
+                    managed_by="winget"),
+            Package("bun", "bun 运行时与包管理器", "winget", (BUN_WINGET_ID,),
+                    managed_by="winget"),
+            Package("rustup", "Rust 工具链", "scoop", ("rustup",)),
+            Package("flutter", "Flutter SDK，需要 extras bucket", "scoop", ("flutter",), extra_bucket="extras"),
+            Package("zig", "Zig 工具链", "scoop", ("zig",)),
+        ),
+    ),
+    (
+        "常用软件",
+        (
+            Package("Chrome", "googlechrome", "scoop", ("googlechrome",)),
+            Package("Obsidian", "obsidian", "scoop", ("obsidian",)),
+            Package("QQ NT", "qq-nt", "scoop", ("qq-nt",)),
+            Package("Telegram", "telegram", "scoop", ("telegram",)),
         ),
     ),
     (
         "scoop 自身",
         (
             Package("scoop", "安装到上面填写的 scoop 目录", "scoop", ("scoop",), special="scoop_self"),
-        ),
-    ),
-    (
-        "scoop 开发环境",
-        (
-            Package("nodejs-lts + pnpm", "Node.js LTS 与 pnpm", "scoop", ("nodejs-lts", "pnpm")),
-            Package("bun", "bun 运行时与包管理器", "scoop", ("bun",)),
-            Package("rustup", "Rust 工具链", "scoop", ("rustup",)),
-            Package("golang", "Go 工具链", "scoop", ("go",)),
-            Package("flutter", "Flutter SDK，需要 extras bucket", "scoop", ("flutter",), extra_bucket="extras"),
-            Package("zig", "Zig 工具链", "scoop", ("zig",)),
-        ),
-    ),
-    (
-        "scoop 常用软件",
-        (
-            Package("Chrome", "googlechrome", "scoop", ("googlechrome",)),
-            Package("Obsidian", "obsidian", "scoop", ("obsidian",)),
-            Package("QQ NT", "qq-nt", "scoop", ("qq-nt",)),
-            Package("Telegram", "telegram", "scoop", ("telegram",)),
         ),
     ),
     (
@@ -261,12 +281,111 @@ def scoop_prefix(scoop_dir: str, body: str) -> str:
     return '$env:Path = "{0};" + $env:Path; {1}'.format(shims, body)
 
 
+def pnpm_home() -> str:
+    return os.path.join(os.environ.get("LOCALAPPDATA", os.path.expanduser("~\\AppData\\Local")), "pnpm")
+
+
+def npm_home() -> str:
+    return os.path.join(os.environ.get("APPDATA", os.path.expanduser("~\\AppData\\Roaming")), "npm")
+
+
+def bun_home() -> str:
+    return os.path.join(os.path.expanduser("~"), ".bun")
+
+
+def set_user_env_cmd(name: str, value: str) -> str:
+    return '[Environment]::SetEnvironmentVariable("{0}", "{1}", "User")'.format(name, value)
+
+
+def append_user_path_cmd(path: str) -> str:
+    return (
+        "$userPath = [Environment]::GetEnvironmentVariable('Path', 'User'); "
+        "$paths = @($userPath -split ';' | Where-Object {{ $_ -and $_ -ne '{0}' }}); "
+        "if ($paths -notcontains '{0}') {{ $paths += '{0}' }}; "
+        "[Environment]::SetEnvironmentVariable('Path', ($paths -join ';'), 'User')"
+    ).format(path)
+
+
+def user_env(name: str) -> str:
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment") as key:
+            value, _kind = winreg.QueryValueEx(key, name)
+        return str(value)
+    except (OSError, ImportError):
+        return os.environ.get(name, "")
+
+
+def go_path_home() -> str:
+    current = user_env("GOPATH").strip()
+    if current:
+        return os.path.normpath(os.path.expandvars(current))
+    return os.path.join(os.path.expanduser("~"), "go")
+
+
+def remove_user_env_cmd(name: str) -> str:
+    return '[Environment]::SetEnvironmentVariable("{0}", $null, "User")'.format(name)
+
+
+def remove_user_path_cmd(path: str) -> str:
+    return (
+        "$userPath = [Environment]::GetEnvironmentVariable('Path', 'User'); "
+        "$paths = @($userPath -split ';' | Where-Object {{ $_ -and $_ -ne '{0}' }}); "
+        "[Environment]::SetEnvironmentVariable('Path', ($paths -join ';'), 'User')"
+    ).format(path)
+
+
+def env_layout(title: str):
+    if title == "Node.js":
+        return {}, [npm_home()]
+    if title == "pnpm":
+        home = pnpm_home()
+        return {"PNPM_HOME": home}, [os.path.join(home, "bin")]
+    if title == "golang":
+        return {"GOPROXY": GO_PROXY, "GOSUMDB": GO_SUMDB}, []
+    if title == "bun":
+        home = bun_home()
+        return {"BUN_INSTALL": home}, [os.path.join(home, "bin")]
+    return {}, []
+
+
+def env_apply_cmd(pkg: Package) -> str:
+    envs, paths = env_layout(pkg.title)
+    parts = [set_user_env_cmd(name, value) for name, value in envs.items()]
+    parts.extend(append_user_path_cmd(path) for path in paths)
+    parts.extend('$env:{0} = "{1}"'.format(name, value) for name, value in envs.items())
+    if paths:
+        joined = ";".join(paths)
+        parts.append('$env:Path = "{0};" + $env:Path'.format(joined))
+    return "; ".join(parts)
+
+
+def env_cleanup_cmd(pkg: Package) -> str:
+    envs, paths = env_layout(pkg.title)
+    extra = {"golang": ("GOPATH", "GOROOT", "GOBIN", "GOFLAGS", "GOPRIVATE")}.get(pkg.title, ())
+    if pkg.title == "golang":
+        paths = list(paths) + [os.path.join(go_path_home(), "bin")]
+    parts = [remove_user_path_cmd(path) for path in paths]
+    parts.extend(remove_user_env_cmd(name) for name in envs)
+    parts.extend(remove_user_env_cmd(name) for name in extra)
+    return "; ".join(parts)
+
+
+def winget_install_cmd(pkg: Package) -> str:
+    parts = [
+        "winget install --id {0} -e --source winget "
+        "--accept-package-agreements --accept-source-agreements".format(pkg_id)
+        for pkg_id in pkg.names
+    ]
+    env_cmd = env_apply_cmd(pkg)
+    if env_cmd:
+        parts.append(env_cmd)
+    return "; ".join(parts)
+
+
 def build_install_cmd(pkg: Package, scoop_dir: str) -> str:
     if pkg.backend == "winget":
-        return (
-            "winget install --id {0} -e --source winget "
-            "--accept-package-agreements --accept-source-agreements"
-        ).format(pkg.names[0])
+        return winget_install_cmd(pkg)
     if pkg.special == "scoop_self":
         return (
             "Set-ExecutionPolicy -Scope CurrentUser RemoteSigned -Force; "
@@ -283,7 +402,11 @@ def build_uninstall_cmd(pkg: Package, scoop_dir: str) -> str:
     if pkg.title == MIHOMO_TITLE:
         return mihomo_purge_cmd()
     if pkg.backend == "winget":
-        return "winget uninstall --id {0} -e".format(pkg.names[0])
+        parts = ["winget uninstall --id {0} -e".format(n) for n in pkg.names]
+        cleanup = env_cleanup_cmd(pkg)
+        if cleanup:
+            parts.append(cleanup)
+        return "; ".join(parts)
     body = "scoop uninstall " + " ".join(pkg.names)
     return scoop_prefix(scoop_dir, body)
 
@@ -346,8 +469,11 @@ def pkg_state(pkg: Package, winget_text: str, scoop_dir: str, scoop_apps=None) -
         return "scoop 已安装" if scoop_installed(scoop_dir) else "未安装"
     if pkg.backend == "winget":
         low = winget_text.lower()
-        if all(n.lower() in low for n in pkg.names):
+        present = [n for n in pkg.names if n.lower() in low]
+        if len(present) == len(pkg.names):
             return "winget 已安装"
+        if present:
+            return "winget 部分安装 {0}/{1}".format(len(present), len(pkg.names))
         probes = [pkg.scoop_alias] if pkg.scoop_alias else [n.split(".")[-1] for n in pkg.names]
         if any(norm_name(probe) in scoop_apps for probe in probes):
             return "scoop 已安装"
@@ -1057,10 +1183,12 @@ class App(tk.Tk):
             anchor="w", pady=(0, 6))
         tree_wrap = ttk.Frame(right)
         tree_wrap.pack(fill="both", expand=True)
-        self.pkg_tree = ttk.Treeview(tree_wrap, columns=("name", "state", "desc"),
+        self.pkg_tree = ttk.Treeview(tree_wrap, columns=("name", "kind", "state", "desc"),
                                      show="headings", selectmode="browse")
         self.pkg_tree.heading("name", text="名称")
         self.pkg_tree.column("name", width=200, anchor="w")
+        self.pkg_tree.heading("kind", text="类型")
+        self.pkg_tree.column("kind", width=90, anchor="w")
         self.pkg_tree.heading("state", text="状态")
         self.pkg_tree.column("state", width=150, anchor="w")
         self.pkg_tree.heading("desc", text="说明")
@@ -1135,7 +1263,14 @@ class App(tk.Tk):
         for child in self.extra_frame.winfo_children():
             child.destroy()
         pkg = self.current_pkg
-        if pkg is None or pkg.title not in (ALTSNAP_TITLE, MIHOMO_TITLE):
+        if pkg is None:
+            self.extra_frame.pack_forget()
+            return
+        if pkg.managed_by == "winget":
+            self.extra_frame.pack(fill="x", pady=(10, 0))
+            ttk.Label(self.extra_frame, text=WINGET_MANAGED_NOTE, style="Value.TLabel").pack(anchor="w")
+            return
+        if pkg.title not in (ALTSNAP_TITLE, MIHOMO_TITLE):
             self.extra_frame.pack_forget()
             return
         self.extra_frame.pack(fill="x", pady=(10, 0))
@@ -1368,7 +1503,7 @@ class App(tk.Tk):
             state = self.pkg_states.get(pkg.title, "未检测")
             tag = "missing" if "未安装" in state else "installed"
             self.pkg_tree.insert("", "end", iid=pkg.title,
-                                 values=(pkg.title, state, pkg.desc), tags=(tag,))
+                                 values=(pkg.title, pkg.kind(), state, pkg.desc), tags=(tag,))
         self.current_pkg = None
         self.cmd_var.set("")
 

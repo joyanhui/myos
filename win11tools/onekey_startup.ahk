@@ -23,7 +23,7 @@
 ;   整个关掉、移走窗口或误退 komorebi。
 ;   退出本脚本：只卸下自己的热键，komorebi / YASB / Flow Launcher / ExplorerTabUtility 一律不动。
 ;   YASB 不做自己的配置，直接用 YASB 自己的配置（config_run\yasb 或 YASB 默认位置）。
-;   日志：%LOCALAPPDATA%\lyndon_win11\startup_ahk.log
+;   日志：%TEMP%\onekey_startup.log
 ;   主界面：托盘菜单「说明 / 主界面」或双击托盘图标（启动时不弹窗，仍只驻托盘），
 ;   窗口里是可复制的全文：自启动列表 + 全部热键 + 远程界面放行规则。
 ;   语法自检：AutoHotkey64.exe /ErrorStdOut /Validate startup.ahk
@@ -34,8 +34,8 @@
 Persistent
 
 PROJ     := A_ScriptDir
-APPDIR   := EnvGet("LOCALAPPDATA") . "\lyndon_win11"
-LOGFILE  := APPDIR . "\startup_ahk.log"
+APPDIR   := EnvGet("TEMP")
+LOGFILE  := APPDIR . "\onekey_startup.log"
 
 HLIVE    := Map()           ; 已注册的热键
 SCOPEC   := ""              ; scoop 根目录缓存
@@ -76,7 +76,7 @@ startup.ahk — 自启启动器 + komorebi 热键
   托盘双击               打开本窗口
   重装热键               托盘菜单（改过热键后才需要）
   退出                   只卸下自己的热键，komorebi / YASB / Flow / ETU 一律不动
-  日志                   %LOCALAPPDATA%\lyndon_win11\startup_ahk.log
+  日志                   %TEMP%\onekey_startup.log
 )"
 
 ; =====================================================================
