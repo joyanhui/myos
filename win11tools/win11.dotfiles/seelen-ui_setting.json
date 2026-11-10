@@ -33,7 +33,7 @@
     "@seelen/wallpaper-manager": {
       "$shortcuts": null,
       "coveragePauseThreshold": 0.8,
-      "defaultCollection": "fd298e89-e06d-474e-a236-5760c615b40f",
+      "defaultCollection": "a9d763ab-f804-450d-9c4c-0ba36bc23880",
       "deprecatedBgs": null,
       "enabled": true,
       "interval": 300,
@@ -150,17 +150,11 @@
   },
   "wallpaperCollections": [
     {
-      "hidden": false,
-      "id": "24a1fc07-f0ce-420b-801e-2c1ade860322",
-      "name": "my",
-      "wallpapers": []
-    },
-    {
       "hidden": true,
-      "id": "fd298e89-e06d-474e-a236-5760c615b40f",
-      "name": "晴空云朵笑脸_屋顶阳光.mp4",
+      "id": "a9d763ab-f804-450d-9c4c-0ba36bc23880",
+      "name": "城市秋雨黄叶.png",
       "wallpapers": [
-        "@user/x9d88ca6c587e40bab0aec8838eea3ce5"
+        "@user/x7ef497ee7c8446599d0f863d1a033294"
       ]
     }
   ]

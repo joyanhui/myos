@@ -8,6 +8,8 @@
 ;   ~ 前缀按键不吞、透传给当前程序，用于远程界面放行）：
 ;     通用（跟平铺桌面无关，脚本一启动就生效，komorebi 没跑也照常）：
 ;       Win+R           Flow Launcher（顶掉系统「运行」）
+;       Alt+Enter       打开本机 noctty 终端
+;       Alt+Shift+E     打开 Windows 文件管理器
 ;       Alt+Shift+Q     关闭当前窗口（komorebi 在跑走 komorebic，没跑退回 WinClose）
 ;       右 Alt          → F2（等价官方 remap `RAlt::F2`，按住可自动重复；左 Alt 不受影响）
 ;     平铺（komorebi 的活；一直注册着，komorebi 没跑时按下只提示一次）：
@@ -22,6 +24,8 @@
 ;   退出本脚本：只卸下自己的热键，komorebi / YASB / Flow Launcher / ExplorerTabUtility 一律不动。
 ;   YASB 不做自己的配置，直接用 YASB 自己的配置（config_run\yasb 或 YASB 默认位置）。
 ;   日志：%LOCALAPPDATA%\lyndon_win11\startup_ahk.log
+;   主界面：托盘菜单「说明 / 主界面」或双击托盘图标（启动时不弹窗，仍只驻托盘），
+;   窗口里是可复制的全文：自启动列表 + 全部热键 + 远程界面放行规则。
 ;   语法自检：AutoHotkey64.exe /ErrorStdOut /Validate startup.ahk
 ; =====================================================================
 #Requires AutoHotkey v2.0
@@ -37,6 +41,43 @@ HLIVE    := Map()           ; 已注册的热键
 SCOPEC   := ""              ; scoop 根目录缓存
 KOMOC    := ""              ; komorebic 路径缓存
 KOMODOWN := false           ; 「komorebi 没在跑」是否已经提示过
+AGUI     := ""              ; 主界面（懒加载，退出前不销毁）
+
+DOC_TEXT := "
+(
+startup.ahk — 自启启动器 + komorebi 热键
+
+[自启动]  依次拉起，已在跑就跳过；komorebi / YASB 不自动启动
+  1. ExplorerTabUtility   自带键盘钩子，必须最先起
+  2. Flow Launcher        按 Win+R 唤出
+  3. AltSnap              提权启动（会弹 UAC）
+  -  komorebi             托盘菜单「启动 komorebi（手动）」
+  -  YASB                 脚本里已注释，暂不启动
+
+[通用热键]  不依赖 komorebi，脚本一启动就生效
+  Win+R                   Flow Launcher（顶掉系统「运行」）
+  Alt+Enter               本机 noctty 终端
+  Alt+Shift+E             Windows 文件管理器
+  Alt+Shift+Q             关闭当前窗口（komorebi 在跑走 komorebic，否则 WinClose）
+  右 Alt                   → F2（等价官方 remap，按住自动重复；左 Alt 不受影响）
+
+[平铺热键]  komorebi 的活，komorebi 在跑才生效（没跑时按下只提示一次）
+  Win+1..9                切工作区（komorebi 索引 0 起，Win+1 = 工作区 0）
+  Win+Shift+1..9          把当前窗口移到工作区并跟过去
+  Win+F                   切换浮动 / 平铺
+  Win+Shift+E             退出 komorebi（本脚本跟着退出）
+
+[远程 / 虚拟机放行]
+  Alt+Shift+Q / Win+Shift+1..9 / Win+Shift+E 在远程或虚拟机界面里
+  （RDP / WSLg / VMware / Hyper-V / VirtualBox / QEMU / AnyDesk / ToDesk 等）
+  直接透传给远端，本地不动作 —— 不会把控制台窗口关掉、移走或误退 komorebi。
+
+[其他]
+  托盘双击               打开本窗口
+  重装热键               托盘菜单（改过热键后才需要）
+  退出                   只卸下自己的热键，komorebi / YASB / Flow / ETU 一律不动
+  日志                   %LOCALAPPDATA%\lyndon_win11\startup_ahk.log
+)"
 
 ; =====================================================================
 ; 日志
@@ -122,6 +163,14 @@ FlowExe() {
     if (p != "")
         return p
     return ScoopAppExe("Flow-Launcher", "Flow.Launcher.exe")
+}
+
+NocttyExe() {
+    p := FindExe("noctty.exe")
+    if (p != "")
+        return p
+    p := EnvGet("ProgramFiles") . "\noctty\noctty.exe"
+    return (FileExist(p) != "") ? p : ""
 }
 
 AltsnapExe() {
@@ -263,6 +312,23 @@ ShowFlow() {                                 ; Win+R：Flow Launcher 是单实�
     RunFlow()
 }
 
+OpenNoctty() {                               ; Alt+Enter：本机 noctty 终端
+    p := NocttyExe()
+    if (p = "") {
+        LogErr("找不到 noctty.exe（先装 noctty）")
+        return
+    }
+    try Run('"' . p . '"')
+    catch as e
+        LogErr("启动 noctty 失败: " . e.Message)
+}
+
+OpenExplorer() {                             ; Alt+Shift+E：Windows 文件管理器
+    try Run("explorer.exe")
+    catch as e
+        LogErr("打开文件管理器失败: " . e.Message)
+}
+
 ; =====================================================================
 ; 远程 / 虚拟机界面识别（InRemoteView）
 ;   焦点在远程软件的操作界面 / 虚拟机控制台里时，Alt+Shift+Q（关窗）、
@@ -389,6 +455,8 @@ QuitKomorebi() {                             ; Win+Shift+E：退出 komorebi，�
 GeneralHotkeys() {
     return [
         ["$#r",      (*) => ShowFlow()],        ; Win+R → Flow Launcher
+        ["$!Enter",  (*) => OpenNoctty()],      ; Alt+Enter → 本机 noctty
+        ["$!+e",     (*) => OpenExplorer()],    ; Alt+Shift+E → 文件管理器
         ["~!+q",     (*) => CloseWindow()],     ; Alt+Shift+Q → 关闭当前窗口（~：远程里透传不动作）
         ["*RAlt",    (*) => RAltToF2Down()],    ; 右 Alt → F2
         ["*RAlt Up", (*) => RAltToF2Up()]
@@ -427,7 +495,7 @@ InstallHotkeys() {
     nk := 0
     for pair in KomorebiHotkeys()
         nk += AddHotkey(pair)
-    LogOk("热键已启用：通用 " . ng . " 个（Win+R / Alt+Shift+Q / 右Alt→F2，不依赖 komorebi）、平铺 " . nk . " 个（komorebi）")
+    LogOk("热键已启用：通用 " . ng . " 个（Win+R / Alt+Enter / Alt+Shift+E / Alt+Shift+Q / 右Alt→F2，不依赖 komorebi）、平铺 " . nk . " 个（komorebi）")
 }
 
 RemoveHotkeys() {
@@ -446,10 +514,34 @@ OpenLog() {
     try Run('"' . p . '"')
 }
 
+ShowMainGui() {                              ; 主界面：自启动列表 + 热键说明（只读、可复制）
+    global AGUI
+    if (AGUI) {
+        try {
+            AGUI.Show()
+            WinActivate("ahk_id " . AGUI.Hwnd)
+            return
+        } catch {
+            AGUI := ""
+        }
+    }
+    g := Gui("-Resize -MaximizeBox", "startup.ahk — 自启与热键说明")
+    g.MarginX := 0
+    g.MarginY := 0
+    g.SetFont("s10", "Consolas")
+    g.Add("Edit", "ReadOnly -Wrap x0 y0 w760 h560 BackgroundF7F7F7", DOC_TEXT)
+    g.OnEvent("Close", (*) => g.Hide())
+    g.OnEvent("Escape", (*) => g.Hide())
+    AGUI := g
+    g.Show("w760 h560")
+}
+
 SetupTray() {
-    A_IconTip := "startup.ahk — Win+1..9 切工作区（komorebi 要先手动启动）"
+    A_IconTip := "startup.ahk — Win+1..9 切工作区（komorebi 要先手动启动）；双击看说明"
     tm := A_TrayMenu
     tm.Delete()
+    tm.Add("说明 / 主界面", (*) => ShowMainGui())
+    tm.Add()
     tm.Add("启动 komorebi（手动）", (*) => StartKomorebi())
     tm.Add("停止 komorebi", (*) => StopKomorebi())
     tm.Add()
@@ -462,6 +554,7 @@ SetupTray() {
     tm.Add()
     tm.Add("退出（保留 komorebi / YASB / Flow）", (*) => ExitApp())
     tm.Add("退出并停止 komorebi", (*) => QuitKomorebi())
+    tm.Default := "说明 / 主界面"         ; 双击托盘图标 = 打开主界面
 }
 
 ; =====================================================================

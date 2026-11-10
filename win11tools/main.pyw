@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""win11tools main window: 常用软件安装, 功能区, dotfile 双向同步."""
+"""win11tools main window"""
 
 from __future__ import annotations
 
@@ -29,7 +29,6 @@ MIHOMO_CORE_VER = "1.19.33"
 MIHOMO_UI_VER = "1.273.0"
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_DIR = os.path.dirname(APP_DIR)
-SUPPLY_DIR = os.path.join(APP_DIR, "subtools")
 LOCAL_DOTFILES_DIR = os.path.join(APP_DIR, "win11.dotfiles")
 STATE_PATH = os.path.join(APP_DIR, "win11tools.json")
 
@@ -479,7 +478,7 @@ def find_ahk_exe(scoop_dir: str = "") -> str:
 
 
 def onekey_script() -> str:
-    return os.path.join(SUPPLY_DIR, "onekey_startup.ahk")
+    return os.path.join(APP_DIR, "onekey_startup.ahk")
 
 
 def copy_file(src: str, dst: str):
@@ -1502,7 +1501,7 @@ class App(tk.Tk):
         if not exe:
             messagebox.showerror(APP_TITLE, "未找到 AutoHotkey64.exe，请先安装 AutoHotkey")
             return
-        subprocess.Popen([exe, script], cwd=SUPPLY_DIR)
+        subprocess.Popen([exe, script], cwd=APP_DIR)
         self.set_status("已启动 onekey_startup.ahk")
 
     def feature_add_startup(self):
@@ -1515,7 +1514,7 @@ class App(tk.Tk):
             messagebox.showerror(APP_TITLE, "未找到 AutoHotkey64.exe，请先安装 AutoHotkey")
             return
         link = startup_shortcut()
-        rc, out = create_startup_shortcut(link, exe, script, SUPPLY_DIR)
+        rc, out = create_startup_shortcut(link, exe, script, APP_DIR)
         self.refresh_feature_status()
         if os.path.isfile(link):
             self.set_status("已加入开机启动：{0}".format(link))
