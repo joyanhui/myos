@@ -11,6 +11,7 @@ AI agents may read and reference this file, but MUST NEVER modify it in any way.
 - 除非明确要求，不执行 `nix build` 或 `nixos-rebuild switch`。
 - `global_setting_vars.nix` 是全局变量的唯一来源；`flake.nix` 通过 `specialArgs` 注入 `global_settings` 和 `username`。
 - Nix 脚本必须直接读取 `REPO_DIR` 定位仓库，不得使用其他方式获取仓库路径，不得使用绝对路径(REPO_DIR除外)。
+- 不得在flake.nix中新增除了 nixpkgs.url nixpkgs-unstable home-manager nxos-wsl 之外的input。保持整洁
 
 ## 模块调度和特殊说明
 
