@@ -22,7 +22,12 @@ let
     - languagePackages：系统级语言运行时、LSP、格式化器与常用开发工具
     - cloudflarePackages：wrangler（Cloudflare Workers）
     - playwrightPackages / playwrightLibPath：google-chrome 及运行库路径
-    - rustPackages：rustup + cargo 工具链 + LLVM；env 含 RUSTFLAGS / sccache 等
+    - rustPackages：rustup + LLVM + 编译链接工具；env 含 RUSTFLAGS / sccache 等
+      - cargo 子命令不在此处引入，统一由 rustup 管理，首次使用执行：
+          rustup default stable
+          cargo install cargo-release cargo-nextest cargo-binstall cargo-edit
+          cargo install cargo-tauri cargo-zigbuild（按需）
+      - 全局 PATH 已包含 ~/.cargo/bin，cargo install 后立即可用
     - desktopPackages：Linux 桌面 GUI 依赖（GTK / WebKitGTK / 图形栈），Tauri / Flutter / Electron 通用
     - espPackages：ESP32 工具（espflash / esptool / espup / ldproxy 等）+ esp-idf 动态库与 python 依赖 + pip 国内镜像
     - docsPackages：文档工具 all = hugo + jekyll + mdbook
@@ -162,6 +167,9 @@ let
     libPath = pkgs.lib.makeLibraryPath (pkgList "openssl|curl|zlib|stdenv.cc.cc.lib");
     serverLibPath = pkgs.lib.makeLibraryPath (pkgList "openssl|sqlite|zlib|libffi");
     rustFlags = "-Cdebuginfo=1 -Ccodegen-units=1 -Clink-arg=-fuse-ld=lld -Csplit-debuginfo=packed -Clink-arg=-Wl,-rpath,${serverLibPath} -Clink-arg=-Wl,-rpath,${desktopPackages.libPath}";
+    # rustup default stable
+    # cargo install cargo-release cargo-nextest cargo-binstall cargo-edit
+    # cargo install cargo-tauri cargo-zigbuild
     packages = pkgList "rustup|sccache|mold|lldb|llvmPackages_19.clang|llvmPackages_19.libclang|llvmPackages_19.libllvm|llvmPackages_19.lld|gcc|gnumake|cmake|ninja|binutils|patchelf";
     env = {
       RUSTFLAGS = rustFlags;
