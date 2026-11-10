@@ -89,6 +89,7 @@ let
     WINEDLLOVERRIDES = "winemenubuilder.exe=d";
 
     PATH = [
+      "/home/${username}/.cargo/bin"
       "/home/${username}/.local/bin"
       "/home/${username}/.local/share/pnpm/bin"
       "/home/${username}/.bun/bin"
