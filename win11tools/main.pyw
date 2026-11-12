@@ -13,6 +13,7 @@ import sys
 import tempfile
 import threading
 import time
+import winreg
 from dataclasses import dataclass
 
 import tkinter as tk
@@ -36,6 +37,16 @@ BUN_WINGET_ID = "Oven-sh.Bun"
 RIME_WINGET_ID = "Rime.Weasel"
 RIME_ICE_REPO = "iDvel/rime-ice"
 RIME_PAGE_SIZE = 9
+CTXMENU_KEY = r"HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}"
+TZ_KEY = r"HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation"
+WU_POLICY = r"HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU"
+WU_SERVICES = (("wuauserv", 3), ("UsoSvc", 2), ("WaaSMedicSvc", 3), ("uhssvc", 3))
+WU_TASKS = (r"\Microsoft\Windows\InstallService*", r"\Microsoft\Windows\UpdateOrchestrator*",
+            r"\Microsoft\Windows\UpdateAssistant*", r"\Microsoft\Windows\WaaSMedic*",
+            r"\Microsoft\Windows\WindowsUpdate*", r"\Microsoft\WindowsUpdate*")
+DEF_POLICY = r"HKLM\SOFTWARE\Policies\Microsoft\Windows Defender"
+DEF_RT = DEF_POLICY + r"\Real-Time Protection"
+DEF_SERVICES = (("WinDefend", 2), ("WdNisSvc", 3), ("Sense", 3))
 WINGET_MANAGED_NOTE = "请使用 winget 管理"
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_DIR = os.path.dirname(APP_DIR)
@@ -248,6 +259,18 @@ SOFTWARE = {
         Package("QQ NT", "qq-nt", "scoop", ("qq-nt",)),
         Package("Telegram", "telegram", "scoop", ("telegram",)),
     ),
+    "系统配置": (
+        Package("Win11 右键菜单", "Windows 11 默认菜单与传统菜单互相切换", "sysconfig", (),
+                kind_label="系统配置", panel="ctxmenu"),
+        Package("系统时间 UTC", "RTC 按 UTC 还是本地时间解释，支持强制对时", "sysconfig", (),
+                kind_label="系统配置", panel="time"),
+        Package("Windows Update", "禁用 / 恢复自动更新（tsgrgo/windows-update-disabler）", "sysconfig", (),
+                kind_label="系统配置", panel="wupdate"),
+        Package("Windows Defender", "禁用 / 恢复 Defender（ionuttbara/windows-defender-remover）", "sysconfig", (),
+                kind_label="系统配置", panel="wdefender"),
+        Package("onekey_startup.ahk", "启动、开机自启开关与编辑脚本", "sysconfig", (),
+                kind_label="系统配置", panel="onekey"),
+    ),
     "scoop 自身": (
         Package("scoop", "安装到上面填写的 scoop 目录", "scoop", ("scoop",), special="scoop_self",
                 kind_label="自定义"),
@@ -300,16 +323,6 @@ def build_search_rows():
         keys = [title, item.target, item.target_display(), item.repo_display()]
         rows.append(("dotfile", title, " ".join(keys).lower()))
     return rows
-
-FEATURE_ROWS = (
-    (
-        "onekey_startup.ahk",
-        ("启动", "feature_start_onekey"),
-        ("自动启动", "feature_toggle_startup"),
-        ("编辑", "feature_edit_onekey"),
-    ),
-)
-
 
 def scoop_apps_dir(scoop_dir: str) -> str:
     return os.path.join(scoop_dir, "apps")
@@ -410,6 +423,8 @@ def winget_install_cmd(pkg: Package) -> str:
 
 
 def build_install_cmd(pkg: Package, scoop_dir: str) -> str:
+    if pkg.backend == "sysconfig":
+        return ""
     if pkg.backend == "winget":
         return winget_install_cmd(pkg)
     if pkg.special == "scoop_self":
@@ -425,6 +440,8 @@ def build_install_cmd(pkg: Package, scoop_dir: str) -> str:
 
 
 def build_uninstall_cmd(pkg: Package, scoop_dir: str) -> str:
+    if pkg.backend == "sysconfig":
+        return ""
     if pkg.panel == "mihomo":
         return mihomo_purge_cmd()
     if pkg.backend == "winget":
@@ -492,6 +509,182 @@ def scoop_app_names(scoop_dir: str) -> set:
     return {norm_name(name) for name in os.listdir(apps)}
 
 
+def reg_read(root, path: str, name: str):
+    try:
+        with winreg.OpenKey(root, path) as key:
+            return winreg.QueryValueEx(key, name)[0]
+    except OSError:
+        return None
+
+
+def service_start(service: str):
+    return reg_read(winreg.HKEY_LOCAL_MACHINE,
+                    "SYSTEM\\CurrentControlSet\\Services\\" + service, "Start")
+
+
+def reg_add_cmd(key: str, name: str, value, kind: str = "REG_DWORD") -> str:
+    return 'reg add "{0}" /v {1} /t {2} /d {3} /f'.format(key, name, kind, value)
+
+
+def reg_del_cmd(key: str, name: str = "") -> str:
+    return 'reg delete "{0}" /v {1} /f'.format(key, name) if name else 'reg delete "{0}" /f'.format(key)
+
+
+def services_start_cmd(mapping) -> str:
+    entries = "; ".join("'{0}'={1}".format(name, start) for name, start in mapping)
+    return ("$svc = @{{{0}}}; foreach ($k in $svc.Keys) {{ "
+            "$p = 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\' + $k; "
+            "if (Test-Path $p) {{ New-ItemProperty -Path $p -Name Start "
+            "-Value ([int]$svc[$k]) -PropertyType DWord -Force "
+            "-ErrorAction SilentlyContinue | Out-Null }} }}").format(entries)
+
+
+def stop_services_cmd(names) -> str:
+    return "; ".join('Stop-Service -Name {0} -Force -ErrorAction SilentlyContinue'.format(name)
+                    for name in names)
+
+
+def ctxmenu_classic() -> bool:
+    try:
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER,
+                            r"Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32"):
+            return True
+    except OSError:
+        return False
+
+
+def ctxmenu_state() -> str:
+    return "传统菜单" if ctxmenu_classic() else "Windows 11 默认菜单"
+
+
+def ctxmenu_cmd(classic: bool) -> str:
+    key = CTXMENU_KEY.replace("HKCU\\", "HKCU:\\")
+    if classic:
+        body = "New-Item -Path '{0}\\InprocServer32' -Value '' -Force | Out-Null".format(key)
+    else:
+        body = "Remove-Item -Path '{0}' -Recurse -Force -ErrorAction SilentlyContinue".format(key)
+    return body + "; Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue"
+
+
+def time_utc() -> bool:
+    return reg_read(winreg.HKEY_LOCAL_MACHINE,
+                    r"SYSTEM\CurrentControlSet\Control\TimeZoneInformation", "RealTimeIsUniversal") == 1
+
+
+def time_state() -> str:
+    return "UTC（RTC 按 UTC 解释）" if time_utc() else "默认（RTC 按本地时间）"
+
+
+def time_sync_cmd() -> str:
+    return "Start-Service w32time -ErrorAction SilentlyContinue; w32tm /resync /force"
+
+
+def time_cmd(utc: bool) -> str:
+    if utc:
+        return reg_add_cmd(TZ_KEY, "RealTimeIsUniversal", 1) + "; " + time_sync_cmd()
+    return reg_del_cmd(TZ_KEY, "RealTimeIsUniversal")
+
+
+def wu_tasks_cmd(action: str) -> str:
+    paths = ", ".join("'" + path + "'" for path in WU_TASKS)
+    verb = "Disable-ScheduledTask" if action == "disable" else "Enable-ScheduledTask"
+    return ("$paths = @({0}); foreach ($p in $paths) {{ Get-ScheduledTask -TaskPath $p "
+            "-ErrorAction SilentlyContinue | {1} -ErrorAction SilentlyContinue }}").format(paths, verb)
+
+
+def wupdate_disabled() -> bool:
+    if reg_read(winreg.HKEY_LOCAL_MACHINE,
+                r"SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU", "NoAutoUpdate") == 1:
+        return True
+    return any(service_start(name) == 4 for name, _default in WU_SERVICES)
+
+
+def wupdate_state() -> str:
+    policy = reg_read(winreg.HKEY_LOCAL_MACHINE,
+                      r"SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU", "NoAutoUpdate") == 1
+    off = [name for name, _default in WU_SERVICES if service_start(name) == 4]
+    if policy and len(off) == len(WU_SERVICES):
+        return "已禁用（策略 + {0} 个服务）".format(len(off))
+    if policy:
+        return "策略已禁用（服务 {0}/{1}）".format(len(off), len(WU_SERVICES))
+    if off:
+        return "部分禁用（服务 {0}/{1}）".format(len(off), len(WU_SERVICES))
+    return "默认（自动更新开启）"
+
+
+def wupdate_cmd(disable: bool) -> str:
+    names = [name for name, _default in WU_SERVICES]
+    if disable:
+        return "; ".join([
+            services_start_cmd([(name, 4) for name in names]),
+            reg_add_cmd(WU_POLICY, "NoAutoUpdate", 1),
+            stop_services_cmd(names),
+            wu_tasks_cmd("disable"),
+        ])
+    return "; ".join([
+        services_start_cmd(WU_SERVICES),
+        reg_del_cmd(WU_POLICY, "NoAutoUpdate"),
+        wu_tasks_cmd("enable"),
+        "Start-Service wuauserv -ErrorAction SilentlyContinue",
+    ])
+
+
+def defender_disabled() -> bool:
+    if reg_read(winreg.HKEY_LOCAL_MACHINE,
+                r"SOFTWARE\Policies\Microsoft\Windows Defender", "DisableAntiSpyware") == 1:
+        return True
+    return service_start("WinDefend") == 4
+
+
+def defender_state() -> str:
+    marks = []
+    if reg_read(winreg.HKEY_LOCAL_MACHINE,
+                r"SOFTWARE\Policies\Microsoft\Windows Defender", "DisableAntiSpyware") == 1:
+        marks.append("策略 DisableAntiSpyware")
+    if service_start("WinDefend") == 4:
+        marks.append("WinDefend 服务禁用")
+    return "已禁用（{0}）".format(" + ".join(marks)) if marks else "默认（Defender 启用）"
+
+
+def defender_cmd(disable: bool) -> str:
+    if disable:
+        return "; ".join([
+            reg_add_cmd(DEF_POLICY, "DisableAntiSpyware", 1),
+            reg_add_cmd(DEF_POLICY, "DisableAntiVirus", 1),
+            reg_add_cmd(DEF_POLICY, "ServiceKeepAlive", 0),
+            reg_add_cmd(DEF_POLICY, "DisableLocalAdminMerge", 1),
+            reg_add_cmd(DEF_RT, "DisableRealtimeMonitoring", 1),
+            reg_add_cmd(DEF_RT, "DisableBehaviorMonitoring", 1),
+            reg_add_cmd(DEF_RT, "DisableIOAVProtection", 1),
+            reg_add_cmd(DEF_RT, "DisableOnAccessProtection", 1),
+            reg_add_cmd(DEF_RT, "DisableScanOnRealtimeEnable", 1),
+            services_start_cmd([(name, 4) for name, _default in DEF_SERVICES]),
+            stop_services_cmd([name for name, _default in DEF_SERVICES]),
+        ])
+    return "; ".join([
+        reg_del_cmd(DEF_POLICY, "DisableAntiSpyware"),
+        reg_del_cmd(DEF_POLICY, "DisableAntiVirus"),
+        reg_del_cmd(DEF_POLICY, "ServiceKeepAlive"),
+        reg_del_cmd(DEF_POLICY, "DisableLocalAdminMerge"),
+        reg_del_cmd(DEF_RT),
+        services_start_cmd(DEF_SERVICES),
+        "Start-Service WinDefend -ErrorAction SilentlyContinue",
+    ])
+
+
+def onekey_state() -> str:
+    return "开机自启 已启用" if os.path.isfile(startup_shortcut()) else "开机自启 未启用"
+
+
+SYSCONFIG_STATE = {
+    "ctxmenu": ctxmenu_state,
+    "time": time_state,
+    "wupdate": wupdate_state,
+    "wdefender": defender_state,
+    "onekey": onekey_state,
+}
+
+
 def presence_state(label: str, present: int, total: int) -> str:
     if present == total:
         return label + " 已安装"
@@ -501,6 +694,8 @@ def presence_state(label: str, present: int, total: int) -> str:
 
 
 def pkg_state(pkg: Package, winget_text: str, scoop_dir: str, scoop_apps=None) -> str:
+    if pkg.backend == "sysconfig":
+        return SYSCONFIG_STATE[pkg.panel]()
     if scoop_apps is None:
         scoop_apps = scoop_app_names(scoop_dir)
     if pkg.special == "scoop_self":
@@ -1136,6 +1331,7 @@ class App(tk.Tk):
         self.pkg_queue = queue.Queue()
         self.pkg_gen = 0
         self.altsnap_startup_btn = None
+        self.startup_toggle_btn = None
         self.setup_style()
         self.build_ui()
         self.refresh_packages()
@@ -1216,7 +1412,6 @@ class App(tk.Tk):
         self.build_log_panel(content)
 
         self.build_packages_tab(self.notebook)
-        self.build_features_tab(self.notebook)
         self.build_dotfiles_tab(self.notebook)
 
     def build_status_bar(self):
@@ -1233,7 +1428,7 @@ class App(tk.Tk):
         head = ttk.Frame(parent, padding=(14, 12, 14, 2))
         head.pack(side="top", fill="x")
         ttk.Label(head, text=APP_TITLE, style="Head.TLabel").pack(side="left")
-        ttk.Label(head, text="软件安装 · 功能开关 · dotfile 同步", style="Muted.TLabel").pack(
+        ttk.Label(head, text="软件安装 · 系统配置 · dotfile 同步", style="Muted.TLabel").pack(
             side="left", padx=(12, 0), pady=(8, 0))
         ttk.Button(head, text="首选项", command=self.open_preferences).pack(side="right")
         ttk.Button(head, text="搜索", command=self.open_search).pack(side="right", padx=(0, 6))
@@ -1321,6 +1516,7 @@ class App(tk.Tk):
 
         cmd_box = ttk.LabelFrame(frame, text="命令（可编辑后复制或运行）", padding=10)
         cmd_box.pack(fill="x", pady=(12, 0))
+        self.cmd_box = cmd_box
         self.cmd_var = tk.StringVar()
         ttk.Entry(cmd_box, textvariable=self.cmd_var, font=FONT_MONO).pack(fill="x")
         row = ttk.Frame(cmd_box)
@@ -1333,30 +1529,10 @@ class App(tk.Tk):
         ttk.Button(row, text="运行 (PowerShell)", command=self.run_cmd).pack(side="left", padx=6)
         ttk.Label(row, text="安装/卸载完成后点“刷新检测”更新状态", style="Desc.TLabel").pack(side="right")
 
-        self.extra_frame = ttk.Frame(cmd_box)
+        self.extra_frame = ttk.Frame(frame)
 
         self.group_list.selection_set(0)
         self.show_group()
-
-    def build_features_tab(self, parent):
-        frame = ttk.Frame(parent, padding=12)
-        parent.add(frame, text="功能")
-
-        feature = ttk.LabelFrame(frame, text="onekey 快捷启动", padding=12)
-        feature.pack(fill="x")
-        grid = ttk.Frame(feature)
-        grid.pack(fill="x", anchor="nw")
-        for row, item in enumerate(FEATURE_ROWS):
-            ttk.Label(grid, text=item[0], style="Value.TLabel").grid(
-                row=row, column=0, sticky="w", padx=(0, 20), pady=6)
-            for col, (label, method) in enumerate(item[1:], start=1):
-                style = "Accent.TButton" if col == 1 else "TButton"
-                btn = ttk.Button(grid, text=label, width=16, style=style, command=getattr(self, method))
-                btn.grid(row=row, column=col, sticky="w", padx=(0, 8), pady=6)
-                if method == "feature_toggle_startup":
-                    self.startup_toggle_btn = btn
-        ttk.Label(feature, text="自动启动写入当前用户启动文件夹的 onekey_startup.lnk",
-                  style="Desc.TLabel").pack(anchor="w", pady=(10, 0))
 
     def log_line(self, level, text):
         self.log_text.configure(state="normal")
@@ -1376,10 +1552,24 @@ class App(tk.Tk):
         return "核心: {0}    服务: {1}    面板: {2}    配置: {3}（{4}）".format(
             core, service, mihomo_panel_ver(), cfg, "存在" if os.path.isfile(cfg) else "不存在")
 
+    def has_cmd(self, pkg: Package) -> bool:
+        return bool(build_install_cmd(pkg, self.scoop_dir) or build_uninstall_cmd(pkg, self.scoop_dir))
+
+    def toggle_cmd_box(self, visible: bool):
+        packed = bool(self.cmd_box.winfo_manager())
+        if visible and not packed:
+            if self.extra_frame.winfo_manager():
+                self.cmd_box.pack(fill="x", pady=(12, 0), before=self.extra_frame)
+            else:
+                self.cmd_box.pack(fill="x", pady=(12, 0))
+        elif not visible and packed:
+            self.cmd_box.pack_forget()
+
     def update_selection_actions(self):
         for child in self.extra_frame.winfo_children():
             child.destroy()
         pkg = self.current_pkg
+        self.toggle_cmd_box(pkg is None or self.has_cmd(pkg))
         if pkg is None:
             self.extra_frame.pack_forget()
             return
@@ -1394,12 +1584,140 @@ class App(tk.Tk):
             "altsnap": self.build_altsnap_actions,
             "mihomo": self.build_mihomo_actions,
             "rime": self.build_rime_actions,
+            "ctxmenu": self.build_ctxmenu_actions,
+            "time": self.build_time_actions,
+            "wupdate": self.build_wupdate_actions,
+            "wdefender": self.build_wdefender_actions,
+            "onekey": self.build_onekey_actions,
         }.get(pkg.panel)
         if builder is None:
             self.extra_frame.pack_forget()
             return
         self.extra_frame.pack(fill="x", pady=(10, 0))
         builder()
+
+    def build_action_panel(self, status: str, *buttons):
+        ttk.Label(self.extra_frame, text=status, style="Muted.TLabel").pack(anchor="w")
+        row = ttk.Frame(self.extra_frame)
+        row.pack(fill="x", pady=(6, 0))
+        for label, command, accent in buttons:
+            ttk.Button(row, text=label, command=command,
+                       style="Accent.TButton" if accent else "TButton").pack(side="left", padx=(0, 6))
+
+    def run_local(self, command: str, label: str) -> bool:
+        if not command:
+            return False
+        self.cmd_var.set(command)
+        rc, out = run_capture([find_powershell(), "-NoProfile", "-NonInteractive", "-Command", command],
+                              timeout=60)
+        if rc != 0:
+            self.log_line("error", "{0}失败：{1}".format(label, out.strip() or "rc={0}".format(rc)))
+            self.set_status("{0}失败".format(label))
+            return False
+        self.log_line("ok", label)
+        self.set_status(label)
+        return True
+
+    def run_admin(self, command: str, label: str) -> bool:
+        if not command:
+            return False
+        if not messagebox.askyesno(APP_TITLE, "{0}？\n\n会弹出 UAC，以管理员权限执行。".format(label)):
+            return False
+        self.cmd_var.set(command)
+        self.log_line("info", "执行（管理员）：{0}".format(label))
+        rc, out = run_elevated_script(command)
+        if rc != 0:
+            self.log_line("error", "{0}失败：{1}".format(label, out.strip() or "已取消或权限不足"))
+            self.set_status("{0}失败".format(label))
+            return False
+        self.log_line("ok", label)
+        self.set_status(label)
+        return True
+
+    def build_ctxmenu_actions(self):
+        classic = ctxmenu_classic()
+        self.build_action_panel(
+            "右键菜单：{0}".format(ctxmenu_state()),
+            ("切换为传统菜单" if not classic else "恢复 Windows 11 默认菜单",
+             lambda: self.apply_ctxmenu(not classic), True),
+        )
+
+    def refresh_sysconfig_state(self, title: str):
+        pkg = PKG_INDEX.get(title)
+        if pkg is None or pkg.backend != "sysconfig":
+            return
+        state = pkg_state(pkg, self.winget_text, self.scoop_dir)
+        self.pkg_states[title] = state
+        if self.pkg_tree.exists(title):
+            self.pkg_tree.set(title, "state", state)
+        self.log_line("info", "{0} 现在：{1}".format(title, state))
+
+    def apply_ctxmenu(self, classic: bool):
+        label = "切换为传统菜单" if classic else "恢复 Windows 11 默认菜单"
+        if self.run_local(ctxmenu_cmd(classic), label):
+            self.refresh_sysconfig_state("Win11 右键菜单")
+            self.update_selection_actions()
+
+    def build_time_actions(self):
+        utc = time_utc()
+        self.build_action_panel(
+            "系统时间：{0}".format(time_state()),
+            ("改用 UTC（RTC=UTC）" if not utc else "恢复默认（RTC=本地时间）",
+             lambda: self.apply_time(not utc), True),
+            ("强制对时一次", self.resync_time, False),
+        )
+
+    def apply_time(self, utc: bool):
+        label = "切换为 UTC 时间" if utc else "恢复默认时间"
+        if self.run_admin(time_cmd(utc), label):
+            self.refresh_sysconfig_state("系统时间 UTC")
+            self.update_selection_actions()
+
+    def resync_time(self):
+        self.run_admin(time_sync_cmd(), "强制对时")
+
+    def build_wupdate_actions(self):
+        disabled = wupdate_disabled()
+        self.build_action_panel(
+            "Windows Update：{0}".format(wupdate_state()),
+            ("禁用 Windows Update" if not disabled else "恢复 Windows Update",
+             lambda: self.apply_wupdate(not disabled), True),
+        )
+
+    def apply_wupdate(self, disable: bool):
+        label = "禁用 Windows Update" if disable else "恢复 Windows Update"
+        if self.run_admin(wupdate_cmd(disable), label):
+            self.refresh_sysconfig_state("Windows Update")
+            self.update_selection_actions()
+
+    def build_wdefender_actions(self):
+        disabled = defender_disabled()
+        self.build_action_panel(
+            "Windows Defender：{0}".format(defender_state()),
+            ("禁用 Windows Defender" if not disabled else "恢复 Windows Defender",
+             lambda: self.apply_wdefender(not disabled), True),
+        )
+
+    def apply_wdefender(self, disable: bool):
+        label = "禁用 Windows Defender" if disable else "恢复 Windows Defender"
+        if self.run_admin(defender_cmd(disable), label):
+            self.refresh_sysconfig_state("Windows Defender")
+            self.update_selection_actions()
+
+    def build_onekey_actions(self):
+        enabled = os.path.isfile(startup_shortcut())
+        ttk.Label(self.extra_frame, text="onekey_startup.ahk：{0}".format(onekey_state()),
+                  style="Muted.TLabel").pack(anchor="w")
+        row = ttk.Frame(self.extra_frame)
+        row.pack(fill="x", pady=(6, 0))
+        ttk.Button(row, text="启动", style="Accent.TButton",
+                   command=self.feature_start_onekey).pack(side="left")
+        self.startup_toggle_btn = ttk.Button(
+            row, text="禁止自动启动" if enabled else "允许自动启动",
+            command=self.feature_toggle_startup)
+        self.startup_toggle_btn.pack(side="left", padx=6)
+        ttk.Button(row, text="编辑脚本",
+                   command=self.feature_edit_onekey).pack(side="left")
 
     def build_altsnap_actions(self):
         self.altsnap_startup_btn = ttk.Button(self.extra_frame, text="配置管理员开机启动",
@@ -1715,6 +2033,7 @@ class App(tk.Tk):
                                  values=(pkg.title, pkg.kind(), state, pkg.desc), tags=(tag,))
         self.current_pkg = None
         self.cmd_var.set("")
+        self.update_selection_actions()
 
     def refresh_packages(self):
         scoop_dir = self.scoop_dir
@@ -1792,12 +2111,14 @@ class App(tk.Tk):
     def fill_cmd(self, action: str):
         pkg = self.current_pkg or self.selected_pkg()
         if pkg is None:
-            messagebox.showinfo(APP_TITLE, "请先在列表中选择一个软件")
+            self.set_status("请先在列表中选择一个软件")
             return
-        if action == "install":
-            self.cmd_var.set(build_install_cmd(pkg, self.scoop_dir))
-        else:
-            self.cmd_var.set(build_uninstall_cmd(pkg, self.scoop_dir))
+        command = (build_install_cmd(pkg, self.scoop_dir) if action == "install"
+                   else build_uninstall_cmd(pkg, self.scoop_dir))
+        if not command:
+            self.set_status("{0} 没有安装/卸载命令，请用下方操作按钮".format(pkg.title))
+            return
+        self.cmd_var.set(command)
         self.set_status("{0}：{1}".format("安装命令" if action == "install" else "卸载命令", pkg.title))
 
     def copy_cmd(self):
@@ -1824,6 +2145,7 @@ class App(tk.Tk):
         else:
             self.feature_add_startup()
         self.refresh_feature_status()
+        self.update_selection_actions()
 
     def require_onekey(self):
         script = onekey_script()
