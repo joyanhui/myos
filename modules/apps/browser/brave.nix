@@ -61,6 +61,7 @@ let
       wayland,
       xdg-utils,
       coreutils,
+      zenity,
       zlib,
       commandLineArgs ? "",
     }:
@@ -217,7 +218,7 @@ let
         gappsWrapperArgs+=(
           --prefix LD_LIBRARY_PATH : ${rpath}
           --prefix PATH : ${binpath}
-          --suffix PATH : ${lib.makeBinPath [ xdg-utils coreutils ]}
+          --suffix PATH : ${lib.makeBinPath [ xdg-utils coreutils zenity ]}
           --set CHROME_WRAPPER ${optName}
           --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto}}"
           --add-flags ${lib.escapeShellArg commandLineArgs}
@@ -241,6 +242,7 @@ in
     users.${username} = {
       home.packages = with pkgs; [
         keepassxc
+        zenity
         (makeDesktopItem {
           name = "brave-private";
           desktopName = "Brave Web Browser";

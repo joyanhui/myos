@@ -7,6 +7,7 @@
     users.${username} = {
       home.packages = with pkgs; [
         google-chrome
+        zenity
       ];
     };
   };
