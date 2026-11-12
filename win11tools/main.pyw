@@ -38,6 +38,9 @@ RIME_WINGET_ID = "Rime.Weasel"
 RIME_ICE_REPO = "iDvel/rime-ice"
 RIME_PAGE_SIZE = 9
 CTXMENU_KEY = r"HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}"
+SPP_KEY = r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform"
+KMS_HOST_DEFAULT = "192.168.1.1"
+KMS_KEY_DEFAULT = "NRG8B-VKK3Q-CXVCJ-9G2XF-6Q84J"
 TZ_KEY = r"HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation"
 WU_POLICY = r"HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU"
 WU_SERVICES = (("wuauserv", 3), ("UsoSvc", 2), ("WaaSMedicSvc", 3), ("uhssvc", 3))
@@ -268,6 +271,8 @@ SOFTWARE = {
                 kind_label="系统配置", panel="wupdate"),
         Package("Windows Defender", "禁用 / 恢复 Defender（ionuttbara/windows-defender-remover）", "sysconfig", (),
                 kind_label="系统配置", panel="wdefender"),
+        Package("激活管理", "KMS 激活：Key / KMS 地址可改，支持查看 Key、KMS 与激活状态", "sysconfig", (),
+                kind_label="系统配置", panel="activation"),
         Package("onekey_startup.ahk", "启动、开机自启开关与编辑脚本", "sysconfig", (),
                 kind_label="系统配置", panel="onekey"),
     ),
@@ -676,11 +681,40 @@ def onekey_state() -> str:
     return "开机自启 已启用" if os.path.isfile(startup_shortcut()) else "开机自启 未启用"
 
 
+def slmgr_path() -> str:
+    return os.path.join(os.environ.get("SystemRoot", r"C:\Windows"), r"System32\slmgr.vbs")
+
+
+def kms_host() -> str:
+    value = reg_read(winreg.HKEY_LOCAL_MACHINE, SPP_KEY, "KeyManagementServiceName")
+    return str(value).strip() if value else ""
+
+
+def activation_state() -> str:
+    host = kms_host()
+    return "KMS {0}".format(host) if host else "KMS 未设置"
+
+
+def slmgr_cmd(switch: str) -> str:
+    return 'cscript //nologo "{0}" {1}'.format(slmgr_path(), switch)
+
+
+def activation_cmd(key: str, host: str) -> str:
+    steps = []
+    if key.strip():
+        steps.append(slmgr_cmd("/ipk " + key.strip()))
+    if host.strip():
+        steps.append(slmgr_cmd("/skms " + host.strip()))
+    steps.append(slmgr_cmd("/ato"))
+    return "; ".join(steps)
+
+
 SYSCONFIG_STATE = {
     "ctxmenu": ctxmenu_state,
     "time": time_state,
     "wupdate": wupdate_state,
     "wdefender": defender_state,
+    "activation": activation_state,
     "onekey": onekey_state,
 }
 
@@ -1588,6 +1622,7 @@ class App(tk.Tk):
             "time": self.build_time_actions,
             "wupdate": self.build_wupdate_actions,
             "wdefender": self.build_wdefender_actions,
+            "activation": self.build_activation_actions,
             "onekey": self.build_onekey_actions,
         }.get(pkg.panel)
         if builder is None:
@@ -1703,6 +1738,67 @@ class App(tk.Tk):
         if self.run_admin(defender_cmd(disable), label):
             self.refresh_sysconfig_state("Windows Defender")
             self.update_selection_actions()
+
+    def build_activation_actions(self):
+        host = kms_host()
+        ttk.Label(self.extra_frame,
+                  text="激活：{0}".format("KMS " + host if host else "KMS 未设置"),
+                  style="Muted.TLabel").pack(anchor="w")
+        form = ttk.Frame(self.extra_frame)
+        form.pack(fill="x", pady=(6, 0))
+        self.kms_host_var = tk.StringVar(value=host or KMS_HOST_DEFAULT)
+        self.kms_key_var = tk.StringVar(value=KMS_KEY_DEFAULT)
+        ttk.Label(form, text="KMS 地址").grid(row=0, column=0, sticky="w", padx=(0, 6), pady=2)
+        ttk.Entry(form, textvariable=self.kms_host_var, width=20, font=FONT_MONO).grid(
+            row=0, column=1, sticky="w", pady=2)
+        ttk.Label(form, text="Key（GVLK）").grid(row=1, column=0, sticky="w", padx=(0, 6), pady=2)
+        ttk.Entry(form, textvariable=self.kms_key_var, width=34, font=FONT_MONO).grid(
+            row=1, column=1, sticky="w", pady=2)
+        row = ttk.Frame(self.extra_frame)
+        row.pack(fill="x", pady=(8, 0))
+        grid_buttons(row, (
+            ("应用并激活", self.apply_activation, True),
+            ("查看激活状态", lambda: self.show_slmgr_report("/xpr", "Windows 激活状态"), False),
+            ("查看 Key / KMS", lambda: self.show_slmgr_report("/dlv", "已安装的 Key 与 KMS"), False),
+        ), columns=3)
+
+    def apply_activation(self):
+        key = self.kms_key_var.get().strip().upper()
+        host = self.kms_host_var.get().strip()
+        if not key and not host:
+            self.set_status("请填写 Key 或 KMS 地址")
+            return
+        if key and not re.match(r"^[A-Z0-9]{5}(-[A-Z0-9]{5}){4}$", key):
+            self.set_status("Key 格式不对：需要 5 组、每组 5 位字母或数字")
+            return
+        if self.run_admin(activation_cmd(key, host), "应用并激活"):
+            self.refresh_sysconfig_state("激活管理")
+            self.show_slmgr_report("/dli", "激活结果")
+
+    def show_slmgr_report(self, switch: str, title: str):
+        rc, out = run_capture(["cscript", "//nologo", slmgr_path(), switch], timeout=90)
+        text = out.strip() or "无输出（rc={0}）".format(rc)
+
+        dlg = tk.Toplevel(self)
+        dlg.title(title)
+        dlg.transient(self)
+        dlg.geometry("720x460")
+        body = ttk.Frame(dlg, padding=12)
+        body.pack(fill="both", expand=True)
+        ttk.Label(body, text="slmgr.vbs {0}".format(switch), style="Muted.TLabel").pack(anchor="w")
+
+        editor = scrolled_text(body, 18, horizontal=True)
+        editor.insert("1.0", text)
+
+        row = ttk.Frame(body)
+        row.pack(fill="x", pady=(10, 0))
+        ttk.Button(row, text="复制到剪贴板", style="Accent.TButton",
+                   command=lambda: self.copy_to_clipboard(editor.get("1.0", "end").strip())).pack(side="left")
+        ttk.Button(row, text="关闭", command=dlg.destroy).pack(side="left", padx=6)
+
+        dlg.grab_set()
+        dlg.focus_set()
+        self.set_status("{0}：{1}".format(title, "已获取" if out.strip() else "无输出"))
 
     def build_onekey_actions(self):
         enabled = os.path.isfile(startup_shortcut())
