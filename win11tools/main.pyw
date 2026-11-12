@@ -138,6 +138,28 @@ def save_state(data: dict):
         fh.write("\n")
 
 
+def abbreviate_path(path: str) -> str:
+    if not path:
+        return ""
+    candidates = []
+    for name in ("LOCALAPPDATA", "APPDATA", "USERPROFILE"):
+        value = os.environ.get(name, "")
+        if value:
+            candidates.append((name, value.rstrip("\\/")))
+    home = os.path.expanduser("~").rstrip("\\/")
+    if home and all(value.lower() != home.lower() for _name, value in candidates):
+        candidates.append(("USERPROFILE", home))
+    candidates.sort(key=lambda item: len(item[1]), reverse=True)
+    low = path.lower()
+    for name, value in candidates:
+        prefix = value.lower()
+        if low == prefix:
+            return "<{0}>".format(name)
+        if low.startswith(prefix + "\\") or low.startswith(prefix + "/"):
+            return "<{0}>{1}".format(name, path[len(value):])
+    return path
+
+
 @dataclass(frozen=True)
 class Package:
     title: str
@@ -148,21 +170,27 @@ class Package:
     special: str = ""
     scoop_alias: str = ""
     managed_by: str = ""
+    kind_label: str = ""
+    panel: str = ""
+    env: tuple[tuple[str, str], ...] = ()
+    env_paths: tuple[str, ...] = ()
+    env_cleanup: tuple[str, ...] = ()
+    env_cleanup_paths: tuple[str, ...] = ()
 
     def kind(self) -> str:
-        if self.special or self.title == MIHOMO_TITLE:
-            return "自定义"
-        return self.backend
+        return self.kind_label or self.backend
 
 
 @dataclass(frozen=True)
 class DotFile:
-    title: str
     target: str
     repo: str
 
     def target_path(self) -> str:
         return os.path.expandvars(self.target)
+
+    def target_display(self) -> str:
+        return abbreviate_path(self.target_path())
 
     def repo_path(self) -> str:
         return os.path.normpath(os.path.join(APP_DIR, self.repo))
@@ -171,82 +199,88 @@ class DotFile:
         return os.path.relpath(self.repo_path(), REPO_DIR)
 
 
-PACKAGE_GROUPS = (
-    (
-        "系统工具",
-        (
-            Package("PowerShell 7", "Microsoft.PowerShell", "winget", ("Microsoft.PowerShell",)),
-            Package("Coreutils", "Microsoft.Coreutils", "winget", ("Microsoft.Coreutils",)),
-            Package("Seelen UI", "Seelen.SeelenUI", "winget", ("Seelen.SeelenUI",)),
-            Package("DISM++", "ChuyuTeam.DISM++", "winget", ("ChuyuTeam.DISM++",), scoop_alias="dismplusplus"),
-            Package("Nushell", "Nushell.Nushell", "winget", ("Nushell.Nushell",)),
-            Package("Helix", "Helix.Helix", "winget", ("Helix.Helix",)),
-            Package("noctty", "AmanThanvi.noctty", "winget", ("AmanThanvi.noctty",)),
-            Package("7-Zip", "7zip.7zip", "winget", ("7zip.7zip",)),
-            Package("Git", "Git.Git", "winget", ("Git.Git",)),
-            Package("lazygit", "JesseDuffield.lazygit", "winget", ("JesseDuffield.lazygit",)),
-            Package("AltSnap", "AltSnap.AltSnap", "winget", ("AltSnap.AltSnap",)),
-        ),
+SOFTWARE = {
+    "系统工具": (
+        Package("PowerShell 7", "Microsoft.PowerShell", "winget", ("Microsoft.PowerShell",)),
+        Package("Coreutils", "Microsoft.Coreutils", "winget", ("Microsoft.Coreutils",)),
+        Package("Seelen UI", "Seelen.SeelenUI", "winget", ("Seelen.SeelenUI",)),
+        Package("DISM++", "ChuyuTeam.DISM++", "winget", ("ChuyuTeam.DISM++",), scoop_alias="dismplusplus"),
+        Package("Nushell", "Nushell.Nushell", "winget", ("Nushell.Nushell",)),
+        Package("Helix", "Helix.Helix", "winget", ("Helix.Helix",)),
+        Package("noctty", "AmanThanvi.noctty", "winget", ("AmanThanvi.noctty",)),
+        Package("7-Zip", "7zip.7zip", "winget", ("7zip.7zip",)),
+        Package("Git", "Git.Git", "winget", ("Git.Git",)),
+        Package("lazygit", "JesseDuffield.lazygit", "winget", ("JesseDuffield.lazygit",)),
+        Package(ALTSNAP_TITLE, "AltSnap.AltSnap", "winget", ("AltSnap.AltSnap",), panel="altsnap"),
     ),
-    (
-        "开发环境",
-        (
-            Package("Node.js", "nodejs 由 winget 管理", "winget", (NODE_WINGET_ID,),
-                    managed_by="winget"),
-            Package("pnpm", "pnpm 由 winget 管理", "winget", (PNPM_WINGET_ID,),
-                    managed_by="winget"),
-            Package("golang", "go 工具链由 winget 管理", "winget", (GO_WINGET_ID,),
-                    managed_by="winget"),
-            Package("bun", "bun 运行时与包管理器", "winget", (BUN_WINGET_ID,),
-                    managed_by="winget"),
-            Package("rustup", "Rust 工具链", "scoop", ("rustup",)),
-            Package("flutter", "Flutter SDK，需要 extras bucket", "scoop", ("flutter",), extra_bucket="extras"),
-            Package("zig", "Zig 工具链", "scoop", ("zig",)),
-        ),
+    "开发环境": (
+        Package("Node.js", "nodejs 由 winget 管理", "winget", (NODE_WINGET_ID,),
+                managed_by="winget", env_paths=(r"%APPDATA%\npm",)),
+        Package("pnpm", "pnpm 由 winget 管理", "winget", (PNPM_WINGET_ID,),
+                managed_by="winget", env=(("PNPM_HOME", r"%LOCALAPPDATA%\pnpm"),),
+                env_paths=(r"%LOCALAPPDATA%\pnpm\bin",)),
+        Package("golang", "go 工具链由 winget 管理", "winget", (GO_WINGET_ID,),
+                managed_by="winget", env=(("GOPROXY", GO_PROXY), ("GOSUMDB", GO_SUMDB)),
+                env_cleanup=("GOPATH", "GOROOT", "GOBIN", "GOFLAGS", "GOPRIVATE"),
+                env_cleanup_paths=(r"%USERPROFILE%\go\bin",)),
+        Package("bun", "bun 运行时与包管理器", "winget", (BUN_WINGET_ID,),
+                managed_by="winget", env=(("BUN_INSTALL", r"%USERPROFILE%\.bun"),),
+                env_paths=(r"%USERPROFILE%\.bun\bin",)),
+        Package("rustup", "Rust 工具链", "scoop", ("rustup",)),
+        Package("flutter", "Flutter SDK，需要 extras bucket", "scoop", ("flutter",), extra_bucket="extras"),
+        Package("zig", "Zig 工具链", "scoop", ("zig",)),
     ),
-    (
-        "常用软件",
-        (
-            Package("Chrome", "googlechrome", "scoop", ("googlechrome",)),
-            Package("Obsidian", "obsidian", "scoop", ("obsidian",)),
-            Package("QQ NT", "qq-nt", "scoop", ("qq-nt",)),
-            Package("Telegram", "telegram", "scoop", ("telegram",)),
-        ),
+    "常用软件": (
+        Package("Chrome", "googlechrome", "scoop", ("googlechrome",)),
+        Package("Obsidian", "obsidian", "scoop", ("obsidian",)),
+        Package("QQ NT", "qq-nt", "scoop", ("qq-nt",)),
+        Package("Telegram", "telegram", "scoop", ("telegram",)),
     ),
-    (
-        "scoop 自身",
-        (
-            Package("scoop", "安装到上面填写的 scoop 目录", "scoop", ("scoop",), special="scoop_self"),
-        ),
+    "scoop 自身": (
+        Package("scoop", "安装到上面填写的 scoop 目录", "scoop", ("scoop",), special="scoop_self",
+                kind_label="自定义"),
     ),
-    (
-        "mihomo 服务",
-        (
-            Package(MIHOMO_TITLE, "MetaCubeX.Mihomo 代理核心与服务", "winget", (MIHOMO_WINGET_ID,)),
-        ),
+    "mihomo 服务": (
+        Package(MIHOMO_TITLE, "MetaCubeX.Mihomo 代理核心与服务", "winget", (MIHOMO_WINGET_ID,),
+                kind_label="自定义", panel="mihomo"),
     ),
-)
+}
 
-DOTFILES = (
-    DotFile("noctty config.ghostty", r"%LOCALAPPDATA%\noctty\config.ghostty",
-            r"win11.dotfiles\noctty_config.ghostty"),
-    DotFile("nvim init.lua", r"%LOCALAPPDATA%\nvim\init.lua",
-            r"win11.dotfiles\nvim_win_init.lua"),
-    DotFile("helix config.toml", r"%APPDATA%\helix\config.toml",
-            r"..\dotfiles\helix_config.toml"),
-    DotFile("helix languages.toml", r"%APPDATA%\helix\languages.toml",
-            r"..\dotfiles\helix_languages.toml"),
-    DotFile("pi settings.json", r"%USERPROFILE%\.pi\agent\settings.json",
-            r"..\dotfiles\pi_settings.json"),
-    DotFile("pi models.json", r"%USERPROFILE%\.pi\agent\models.json",
-            r"..\dotfiles\pi_models.json"),
-    DotFile("pi goal.json", r"%USERPROFILE%\.pi\agent\pi-goal.json",
-            r"..\dotfiles\pi_goal.json"),
-    DotFile("zed settings.json", r"%APPDATA%\Zed\settings.json",
-            r"win11.dotfiles\zed_config.json"),
-    DotFile("seelen-ui settings.json", r"%APPDATA%\com.seelen.seelen-ui\settings.json",
-            r"win11.dotfiles\seelen-ui_setting.json"),
-)
+PKG_INDEX = {pkg.title: pkg for pkgs in SOFTWARE.values() for pkg in pkgs}
+
+DOTFILES = {
+    "noctty config.ghostty": DotFile(r"%LOCALAPPDATA%\noctty\config.ghostty",
+                                     r"win11.dotfiles\noctty_config.ghostty"),
+    "nvim init.lua": DotFile(r"%LOCALAPPDATA%\nvim\init.lua",
+                             r"win11.dotfiles\nvim_win_init.lua"),
+    "helix config.toml": DotFile(r"%APPDATA%\helix\config.toml",
+                                 r"..\dotfiles\helix_config.toml"),
+    "helix languages.toml": DotFile(r"%APPDATA%\helix\languages.toml",
+                                    r"..\dotfiles\helix_languages.toml"),
+    "pi settings.json": DotFile(r"%USERPROFILE%\.pi\agent\settings.json",
+                                r"..\dotfiles\pi_settings.json"),
+    "pi models.json": DotFile(r"%USERPROFILE%\.pi\agent\models.json",
+                              r"..\dotfiles\pi_models.json"),
+    "pi goal.json": DotFile(r"%USERPROFILE%\.pi\agent\pi-goal.json",
+                            r"..\dotfiles\pi_goal.json"),
+    "zed settings.json": DotFile(r"%APPDATA%\Zed\settings.json",
+                                 r"win11.dotfiles\zed_config.json"),
+    "seelen-ui settings.json": DotFile(r"%APPDATA%\com.seelen.seelen-ui\settings.json",
+                                      r"win11.dotfiles\seelen-ui_setting.json"),
+}
+
+
+def build_search_rows():
+    rows = []
+    for group, pkgs in SOFTWARE.items():
+        for pkg in pkgs:
+            keys = [group, pkg.title, pkg.desc, pkg.kind(), pkg.backend]
+            keys.extend(pkg.names)
+            rows.append(("常用软件", "{0}>{1}".format(group, pkg.title), " ".join(keys).lower()))
+    for title, item in DOTFILES.items():
+        keys = [title, item.target, item.target_display(), item.repo_display()]
+        rows.append(("dotfile", title, " ".join(keys).lower()))
+    return rows
 
 FEATURE_ROWS = (
     (
@@ -281,18 +315,6 @@ def scoop_prefix(scoop_dir: str, body: str) -> str:
     return '$env:Path = "{0};" + $env:Path; {1}'.format(shims, body)
 
 
-def pnpm_home() -> str:
-    return os.path.join(os.environ.get("LOCALAPPDATA", os.path.expanduser("~\\AppData\\Local")), "pnpm")
-
-
-def npm_home() -> str:
-    return os.path.join(os.environ.get("APPDATA", os.path.expanduser("~\\AppData\\Roaming")), "npm")
-
-
-def bun_home() -> str:
-    return os.path.join(os.path.expanduser("~"), ".bun")
-
-
 def set_user_env_cmd(name: str, value: str) -> str:
     return '[Environment]::SetEnvironmentVariable("{0}", "{1}", "User")'.format(name, value)
 
@@ -304,23 +326,6 @@ def append_user_path_cmd(path: str) -> str:
         "if ($paths -notcontains '{0}') {{ $paths += '{0}' }}; "
         "[Environment]::SetEnvironmentVariable('Path', ($paths -join ';'), 'User')"
     ).format(path)
-
-
-def user_env(name: str) -> str:
-    try:
-        import winreg
-        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment") as key:
-            value, _kind = winreg.QueryValueEx(key, name)
-        return str(value)
-    except (OSError, ImportError):
-        return os.environ.get(name, "")
-
-
-def go_path_home() -> str:
-    current = user_env("GOPATH").strip()
-    if current:
-        return os.path.normpath(os.path.expandvars(current))
-    return os.path.join(os.path.expanduser("~"), "go")
 
 
 def remove_user_env_cmd(name: str) -> str:
@@ -335,22 +340,14 @@ def remove_user_path_cmd(path: str) -> str:
     ).format(path)
 
 
-def env_layout(title: str):
-    if title == "Node.js":
-        return {}, [npm_home()]
-    if title == "pnpm":
-        home = pnpm_home()
-        return {"PNPM_HOME": home}, [os.path.join(home, "bin")]
-    if title == "golang":
-        return {"GOPROXY": GO_PROXY, "GOSUMDB": GO_SUMDB}, []
-    if title == "bun":
-        home = bun_home()
-        return {"BUN_INSTALL": home}, [os.path.join(home, "bin")]
-    return {}, []
+def env_layout(pkg: Package):
+    envs = {name: os.path.expandvars(value) for name, value in pkg.env}
+    paths = [os.path.expandvars(path) for path in pkg.env_paths]
+    return envs, paths
 
 
 def env_apply_cmd(pkg: Package) -> str:
-    envs, paths = env_layout(pkg.title)
+    envs, paths = env_layout(pkg)
     parts = [set_user_env_cmd(name, value) for name, value in envs.items()]
     parts.extend(append_user_path_cmd(path) for path in paths)
     parts.extend('$env:{0} = "{1}"'.format(name, value) for name, value in envs.items())
@@ -361,13 +358,11 @@ def env_apply_cmd(pkg: Package) -> str:
 
 
 def env_cleanup_cmd(pkg: Package) -> str:
-    envs, paths = env_layout(pkg.title)
-    extra = {"golang": ("GOPATH", "GOROOT", "GOBIN", "GOFLAGS", "GOPRIVATE")}.get(pkg.title, ())
-    if pkg.title == "golang":
-        paths = list(paths) + [os.path.join(go_path_home(), "bin")]
+    envs, paths = env_layout(pkg)
+    paths = paths + [os.path.expandvars(path) for path in pkg.env_cleanup_paths]
     parts = [remove_user_path_cmd(path) for path in paths]
     parts.extend(remove_user_env_cmd(name) for name in envs)
-    parts.extend(remove_user_env_cmd(name) for name in extra)
+    parts.extend(remove_user_env_cmd(name) for name in pkg.env_cleanup)
     return "; ".join(parts)
 
 
@@ -399,7 +394,7 @@ def build_install_cmd(pkg: Package, scoop_dir: str) -> str:
 
 
 def build_uninstall_cmd(pkg: Package, scoop_dir: str) -> str:
-    if pkg.title == MIHOMO_TITLE:
+    if pkg.panel == "mihomo":
         return mihomo_purge_cmd()
     if pkg.backend == "winget":
         parts = ["winget uninstall --id {0} -e".format(n) for n in pkg.names]
@@ -1002,7 +997,6 @@ class App(tk.Tk):
         self.winget_text = ""
         self.current_pkg = None
         self.pkg_states = {}
-        self.dot_rows = {}
         self.pkg_queue = queue.Queue()
         self.pkg_gen = 0
         self.altsnap_startup_btn = None
@@ -1088,6 +1082,7 @@ class App(tk.Tk):
         self.build_packages_tab(self.notebook)
         self.build_features_tab(self.notebook)
         self.build_dotfiles_tab(self.notebook)
+        self.build_search_tab(self.notebook)
 
     def build_status_bar(self):
         bar = ttk.Frame(self, style="Status.TFrame", padding=(14, 5))
@@ -1173,7 +1168,7 @@ class App(tk.Tk):
                                      selectbackground=COLOR_SELECT, selectforeground=COLOR_FG,
                                      borderwidth=0, width=16)
         self.group_list.pack(side="left", fill="both", expand=True)
-        for title, _ in PACKAGE_GROUPS:
+        for title in SOFTWARE:
             self.group_list.insert("end", "  " + title)
         self.group_list.bind("<<ListboxSelect>>", lambda _e: self.show_group())
 
@@ -1270,11 +1265,11 @@ class App(tk.Tk):
             self.extra_frame.pack(fill="x", pady=(10, 0))
             ttk.Label(self.extra_frame, text=WINGET_MANAGED_NOTE, style="Value.TLabel").pack(anchor="w")
             return
-        if pkg.title not in (ALTSNAP_TITLE, MIHOMO_TITLE):
+        if not pkg.panel:
             self.extra_frame.pack_forget()
             return
         self.extra_frame.pack(fill="x", pady=(10, 0))
-        if pkg.title == ALTSNAP_TITLE:
+        if pkg.panel == "altsnap":
             self.build_altsnap_actions()
         else:
             self.build_mihomo_actions()
@@ -1435,6 +1430,49 @@ class App(tk.Tk):
         ttk.Button(row, text="全部恢复", command=lambda: self.dot_action("restore_all")).pack(
             side="right", padx=6)
 
+    def build_search_tab(self, parent):
+        frame = ttk.Frame(parent, padding=12)
+        parent.add(frame, text="搜索")
+
+        head = ttk.Frame(frame)
+        head.pack(fill="x")
+        ttk.Label(head, text="关键词", style="Value.TLabel").pack(side="left", padx=(0, 8))
+        self.search_var = tk.StringVar()
+        self.search_count_var = tk.StringVar()
+        ttk.Entry(head, textvariable=self.search_var, font=FONT_UI).pack(
+            side="left", fill="x", expand=True)
+        ttk.Button(head, text="清空", command=lambda: self.search_var.set("")).pack(
+            side="left", padx=(8, 0))
+        ttk.Label(head, textvariable=self.search_count_var, style="Muted.TLabel").pack(
+            side="left", padx=(10, 0))
+
+        wrap = ttk.Frame(frame)
+        wrap.pack(fill="both", expand=True, pady=(10, 0))
+        self.search_tree = ttk.Treeview(wrap, columns=("kind", "path"), show="headings",
+                                        selectmode="browse")
+        self.search_tree.heading("kind", text="类别")
+        self.search_tree.column("kind", width=140, anchor="w")
+        self.search_tree.heading("path", text="位置")
+        self.search_tree.column("path", width=720, anchor="w")
+        scroll = ttk.Scrollbar(wrap, orient="vertical", command=self.search_tree.yview)
+        self.search_tree.configure(yscrollcommand=scroll.set)
+        self.search_tree.pack(side="left", fill="both", expand=True)
+        scroll.pack(side="right", fill="y")
+
+        self.search_rows = build_search_rows()
+        self.search_var.trace_add("write", lambda *_args: self.run_search())
+
+    def run_search(self):
+        term = self.search_var.get().strip().lower()
+        self.search_tree.delete(*self.search_tree.get_children())
+        if not term:
+            self.search_count_var.set("")
+            return
+        hits = [row for row in self.search_rows if term in row[2]]
+        for kind, path, _keys in hits:
+            self.search_tree.insert("", "end", values=(kind, path))
+        self.search_count_var.set("匹配 {0} 项".format(len(hits)) if hits else "无匹配")
+
     def update_scoop_label(self):
         self.scoop_label_var.set("scoop 目录：{0}".format(self.scoop_dir))
 
@@ -1497,9 +1535,9 @@ class App(tk.Tk):
         selection = self.group_list.curselection()
         if not selection:
             return
-        group_title, pkgs = PACKAGE_GROUPS[selection[0]]
+        group_title = list(SOFTWARE)[selection[0]]
         self.pkg_tree.delete(*self.pkg_tree.get_children())
-        for pkg in pkgs:
+        for pkg in SOFTWARE[group_title]:
             state = self.pkg_states.get(pkg.title, "未检测")
             tag = "missing" if "未安装" in state else "installed"
             self.pkg_tree.insert("", "end", iid=pkg.title,
@@ -1519,7 +1557,7 @@ class App(tk.Tk):
             text = winget_list_text()
             apps = scoop_app_names(scoop_dir)
             states = {}
-            for _group, pkgs in PACKAGE_GROUPS:
+            for pkgs in SOFTWARE.values():
                 for pkg in pkgs:
                     states[pkg.title] = pkg_state(pkg, text, scoop_dir, apps)
             self.pkg_queue.put((gen, text, states))
@@ -1549,12 +1587,7 @@ class App(tk.Tk):
         selection = self.pkg_tree.selection()
         if not selection:
             return None
-        title = selection[0]
-        for _group, pkgs in PACKAGE_GROUPS:
-            for pkg in pkgs:
-                if pkg.title == title:
-                    return pkg
-        return None
+        return PKG_INDEX.get(selection[0])
 
     def on_pkg_select(self):
         self.current_pkg = self.selected_pkg()
@@ -1679,8 +1712,7 @@ class App(tk.Tk):
 
     def refresh_dotfiles(self):
         self.dot_tree.delete(*self.dot_tree.get_children())
-        self.dot_rows = {}
-        for item in DOTFILES:
+        for title, item in DOTFILES.items():
             target = item.target_path()
             repo = item.repo_path()
             target_state = "系统有" if os.path.isfile(target) else "系统无"
@@ -1692,9 +1724,8 @@ class App(tk.Tk):
                     text += "（系统更新）"
                 elif os.path.getmtime(repo) > os.path.getmtime(target) + 1:
                     text += "（仓库更新）"
-            self.dot_rows[item.title] = item
-            self.dot_tree.insert("", "end", iid=item.title,
-                                 values=(item.title, target, item.repo_display(), text), tags=(tag,))
+            self.dot_tree.insert("", "end", iid=title,
+                                 values=(title, item.target_display(), item.repo_display(), text), tags=(tag,))
         self.set_status("dotfile 状态已刷新")
 
     def selected_dot(self):
@@ -1702,14 +1733,14 @@ class App(tk.Tk):
         if not selection:
             messagebox.showinfo(APP_TITLE, "请先在列表中选择一项")
             return None
-        return self.dot_rows.get(selection[0])
+        return DOTFILES.get(selection[0])
 
     def on_dot_double_click(self, event):
         row = self.dot_tree.identify_row(event.y)
         column = self.dot_tree.identify_column(event.x)
         if not row:
             return
-        item = self.dot_rows.get(row)
+        item = DOTFILES.get(row)
         if item is None:
             return
         if column in ("#1", "#2"):
@@ -1731,7 +1762,7 @@ class App(tk.Tk):
             if not messagebox.askyesno(APP_TITLE, "确认对全部 {0} 项执行{1}？".format(len(DOTFILES), verb)):
                 return
             done = 0
-            for item in DOTFILES:
+            for item in DOTFILES.values():
                 if self.dot_copy(item, "backup" if action == "backup_all" else "restore", quiet=True):
                     done += 1
             self.refresh_dotfiles()
