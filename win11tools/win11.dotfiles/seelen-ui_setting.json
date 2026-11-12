@@ -9,6 +9,9 @@
   "byTheme": {},
   "byWallpaper": {},
   "byWidget": {
+    "@seelen/apps-menu": {
+      "enabled": false
+    },
     "@seelen/fancy-toolbar": {
       "$shortcuts": null,
       "delayToHide": 800,
@@ -25,7 +28,7 @@
       "placement": "bottom"
     },
     "@seelen/keyboard-selector": {
-      "enabled": true
+      "enabled": false
     },
     "@seelen/task-switcher": {
       "enabled": true
@@ -40,14 +43,14 @@
       "multimonitorBehaviour": "PerMonitor",
       "randomize": false,
       "showPausedMessage": true,
-      "useAccentColor": false
+      "useAccentColor": true
     },
     "@seelen/weg": {
       "$shortcuts": null,
       "delayToHide": 800,
       "delayToShow": 100,
       "enabled": true,
-      "hideMode": "Never",
+      "hideMode": "OnOverlap",
       "margin": 8,
       "middleClickAction": "OpenNewInstance",
       "mode": "MinContent",

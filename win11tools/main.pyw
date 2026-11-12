@@ -33,6 +33,9 @@ NODE_WINGET_ID = "OpenJS.NodeJS"
 PNPM_WINGET_ID = "pnpm.pnpm"
 GO_WINGET_ID = "GoLang.Go"
 BUN_WINGET_ID = "Oven-sh.Bun"
+RIME_WINGET_ID = "Rime.Weasel"
+RIME_ICE_REPO = "iDvel/rime-ice"
+RIME_PAGE_SIZE = 9
 WINGET_MANAGED_NOTE = "请使用 winget 管理"
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_DIR = os.path.dirname(APP_DIR)
@@ -57,6 +60,7 @@ COLOR_SELECT = "#dce8ff"
 COLOR_OK = "#1a7f37"
 COLOR_WARN = "#b26a00"
 COLOR_ERR = "#c62828"
+COLOR_BAD = "#a8071a"
 
 CREATE_NO_WINDOW = 0x08000000
 CREATE_NEW_CONSOLE = 0x00000010
@@ -104,6 +108,13 @@ def open_containing(path: str):
         os.startfile(folder)
         return True
     return False
+
+
+def first_file(paths) -> str:
+    for path in paths:
+        if path and os.path.isfile(path):
+            return path
+    return ""
 
 
 def find_pythonw() -> str:
@@ -212,6 +223,7 @@ SOFTWARE = {
         Package("Git", "Git.Git", "winget", ("Git.Git",)),
         Package("lazygit", "JesseDuffield.lazygit", "winget", ("JesseDuffield.lazygit",)),
         Package(ALTSNAP_TITLE, "AltSnap.AltSnap", "winget", ("AltSnap.AltSnap",), panel="altsnap"),
+        Package("Rime 小狼毫", "Rime.Weasel 中州韵输入法", "winget", (RIME_WINGET_ID,), panel="rime"),
     ),
     "开发环境": (
         Package("Node.js", "nodejs 由 winget 管理", "winget", (NODE_WINGET_ID,),
@@ -246,7 +258,12 @@ SOFTWARE = {
     ),
 }
 
-PKG_INDEX = {pkg.title: pkg for pkgs in SOFTWARE.values() for pkg in pkgs}
+def all_packages():
+    for pkgs in SOFTWARE.values():
+        yield from pkgs
+
+
+PKG_INDEX = {pkg.title: pkg for pkg in all_packages()}
 
 DOTFILES = {
     "noctty config.ghostty": DotFile(r"%LOCALAPPDATA%\noctty\config.ghostty",
@@ -267,6 +284,8 @@ DOTFILES = {
                                  r"win11.dotfiles\zed_config.json"),
     "seelen-ui settings.json": DotFile(r"%APPDATA%\com.seelen.seelen-ui\settings.json",
                                       r"win11.dotfiles\seelen-ui_setting.json"),
+    "rime custom_phrase.txt": DotFile(r"%APPDATA%\Rime\custom_phrase.txt",
+                                     r"win11.dotfiles\rime_custom_phrase.txt"),
 }
 
 
@@ -315,29 +334,41 @@ def scoop_prefix(scoop_dir: str, body: str) -> str:
     return '$env:Path = "{0};" + $env:Path; {1}'.format(shims, body)
 
 
+def scoop_app_paths(scoop_dir: str, app: str, *parts):
+    root = os.path.join(scoop_apps_dir(scoop_dir), app)
+    paths = [os.path.join(root, "current", *parts)]
+    if os.path.isdir(root):
+        for name in sorted(os.listdir(root), reverse=True):
+            if name != "current":
+                paths.append(os.path.join(root, name, *parts))
+    return paths
+
+
+def winget_package_dirs(prefix: str):
+    packages = os.path.join(os.environ.get("LOCALAPPDATA", ""), "Microsoft", "WinGet", "Packages")
+    if not os.path.isdir(packages):
+        return []
+    return [os.path.join(packages, name) for name in sorted(os.listdir(packages), reverse=True)
+            if name.lower().startswith(prefix)]
+
+
 def set_user_env_cmd(name: str, value: str) -> str:
     return '[Environment]::SetEnvironmentVariable("{0}", "{1}", "User")'.format(name, value)
 
 
-def append_user_path_cmd(path: str) -> str:
-    return (
-        "$userPath = [Environment]::GetEnvironmentVariable('Path', 'User'); "
-        "$paths = @($userPath -split ';' | Where-Object {{ $_ -and $_ -ne '{0}' }}); "
-        "if ($paths -notcontains '{0}') {{ $paths += '{0}' }}; "
-        "[Environment]::SetEnvironmentVariable('Path', ($paths -join ';'), 'User')"
-    ).format(path)
+def user_path_cmd(path: str, add: bool) -> str:
+    parts = [
+        "$userPath = [Environment]::GetEnvironmentVariable('Path', 'User')",
+        "$paths = @($userPath -split ';' | Where-Object {{ $_ -and $_ -ne '{0}' }})".format(path),
+    ]
+    if add:
+        parts.append("if ($paths -notcontains '{0}') {{ $paths += '{0}' }}".format(path))
+    parts.append("[Environment]::SetEnvironmentVariable('Path', ($paths -join ';'), 'User')")
+    return "; ".join(parts)
 
 
 def remove_user_env_cmd(name: str) -> str:
     return '[Environment]::SetEnvironmentVariable("{0}", $null, "User")'.format(name)
-
-
-def remove_user_path_cmd(path: str) -> str:
-    return (
-        "$userPath = [Environment]::GetEnvironmentVariable('Path', 'User'); "
-        "$paths = @($userPath -split ';' | Where-Object {{ $_ -and $_ -ne '{0}' }}); "
-        "[Environment]::SetEnvironmentVariable('Path', ($paths -join ';'), 'User')"
-    ).format(path)
 
 
 def env_layout(pkg: Package):
@@ -349,7 +380,7 @@ def env_layout(pkg: Package):
 def env_apply_cmd(pkg: Package) -> str:
     envs, paths = env_layout(pkg)
     parts = [set_user_env_cmd(name, value) for name, value in envs.items()]
-    parts.extend(append_user_path_cmd(path) for path in paths)
+    parts.extend(user_path_cmd(path, True) for path in paths)
     parts.extend('$env:{0} = "{1}"'.format(name, value) for name, value in envs.items())
     if paths:
         joined = ";".join(paths)
@@ -360,7 +391,7 @@ def env_apply_cmd(pkg: Package) -> str:
 def env_cleanup_cmd(pkg: Package) -> str:
     envs, paths = env_layout(pkg)
     paths = paths + [os.path.expandvars(path) for path in pkg.env_cleanup_paths]
-    parts = [remove_user_path_cmd(path) for path in paths]
+    parts = [user_path_cmd(path, False) for path in paths]
     parts.extend(remove_user_env_cmd(name) for name in envs)
     parts.extend(remove_user_env_cmd(name) for name in pkg.env_cleanup)
     return "; ".join(parts)
@@ -406,13 +437,17 @@ def build_uninstall_cmd(pkg: Package, scoop_dir: str) -> str:
     return scoop_prefix(scoop_dir, body)
 
 
+def remove_path_cmd(path: str) -> str:
+    return 'Remove-Item "{0}" -Recurse -Force -ErrorAction SilentlyContinue'.format(path)
+
+
 def mihomo_purge_cmd() -> str:
     parts = [
         "net stop {0}".format(MIHOMO_SVC),
         "sc.exe delete {0}".format(MIHOMO_SVC),
         "winget uninstall --id {0} -e".format(MIHOMO_WINGET_ID),
-        'Remove-Item "{0}" -Recurse -Force -ErrorAction SilentlyContinue'.format(mihomo_home()),
-        'Remove-Item "{0}" -Recurse -Force -ErrorAction SilentlyContinue'.format(mihomo_data_home()),
+        remove_path_cmd(mihomo_home()),
+        remove_path_cmd(mihomo_data_home()),
     ]
     return "; ".join(parts)
 
@@ -457,6 +492,14 @@ def scoop_app_names(scoop_dir: str) -> set:
     return {norm_name(name) for name in os.listdir(apps)}
 
 
+def presence_state(label: str, present: int, total: int) -> str:
+    if present == total:
+        return label + " 已安装"
+    if present:
+        return "{0} 部分安装 {1}/{2}".format(label, present, total)
+    return "未安装"
+
+
 def pkg_state(pkg: Package, winget_text: str, scoop_dir: str, scoop_apps=None) -> str:
     if scoop_apps is None:
         scoop_apps = scoop_app_names(scoop_dir)
@@ -464,21 +507,14 @@ def pkg_state(pkg: Package, winget_text: str, scoop_dir: str, scoop_apps=None) -
         return "scoop 已安装" if scoop_installed(scoop_dir) else "未安装"
     if pkg.backend == "winget":
         low = winget_text.lower()
-        present = [n for n in pkg.names if n.lower() in low]
-        if len(present) == len(pkg.names):
-            return "winget 已安装"
-        if present:
-            return "winget 部分安装 {0}/{1}".format(len(present), len(pkg.names))
-        probes = [pkg.scoop_alias] if pkg.scoop_alias else [n.split(".")[-1] for n in pkg.names]
-        if any(norm_name(probe) in scoop_apps for probe in probes):
-            return "scoop 已安装"
-        return "未安装"
-    present = [n for n in pkg.names if norm_name(n) in scoop_apps]
-    if len(present) == len(pkg.names):
-        return "scoop 已安装"
-    if present:
-        return "scoop 部分安装 {0}/{1}".format(len(present), len(pkg.names))
-    return "未安装"
+        present = sum(1 for n in pkg.names if n.lower() in low)
+        if not present:
+            probes = [pkg.scoop_alias] if pkg.scoop_alias else [n.split(".")[-1] for n in pkg.names]
+            if any(norm_name(probe) in scoop_apps for probe in probes):
+                return "scoop 已安装"
+        return presence_state("winget", present, len(pkg.names))
+    present = sum(1 for n in pkg.names if norm_name(n) in scoop_apps)
+    return presence_state("scoop", present, len(pkg.names))
 
 
 def winget_list_text() -> str:
@@ -489,12 +525,7 @@ def winget_list_text() -> str:
 
 
 def find_altsnap_exe(scoop_dir: str) -> str:
-    cands = []
-    apps = os.path.join(scoop_apps_dir(scoop_dir), "altsnap")
-    cands.append(os.path.join(apps, "current", "AltSnap.exe"))
-    if os.path.isdir(apps):
-        for name in sorted(os.listdir(apps), reverse=True):
-            cands.append(os.path.join(apps, name, "AltSnap.exe"))
+    cands = scoop_app_paths(scoop_dir, "altsnap", "AltSnap.exe")
     for var in ("APPDATA", "LOCALAPPDATA", "ProgramFiles", "ProgramFiles(x86)"):
         base = os.environ.get(var)
         if not base:
@@ -504,11 +535,7 @@ def find_altsnap_exe(scoop_dir: str) -> str:
     task_command = scheduled_task_command(ALTSNAP_TASK)
     if task_command:
         cands.append(task_command)
-    for cand in cands:
-        if os.path.isfile(cand):
-            return cand
-    found = shutil.which("AltSnap.exe") or shutil.which("altsnap.exe")
-    return found or ""
+    return first_file(cands) or shutil.which("AltSnap.exe") or shutil.which("altsnap.exe") or ""
 
 
 def scheduled_task_command(name: str) -> str:
@@ -574,28 +601,16 @@ def startup_shortcut() -> str:
 
 
 def find_ahk_exe(scoop_dir: str = "") -> str:
+    roots = [scoop_dir, os.environ.get("SCOOP", ""), default_scoop_dir()]
     cands = []
-    roots = []
-    if scoop_dir:
-        roots.append(scoop_dir)
-    if os.environ.get("SCOOP"):
-        roots.append(os.environ["SCOOP"])
-    roots.append(default_scoop_dir())
-    for root in roots:
-        ahk_root = os.path.join(root, "apps", "autohotkey")
-        cands.append(os.path.join(ahk_root, "current", "v2", "AutoHotkey64.exe"))
-        if os.path.isdir(ahk_root):
-            for name in sorted(os.listdir(ahk_root), reverse=True):
-                cands.append(os.path.join(ahk_root, name, "v2", "AutoHotkey64.exe"))
+    for root in dict.fromkeys(root for root in roots if root):
+        cands.extend(scoop_app_paths(root, "autohotkey", "v2", "AutoHotkey64.exe"))
     for var in ("ProgramFiles", "ProgramFiles(x86)", "LOCALAPPDATA"):
         base = os.environ.get(var)
         if base:
             cands.append(os.path.join(base, "AutoHotkey", "v2", "AutoHotkey64.exe"))
             cands.append(os.path.join(base, "Programs", "AutoHotkey", "v2", "AutoHotkey64.exe"))
-    for cand in cands:
-        if os.path.isfile(cand):
-            return cand
-    return ""
+    return first_file(cands)
 
 
 def onekey_script() -> str:
@@ -629,21 +644,13 @@ def find_mihomo_exe() -> str:
     local = os.environ.get("LOCALAPPDATA", "")
     if local:
         cands.append(os.path.join(local, "Microsoft", "WinGet", "Links", "mihomo.exe"))
-        packages = os.path.join(local, "Microsoft", "WinGet", "Packages")
-        if os.path.isdir(packages):
-            for name in sorted(os.listdir(packages), reverse=True):
-                if not name.lower().startswith("metacubex.mihomo"):
-                    continue
-                folder = os.path.join(packages, name)
-                cands.append(os.path.join(folder, "mihomo.exe"))
-                for root, _dirs, files in os.walk(folder):
-                    if "mihomo.exe" in [f.lower() for f in files]:
-                        cands.append(os.path.join(root, "mihomo.exe"))
-                        break
-    for cand in cands:
-        if os.path.isfile(cand):
-            return cand
-    return shutil.which("mihomo.exe") or shutil.which("mihomo") or ""
+    for folder in winget_package_dirs("metacubex.mihomo"):
+        cands.append(os.path.join(folder, "mihomo.exe"))
+        for root, _dirs, files in os.walk(folder):
+            if "mihomo.exe" in [f.lower() for f in files]:
+                cands.append(os.path.join(root, "mihomo.exe"))
+                break
+    return first_file(cands) or shutil.which("mihomo.exe") or shutil.which("mihomo") or ""
 
 
 def gh_url(proxy: str, path: str) -> str:
@@ -703,16 +710,102 @@ def ensure_mihomo_cfg() -> str:
 
 
 def find_nssm(scoop_dir: str) -> str:
-    cands = [os.path.join(mihomo_home(), "nssm.exe"),
-             os.path.join(scoop_apps_dir(scoop_dir), "nssm", "current", "win64", "nssm.exe")]
-    apps = os.path.join(scoop_apps_dir(scoop_dir), "nssm")
-    if os.path.isdir(apps):
-        for name in sorted(os.listdir(apps), reverse=True):
-            cands.append(os.path.join(apps, name, "win64", "nssm.exe"))
-    for cand in cands:
-        if os.path.isfile(cand):
-            return cand
+    return first_file([os.path.join(mihomo_home(), "nssm.exe")]
+                      + scoop_app_paths(scoop_dir, "nssm", "win64", "nssm.exe"))
+
+
+def write_text(path: str, text: str):
+    folder = os.path.dirname(path)
+    if folder:
+        os.makedirs(folder, exist_ok=True)
+    with open(path, "w", encoding="utf-8", newline="") as fh:
+        fh.write(text)
+
+
+def copy_tree(src: str, dst: str, skip=()) -> int:
+    os.makedirs(dst, exist_ok=True)
+    count = 0
+    for name in os.listdir(src):
+        if name in skip:
+            continue
+        source = os.path.join(src, name)
+        target = os.path.join(dst, name)
+        if os.path.isdir(source):
+            shutil.copytree(source, target, dirs_exist_ok=True)
+        else:
+            shutil.copy2(source, target)
+        count += 1
+    return count
+
+
+def rime_user_dir() -> str:
+    return os.path.join(os.environ.get("APPDATA", ""), "Rime")
+
+
+def find_weasel_deployer() -> str:
+    for var in ("ProgramFiles", "ProgramFiles(x86)"):
+        root = os.path.join(os.environ.get(var, ""), "Rime")
+        if not os.path.isdir(root):
+            continue
+        for current, _dirs, files in os.walk(root):
+            if "weaseldeployer.exe" in [name.lower() for name in files]:
+                return os.path.join(current, "WeaselDeployer.exe")
     return ""
+
+
+def ensure_rime_ice_schema() -> str:
+    path = os.path.join(rime_user_dir(), "default.custom.yaml")
+    schema_line = "    - {schema: rime_ice}"
+    if not os.path.isfile(path):
+        write_text(path, "patch:\n  schema_list:\n" + schema_line + "\n")
+        return "已写入 default.custom.yaml"
+    with open(path, encoding="utf-8-sig") as fh:
+        lines = fh.read().splitlines()
+    if "rime_ice" in "\n".join(lines):
+        return "default.custom.yaml 已包含 rime_ice"
+    for idx, line in enumerate(lines):
+        if line.strip() == "schema_list:":
+            indent = line[:len(line) - len(line.lstrip())] + "  "
+            lines.insert(idx + 1, indent + "- {schema: rime_ice}")
+            break
+    else:
+        if "patch:" not in [line.strip() for line in lines]:
+            lines.append("patch:")
+        lines.extend(["  schema_list:", schema_line])
+    write_text(path, "\n".join(lines) + "\n")
+    return "已把 rime_ice 加入 schema_list"
+
+
+def rime_line_key(line: str) -> str:
+    return line.split(":", 1)[0].strip().strip("\"'") if ":" in line else ""
+
+
+def ensure_rime_page_size(size: int = RIME_PAGE_SIZE) -> str:
+    path = os.path.join(rime_user_dir(), "default.custom.yaml")
+    key = "menu/page_size"
+    line = "  {0}: {1}".format(key, size)
+    if not os.path.isfile(path):
+        write_text(path, "patch:\n" + line + "\n")
+        return "已写入 default.custom.yaml（{0}: {1}）".format(key, size)
+    with open(path, encoding="utf-8-sig") as fh:
+        lines = fh.read().splitlines()
+    hits = [idx for idx, text in enumerate(lines) if rime_line_key(text) == key]
+    if hits:
+        value = lines[hits[0]].split(":", 1)[1].strip().strip("\"'")
+        if value == str(size) and len(hits) == 1:
+            return "{0} 已是 {1}".format(key, size)
+        lines[hits[0]] = line
+        for idx in reversed(hits[1:]):
+            del lines[idx]
+    else:
+        for idx, text in enumerate(lines):
+            if text.strip() == "patch:":
+                lines.insert(idx + 1, line)
+                break
+        else:
+            lines.extend(["patch:", line])
+    write_text(path, "\n".join(lines) + "\n")
+    return "已设置 {0}: {1}".format(key, size)
 
 
 def http_download(url: str, dest: str, progress=None):
@@ -776,35 +869,35 @@ def github_urls(proxy: str, path: str):
     return urls
 
 
-def download_github_zip(proxy: str, path: str, member: str, extract_to: str, progress=None, log=None):
+def try_github_urls(proxy: str, path: str, action, what: str, log=None):
     problems = []
     urls = github_urls(proxy, path)
     for idx, url in enumerate(urls):
         try:
-            return download_zip_member(url, member, extract_to, progress)
+            return action(url)
         except Exception as exc:
             problems.append("{0} -> {1}".format(url, exc))
             if log and idx + 1 < len(urls):
-                log("warn", "下载失败（{0}），改用直连 GitHub 重试".format(exc))
-    raise RuntimeError("下载失败: " + "；".join(problems))
+                log("warn", "{0}失败（{1}），改用直连 GitHub 重试".format(what, exc))
+    raise RuntimeError("{0}失败: {1}".format(what, "；".join(problems)))
+
+
+def download_github_zip(proxy: str, path: str, member: str, extract_to: str, progress=None, log=None):
+    return try_github_urls(proxy, path,
+                           lambda url: download_zip_member(url, member, extract_to, progress),
+                           "下载", log)
 
 
 def get_github_json(proxy: str, path: str, log=None):
     import json as json_mod
     import urllib.request
 
-    problems = []
-    urls = github_urls(proxy, path)
-    for idx, url in enumerate(urls):
-        try:
-            req = urllib.request.Request(url, headers={"User-Agent": "win11tools"})
-            with urllib.request.urlopen(req, timeout=60) as resp:
-                return json_mod.loads(resp.read().decode("utf-8"))
-        except Exception as exc:
-            problems.append("{0} -> {1}".format(url, exc))
-            if log and idx + 1 < len(urls):
-                log("warn", "查询失败（{0}），改用直连 GitHub 重试".format(exc))
-    raise RuntimeError("查询失败: " + "；".join(problems))
+    def fetch(url):
+        req = urllib.request.Request(url, headers={"User-Agent": "win11tools"})
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            return json_mod.loads(resp.read().decode("utf-8"))
+
+    return try_github_urls(proxy, path, fetch, "查询", log)
 
 
 def run_elevated_lines(lines):
@@ -938,6 +1031,49 @@ fi
 echo "常用命令: /etc/init.d/mihomo {start|stop|restart|reload|enable|disable}"
 echo "改配置 $CONFIG 后: /etc/init.d/mihomo reload"
 """
+
+
+def make_tree(parent, columns, pady=(0, 0)):
+    wrap = ttk.Frame(parent)
+    wrap.pack(fill="both", expand=True, pady=pady)
+    tree = ttk.Treeview(wrap, columns=[col[0] for col in columns], show="headings",
+                        selectmode="browse")
+    for key, heading, width in columns:
+        tree.heading(key, text=heading)
+        tree.column(key, width=width, anchor="w")
+    scroll = ttk.Scrollbar(wrap, orient="vertical", command=tree.yview)
+    tree.configure(yscrollcommand=scroll.set)
+    tree.pack(side="left", fill="both", expand=True)
+    scroll.pack(side="right", fill="y")
+    return tree
+
+
+def scrolled_text(parent, height=6, horizontal=False):
+    wrap = ttk.Frame(parent)
+    wrap.pack(fill="both", expand=True, pady=(8, 0))
+    text = tk.Text(wrap, width=1, height=height, wrap="none", font=FONT_MONO,
+                   bg=COLOR_PANEL, relief="flat", highlightthickness=1,
+                   highlightbackground=COLOR_LINE, padx=8, pady=6)
+    vsb = ttk.Scrollbar(wrap, orient="vertical", command=text.yview)
+    text.configure(yscrollcommand=vsb.set)
+    text.grid(row=0, column=0, sticky="nsew")
+    vsb.grid(row=0, column=1, sticky="ns")
+    if horizontal:
+        hsb = ttk.Scrollbar(wrap, orient="horizontal", command=text.xview)
+        text.configure(xscrollcommand=hsb.set)
+        hsb.grid(row=1, column=0, sticky="we")
+    wrap.rowconfigure(0, weight=1)
+    wrap.columnconfigure(0, weight=1)
+    return text
+
+
+def grid_buttons(parent, specs, columns=4):
+    for idx, (label, command, accent) in enumerate(specs):
+        ttk.Button(parent, text=label, command=command,
+                   style="Accent.TButton" if accent else "TButton").grid(
+            row=idx // columns, column=idx % columns, sticky="we", padx=3, pady=3)
+    for col in range(columns):
+        parent.columnconfigure(col, weight=1)
 
 
 class ScrollFrame(ttk.Frame):
@@ -1082,7 +1218,6 @@ class App(tk.Tk):
         self.build_packages_tab(self.notebook)
         self.build_features_tab(self.notebook)
         self.build_dotfiles_tab(self.notebook)
-        self.build_search_tab(self.notebook)
 
     def build_status_bar(self):
         bar = ttk.Frame(self, style="Status.TFrame", padding=(14, 5))
@@ -1101,6 +1236,7 @@ class App(tk.Tk):
         ttk.Label(head, text="软件安装 · 功能开关 · dotfile 同步", style="Muted.TLabel").pack(
             side="left", padx=(12, 0), pady=(8, 0))
         ttk.Button(head, text="首选项", command=self.open_preferences).pack(side="right")
+        ttk.Button(head, text="搜索", command=self.open_search).pack(side="right", padx=(0, 6))
 
     def build_log_panel(self, parent):
         frame = ttk.LabelFrame(parent, text="日志", padding=(10, 8))
@@ -1111,28 +1247,24 @@ class App(tk.Tk):
         ttk.Button(head, text="复制日志", command=self.copy_log).pack(side="right")
         ttk.Button(head, text="清空", command=self.clear_log).pack(side="right", padx=(0, 6))
 
-        wrap = ttk.Frame(frame)
-        wrap.pack(fill="both", expand=True, pady=(8, 0))
-        self.log_text = tk.Text(wrap, width=1, height=6, wrap="none", font=FONT_MONO, state="disabled",
-                                bg=COLOR_PANEL, relief="flat", highlightthickness=1,
-                                highlightbackground=COLOR_LINE, padx=8, pady=6)
-        scroll = ttk.Scrollbar(wrap, orient="vertical", command=self.log_text.yview)
-        self.log_text.configure(yscrollcommand=scroll.set)
-        self.log_text.pack(side="left", fill="both", expand=True)
-        scroll.pack(side="right", fill="y")
+        self.log_text = scrolled_text(frame, 6)
         for level, color in (("info", COLOR_FG), ("ok", COLOR_OK),
                              ("warn", COLOR_WARN), ("error", COLOR_ERR)):
             self.log_text.tag_config(level, foreground=color)
+        self.log_text.configure(state="disabled")
 
-    def copy_log(self):
-        text = self.log_text.get("1.0", "end").strip()
+    def copy_to_clipboard(self, text: str, status: str = "已复制到剪贴板") -> bool:
         if not text:
-            self.set_status("日志为空")
-            return
+            return False
         self.clipboard_clear()
         self.clipboard_append(text)
         self.update_idletasks()
-        self.set_status("日志已复制到剪贴板")
+        self.set_status(status)
+        return True
+
+    def copy_log(self):
+        if not self.copy_to_clipboard(self.log_text.get("1.0", "end").strip(), "日志已复制到剪贴板"):
+            self.set_status("日志为空")
 
     def clear_log(self):
         self.log_text.configure(state="normal")
@@ -1176,26 +1308,16 @@ class App(tk.Tk):
         body.add(right, weight=4)
         ttk.Label(right, text="软件列表（双击可选行生成安装命令）", style="Group.TLabel").pack(
             anchor="w", pady=(0, 6))
-        tree_wrap = ttk.Frame(right)
-        tree_wrap.pack(fill="both", expand=True)
-        self.pkg_tree = ttk.Treeview(tree_wrap, columns=("name", "kind", "state", "desc"),
-                                     show="headings", selectmode="browse")
-        self.pkg_tree.heading("name", text="名称")
-        self.pkg_tree.column("name", width=200, anchor="w")
-        self.pkg_tree.heading("kind", text="类型")
-        self.pkg_tree.column("kind", width=90, anchor="w")
-        self.pkg_tree.heading("state", text="状态")
-        self.pkg_tree.column("state", width=150, anchor="w")
-        self.pkg_tree.heading("desc", text="说明")
-        self.pkg_tree.column("desc", width=420, anchor="w")
-        scroll = ttk.Scrollbar(tree_wrap, orient="vertical", command=self.pkg_tree.yview)
-        self.pkg_tree.configure(yscrollcommand=scroll.set)
-        self.pkg_tree.pack(side="left", fill="both", expand=True)
-        scroll.pack(side="right", fill="y")
+        self.pkg_tree = make_tree(right, (
+            ("name", "名称", 200),
+            ("kind", "类型", 90),
+            ("state", "状态", 150),
+            ("desc", "说明", 420),
+        ))
         self.pkg_tree.bind("<<TreeviewSelect>>", lambda _e: self.on_pkg_select())
         self.pkg_tree.bind("<Double-1>", lambda _e: self.fill_cmd("install"))
         self.pkg_tree.tag_configure("installed", foreground=COLOR_OK)
-        self.pkg_tree.tag_configure("missing", foreground="#a8071a")
+        self.pkg_tree.tag_configure("missing", foreground=COLOR_BAD)
 
         cmd_box = ttk.LabelFrame(frame, text="命令（可编辑后复制或运行）", padding=10)
         cmd_box.pack(fill="x", pady=(12, 0))
@@ -1268,11 +1390,16 @@ class App(tk.Tk):
         if not pkg.panel:
             self.extra_frame.pack_forget()
             return
+        builder = {
+            "altsnap": self.build_altsnap_actions,
+            "mihomo": self.build_mihomo_actions,
+            "rime": self.build_rime_actions,
+        }.get(pkg.panel)
+        if builder is None:
+            self.extra_frame.pack_forget()
+            return
         self.extra_frame.pack(fill="x", pady=(10, 0))
-        if pkg.panel == "altsnap":
-            self.build_altsnap_actions()
-        else:
-            self.build_mihomo_actions()
+        builder()
 
     def build_altsnap_actions(self):
         self.altsnap_startup_btn = ttk.Button(self.extra_frame, text="配置管理员开机启动",
@@ -1295,7 +1422,7 @@ class App(tk.Tk):
         buttons = ttk.Frame(self.extra_frame)
         buttons.pack(fill="x", pady=(6, 0))
         running = svc_state(MIHOMO_SVC) == "RUNNING"
-        specs = (
+        grid_buttons(buttons, (
             ("安装 / 更新面板", self.cmd_mihomo_panel, True),
             ("注册服务", self.cmd_mihomo_service, False),
             ("停止服务" if running else "启动服务", self.cmd_mihomo_toggle_service, False),
@@ -1304,13 +1431,83 @@ class App(tk.Tk):
             ("打开数据目录", lambda: self.open_dir(mihomo_data_home()), False),
             ("打开安装目录", lambda: self.open_dir(mihomo_home()), False),
             ("OpenWrt 命令", self.show_mihomo_openwrt, False),
-        )
-        for idx, (text, command, accent) in enumerate(specs):
-            btn = ttk.Button(buttons, text=text, command=command,
-                             style="Accent.TButton" if accent else "TButton")
-            btn.grid(row=idx // 4, column=idx % 4, sticky="we", padx=3, pady=3)
-        for col in range(4):
-            buttons.columnconfigure(col, weight=1)
+        ))
+
+    def rime_status_text(self) -> str:
+        exe = find_weasel_deployer()
+        return "Weasel: {0}    用户目录: {1}".format(
+            os.path.dirname(exe) if exe else "未找到 WeaselDeployer.exe", rime_user_dir())
+
+    def build_rime_actions(self):
+        ttk.Label(self.extra_frame, text=self.rime_status_text(), style="Muted.TLabel").pack(anchor="w")
+        buttons = ttk.Frame(self.extra_frame)
+        buttons.pack(fill="x", pady=(6, 0))
+        grid_buttons(buttons, (
+            ("安装 / 更新 ice 词库", self.install_rime_ice, True),
+            ("候选字→{0}".format(RIME_PAGE_SIZE), self.apply_rime_page_size, False),
+            ("部署", self.deploy_rime, False),
+            ("打开用户目录", lambda: self.open_dir(rime_user_dir()), False),
+        ), columns=4)
+
+    def apply_rime_page_size(self):
+        try:
+            note = ensure_rime_page_size()
+        except OSError as exc:
+            messagebox.showerror(APP_TITLE, "写入失败：{0}".format(exc))
+            return
+        self.log_line("ok", "Rime 候选数：{0}".format(note))
+        self.deploy_rime()
+
+    def deploy_rime(self):
+        exe = find_weasel_deployer()
+        if not exe:
+            messagebox.showwarning(APP_TITLE, "未找到 WeaselDeployer.exe，请先安装 Rime 小狼毫")
+            return
+        subprocess.Popen([exe, "/deploy"], cwd=os.path.dirname(exe))
+        self.log_line("info", "Rime 部署：{0}".format(exe))
+        self.set_status("已提交 Rime 部署")
+
+    def install_rime_ice(self):
+        if not messagebox.askyesno(APP_TITLE, "下载 rime-ice 到：\n{0}\n\n不会覆盖 custom_phrase.txt".format(
+                rime_user_dir())):
+            return
+        self.log_line("info", "开始下载 rime-ice ...")
+        self.set_status("正在下载 ice 词库 ...")
+
+        def work():
+            temp = os.path.join(tempfile.gettempdir(), "rime-ice-download")
+            member = download_github_zip(self.ghproxy,
+                                         RIME_ICE_REPO + "/archive/refs/heads/main.zip",
+                                         "rime_ice.schema.yaml", temp)
+            copied = copy_tree(os.path.dirname(member), rime_user_dir(), skip=("custom_phrase.txt",))
+            note = ensure_rime_ice_schema()
+            exe = find_weasel_deployer()
+            if exe:
+                subprocess.Popen([exe, "/deploy"], cwd=os.path.dirname(exe))
+            return copied, note, exe
+
+        def done(result):
+            if isinstance(result, Exception):
+                self.log_line("error", "ice 词库安装失败：{0}".format(result))
+                self.set_status("ice 词库安装失败")
+                return
+            copied, note, exe = result
+            self.log_line("ok", "ice 词库已更新：{0} 项，{1}".format(copied, note))
+            self.log_line("info", "Rime 部署：{0}".format(exe or "未找到 WeaselDeployer.exe，请手动部署"))
+            self.set_status("ice 词库安装完成")
+            self.update_selection_actions()
+
+        self.run_async(work, done)
+
+    def run_async(self, work, done):
+        def runner():
+            try:
+                result = work()
+            except Exception as exc:
+                result = exc
+            self.after(0, lambda: done(result))
+
+        threading.Thread(target=runner, daemon=True).start()
 
     def set_cmd(self, command: str, label: str):
         self.cmd_var.set(command)
@@ -1330,24 +1527,30 @@ class App(tk.Tk):
     def cmd_mihomo_delete_service(self):
         self.set_cmd("net stop {0}; sc.exe delete {0}".format(MIHOMO_SVC), "mihomo 删除服务")
 
+    def open_report(self, path: str, label: str = "", alert: bool = False, containing: bool = False) -> bool:
+        opener = open_containing if containing else open_path
+        if not opener(path):
+            if alert:
+                messagebox.showinfo(APP_TITLE, "路径不存在：{0}".format(path))
+            else:
+                self.log_line("warn", "路径不存在：{0}".format(path))
+            return False
+        self.set_status("已打开{0}：{1}".format(label, path) if label else "已打开：{0}".format(path))
+        return True
+
     def open_dir(self, path: str):
         os.makedirs(path, exist_ok=True)
-        if open_path(path):
-            self.set_status("已打开：{0}".format(path))
-        else:
-            self.log_line("warn", "路径不存在：{0}".format(path))
+        self.open_report(path)
 
     def open_mihomo_cfg(self):
         path = ensure_mihomo_cfg()
         if not path or not os.path.isfile(path):
             self.log_line("warn", "配置文件不存在且没有模板：security/placeholder_files/mihomo.yaml")
             return
-        if open_path(path):
-            self.set_status("已打开：{0}".format(path))
+        self.open_report(path)
 
     def show_mihomo_openwrt(self):
-        base = (self.ghproxy or "").strip().rstrip("/")
-        gh_base = "https://github.com" if not base else base + "/https://github.com"
+        gh_base = gh_url(self.ghproxy, "https://github.com")
         text = OPENWRT_TPL.replace("@@VER@@", MIHOMO_CORE_VER).replace("@@GH_BASE@@", gh_base)
 
         dlg = tk.Toplevel(self)
@@ -1359,34 +1562,17 @@ class App(tk.Tk):
         ttk.Label(body, text="核心 v{0}    下载前缀 {1}".format(MIHOMO_CORE_VER, gh_base),
                   style="Muted.TLabel").pack(anchor="w")
 
-        wrap = ttk.Frame(body)
-        wrap.pack(fill="both", expand=True, pady=(8, 0))
-        editor = tk.Text(wrap, wrap="none", font=FONT_MONO, bg=COLOR_PANEL, relief="flat",
-                         highlightthickness=1, highlightbackground=COLOR_LINE, padx=8, pady=6)
-        vsb = ttk.Scrollbar(wrap, orient="vertical", command=editor.yview)
-        hsb = ttk.Scrollbar(wrap, orient="horizontal", command=editor.xview)
-        editor.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
-        editor.grid(row=0, column=0, sticky="nsew")
-        vsb.grid(row=0, column=1, sticky="ns")
-        hsb.grid(row=1, column=0, sticky="we")
-        wrap.rowconfigure(0, weight=1)
-        wrap.columnconfigure(0, weight=1)
+        editor = scrolled_text(body, 20, horizontal=True)
         editor.insert("1.0", text)
 
         row = ttk.Frame(body)
         row.pack(fill="x", pady=(10, 0))
         ttk.Button(row, text="复制到剪贴板", style="Accent.TButton",
-                   command=lambda: self.copy_text(editor.get("1.0", "end").strip())).pack(side="left")
+                   command=lambda: self.copy_to_clipboard(editor.get("1.0", "end").strip())).pack(side="left")
         ttk.Button(row, text="关闭", command=dlg.destroy).pack(side="left", padx=6)
 
         dlg.grab_set()
         dlg.focus_set()
-
-    def copy_text(self, text: str):
-        self.clipboard_clear()
-        self.clipboard_append(text)
-        self.update_idletasks()
-        self.set_status("已复制到剪贴板")
 
     def build_dotfiles_tab(self, parent):
         frame = ttk.Frame(parent, padding=12)
@@ -1398,24 +1584,14 @@ class App(tk.Tk):
                   style="Muted.TLabel").pack(side="left", pady=(4, 0))
         ttk.Button(head, text="刷新", command=self.refresh_dotfiles).pack(side="right")
 
-        wrap = ttk.Frame(frame)
-        wrap.pack(fill="both", expand=True, pady=(10, 0))
-        self.dot_tree = ttk.Treeview(wrap, columns=("name", "target", "repo", "state"),
-                                     show="headings", selectmode="browse")
-        self.dot_tree.heading("name", text="名称")
-        self.dot_tree.column("name", width=190, anchor="w")
-        self.dot_tree.heading("target", text="系统文件")
-        self.dot_tree.column("target", width=360, anchor="w")
-        self.dot_tree.heading("repo", text="仓库文件（相对仓库根目录）")
-        self.dot_tree.column("repo", width=300, anchor="w")
-        self.dot_tree.heading("state", text="状态")
-        self.dot_tree.column("state", width=200, anchor="w")
-        scroll = ttk.Scrollbar(wrap, orient="vertical", command=self.dot_tree.yview)
-        self.dot_tree.configure(yscrollcommand=scroll.set)
-        self.dot_tree.pack(side="left", fill="both", expand=True)
-        scroll.pack(side="right", fill="y")
+        self.dot_tree = make_tree(frame, (
+            ("name", "名称", 190),
+            ("target", "系统文件", 360),
+            ("repo", "仓库文件（相对仓库根目录）", 300),
+            ("state", "状态", 200),
+        ), pady=(10, 0))
         self.dot_tree.tag_configure("ok", foreground=COLOR_OK)
-        self.dot_tree.tag_configure("bad", foreground="#a8071a")
+        self.dot_tree.tag_configure("bad", foreground=COLOR_BAD)
         self.dot_tree.bind("<Double-1>", self.on_dot_double_click)
         self.dot_tree.bind("<<TreeviewSelect>>", lambda _e: self.set_status(
             "双击“系统文件”列打开配置所在目录，双击“仓库文件”列打开仓库文件位置"))
@@ -1430,48 +1606,43 @@ class App(tk.Tk):
         ttk.Button(row, text="全部恢复", command=lambda: self.dot_action("restore_all")).pack(
             side="right", padx=6)
 
-    def build_search_tab(self, parent):
-        frame = ttk.Frame(parent, padding=12)
-        parent.add(frame, text="搜索")
+    def open_search(self):
+        dlg = tk.Toplevel(self)
+        dlg.title("搜索")
+        dlg.transient(self)
+        dlg.geometry("760x520")
+        body = ttk.Frame(dlg, padding=12)
+        body.pack(fill="both", expand=True)
 
-        head = ttk.Frame(frame)
+        head = ttk.Frame(body)
         head.pack(fill="x")
-        ttk.Label(head, text="关键词", style="Value.TLabel").pack(side="left", padx=(0, 8))
-        self.search_var = tk.StringVar()
-        self.search_count_var = tk.StringVar()
-        ttk.Entry(head, textvariable=self.search_var, font=FONT_UI).pack(
-            side="left", fill="x", expand=True)
-        ttk.Button(head, text="清空", command=lambda: self.search_var.set("")).pack(
-            side="left", padx=(8, 0))
-        ttk.Label(head, textvariable=self.search_count_var, style="Muted.TLabel").pack(
-            side="left", padx=(10, 0))
+        term_var = tk.StringVar()
+        count_var = tk.StringVar()
+        entry = ttk.Entry(head, textvariable=term_var, font=FONT_UI)
+        entry.pack(side="left", fill="x", expand=True)
+        ttk.Button(head, text="清空", command=lambda: term_var.set("")).pack(side="left", padx=(8, 0))
+        ttk.Label(head, textvariable=count_var, style="Muted.TLabel").pack(side="left", padx=(10, 0))
 
-        wrap = ttk.Frame(frame)
-        wrap.pack(fill="both", expand=True, pady=(10, 0))
-        self.search_tree = ttk.Treeview(wrap, columns=("kind", "path"), show="headings",
-                                        selectmode="browse")
-        self.search_tree.heading("kind", text="类别")
-        self.search_tree.column("kind", width=140, anchor="w")
-        self.search_tree.heading("path", text="位置")
-        self.search_tree.column("path", width=720, anchor="w")
-        scroll = ttk.Scrollbar(wrap, orient="vertical", command=self.search_tree.yview)
-        self.search_tree.configure(yscrollcommand=scroll.set)
-        self.search_tree.pack(side="left", fill="both", expand=True)
-        scroll.pack(side="right", fill="y")
+        tree = make_tree(body, (
+            ("kind", "类别", 140),
+            ("path", "位置", 620),
+        ), pady=(10, 0))
+        rows = build_search_rows()
 
-        self.search_rows = build_search_rows()
-        self.search_var.trace_add("write", lambda *_args: self.run_search())
+        def run(*_args):
+            term = term_var.get().strip().lower()
+            tree.delete(*tree.get_children())
+            if not term:
+                count_var.set("")
+                return
+            hits = [row for row in rows if term in row[2]]
+            for kind, path, _keys in hits:
+                tree.insert("", "end", values=(kind, path))
+            count_var.set("匹配 {0} 项".format(len(hits)) if hits else "无匹配")
 
-    def run_search(self):
-        term = self.search_var.get().strip().lower()
-        self.search_tree.delete(*self.search_tree.get_children())
-        if not term:
-            self.search_count_var.set("")
-            return
-        hits = [row for row in self.search_rows if term in row[2]]
-        for kind, path, _keys in hits:
-            self.search_tree.insert("", "end", values=(kind, path))
-        self.search_count_var.set("匹配 {0} 项".format(len(hits)) if hits else "无匹配")
+        term_var.trace_add("write", run)
+        dlg.bind("<Escape>", lambda _e: dlg.destroy())
+        entry.focus_set()
 
     def update_scoop_label(self):
         self.scoop_label_var.set("scoop 目录：{0}".format(self.scoop_dir))
@@ -1548,7 +1719,7 @@ class App(tk.Tk):
     def refresh_packages(self):
         scoop_dir = self.scoop_dir
         self.set_status("正在检测已安装软件 ...")
-        self.scoop_state_var.set("scoop: {0}".format("已安装" if scoop_installed(scoop_dir) else "未安装"))
+        self.scoop_state_var.set(self.scoop_state_text())
 
         self.pkg_gen += 1
         gen = self.pkg_gen
@@ -1556,10 +1727,7 @@ class App(tk.Tk):
         def work():
             text = winget_list_text()
             apps = scoop_app_names(scoop_dir)
-            states = {}
-            for pkgs in SOFTWARE.values():
-                for pkg in pkgs:
-                    states[pkg.title] = pkg_state(pkg, text, scoop_dir, apps)
+            states = {pkg.title: pkg_state(pkg, text, scoop_dir, apps) for pkg in all_packages()}
             self.pkg_queue.put((gen, text, states))
 
         threading.Thread(target=work, daemon=True).start()
@@ -1580,8 +1748,11 @@ class App(tk.Tk):
         self.pkg_states = states
         self.show_group()
         self.update_selection_actions()
-        self.scoop_state_var.set("scoop: {0}".format("已安装" if scoop_installed(self.scoop_dir) else "未安装"))
+        self.scoop_state_var.set(self.scoop_state_text())
         self.set_status("检测完成：{0}".format(time.strftime("%H:%M:%S")))
+
+    def scoop_state_text(self) -> str:
+        return "scoop: {0}".format("已安装" if scoop_installed(self.scoop_dir) else "未安装")
 
     def selected_pkg(self):
         selection = self.pkg_tree.selection()
@@ -1597,26 +1768,26 @@ class App(tk.Tk):
         if task_exists(ALTSNAP_TASK):
             if not messagebox.askyesno(APP_TITLE, "删除计划任务 {0}？".format(ALTSNAP_TASK)):
                 return
-            rc, out = run_elevated_script(altsnap_delete_script())
-            if rc != 0:
-                messagebox.showerror(APP_TITLE, "删除失败：{0}".format(out.strip() or "已取消或权限不足"))
-            self.refresh_altsnap_button()
-            self.set_status("计划任务 {0}：{1}".format(
-                ALTSNAP_TASK, "已删除" if not task_exists(ALTSNAP_TASK) else "仍存在"))
-            return
-
-        exe = find_altsnap_exe(self.scoop_dir)
-        if not exe:
-            messagebox.showwarning(APP_TITLE, "未找到 AltSnap.exe，请先安装 AltSnap")
-            return
-        if not messagebox.askyesno(APP_TITLE, "以管理员权限在登录时启动？\n{0}".format(exe)):
-            return
-        rc, out = run_elevated_script(altsnap_startup_script(exe))
-        if rc != 0:
-            messagebox.showerror(APP_TITLE, "创建失败：{0}".format(out.strip() or "已取消或权限不足"))
+            self.run_task_script(altsnap_delete_script(), "删除失败")
+            state = "已删除" if not task_exists(ALTSNAP_TASK) else "仍存在"
+        else:
+            exe = find_altsnap_exe(self.scoop_dir)
+            if not exe:
+                messagebox.showwarning(APP_TITLE, "未找到 AltSnap.exe，请先安装 AltSnap")
+                return
+            if not messagebox.askyesno(APP_TITLE, "以管理员权限在登录时启动？\n{0}".format(exe)):
+                return
+            self.run_task_script(altsnap_startup_script(exe), "创建失败")
+            state = "已创建" if task_exists(ALTSNAP_TASK) else "未创建"
         self.refresh_altsnap_button()
-        self.set_status("计划任务 {0}：{1}".format(
-            ALTSNAP_TASK, "已创建" if task_exists(ALTSNAP_TASK) else "未创建"))
+        self.set_status("计划任务 {0}：{1}".format(ALTSNAP_TASK, state))
+
+    def run_task_script(self, script: str, failure: str) -> bool:
+        rc, out = run_elevated_script(script)
+        if rc != 0:
+            messagebox.showerror(APP_TITLE, "{0}：{1}".format(failure, out.strip() or "已取消或权限不足"))
+            return False
+        return True
 
     def fill_cmd(self, action: str):
         pkg = self.current_pkg or self.selected_pkg()
@@ -1630,14 +1801,8 @@ class App(tk.Tk):
         self.set_status("{0}：{1}".format("安装命令" if action == "install" else "卸载命令", pkg.title))
 
     def copy_cmd(self):
-        cmd = self.cmd_var.get().strip()
-        if not cmd:
+        if not self.copy_to_clipboard(self.cmd_var.get().strip(), "命令已复制到剪贴板"):
             self.set_status("没有可复制的命令")
-            return
-        self.clipboard_clear()
-        self.clipboard_append(cmd)
-        self.update_idletasks()
-        self.set_status("命令已复制到剪贴板")
 
     def run_cmd(self):
         cmd = self.cmd_var.get().strip()
@@ -1660,26 +1825,27 @@ class App(tk.Tk):
             self.feature_add_startup()
         self.refresh_feature_status()
 
-    def feature_start_onekey(self):
+    def require_onekey(self):
         script = onekey_script()
         if not os.path.isfile(script):
             messagebox.showerror(APP_TITLE, "找不到脚本：{0}".format(script))
-            return
+            return None, ""
         exe = find_ahk_exe(self.scoop_dir)
         if not exe:
             messagebox.showerror(APP_TITLE, "未找到 AutoHotkey64.exe，请先安装 AutoHotkey")
+            return None, ""
+        return script, exe
+
+    def feature_start_onekey(self):
+        script, exe = self.require_onekey()
+        if not script:
             return
         subprocess.Popen([exe, script], cwd=APP_DIR)
         self.set_status("已启动 onekey_startup.ahk")
 
     def feature_add_startup(self):
-        script = onekey_script()
-        if not os.path.isfile(script):
-            messagebox.showerror(APP_TITLE, "找不到脚本：{0}".format(script))
-            return
-        exe = find_ahk_exe(self.scoop_dir)
-        if not exe:
-            messagebox.showerror(APP_TITLE, "未找到 AutoHotkey64.exe，请先安装 AutoHotkey")
+        script, exe = self.require_onekey()
+        if not script:
             return
         link = startup_shortcut()
         rc, out = create_startup_shortcut(link, exe, script, APP_DIR)
@@ -1715,17 +1881,18 @@ class App(tk.Tk):
         for title, item in DOTFILES.items():
             target = item.target_path()
             repo = item.repo_path()
-            target_state = "系统有" if os.path.isfile(target) else "系统无"
-            repo_state = "仓库有" if os.path.isfile(repo) else "仓库无"
-            tag = "ok" if os.path.isfile(target) and os.path.isfile(repo) else "bad"
-            text = "{0} / {1}".format(target_state, repo_state)
-            if os.path.isfile(target) and os.path.isfile(repo):
+            has_target = os.path.isfile(target)
+            has_repo = os.path.isfile(repo)
+            text = "{0} / {1}".format("系统有" if has_target else "系统无",
+                                      "仓库有" if has_repo else "仓库无")
+            if has_target and has_repo:
                 if os.path.getmtime(target) > os.path.getmtime(repo) + 1:
                     text += "（系统更新）"
                 elif os.path.getmtime(repo) > os.path.getmtime(target) + 1:
                     text += "（仓库更新）"
             self.dot_tree.insert("", "end", iid=title,
-                                 values=(title, item.target_display(), item.repo_display(), text), tags=(tag,))
+                                 values=(title, item.target_display(), item.repo_display(), text),
+                                 tags=("ok" if has_target and has_repo else "bad",))
         self.set_status("dotfile 状态已刷新")
 
     def selected_dot(self):
@@ -1744,27 +1911,20 @@ class App(tk.Tk):
         if item is None:
             return
         if column in ("#1", "#2"):
-            path = item.target_path()
-            label = "配置目录"
+            path, label = item.target_path(), "配置目录"
         elif column == "#3":
-            path = item.repo_path()
-            label = "仓库文件位置"
+            path, label = item.repo_path(), "仓库文件位置"
         else:
             return
-        if not open_containing(path):
-            messagebox.showinfo(APP_TITLE, "路径不存在：{0}".format(path))
-            return
-        self.set_status("已打开{0}：{1}".format(label, path))
+        self.open_report(path, label, alert=True, containing=True)
 
     def dot_action(self, action: str):
-        if action in ("backup_all", "restore_all"):
-            verb = "备份（系统覆盖仓库）" if action == "backup_all" else "恢复（仓库覆盖系统）"
+        direction = "backup" if action.startswith("backup") else "restore"
+        verb = "备份（系统覆盖仓库）" if direction == "backup" else "恢复（仓库覆盖系统）"
+        if action.endswith("_all"):
             if not messagebox.askyesno(APP_TITLE, "确认对全部 {0} 项执行{1}？".format(len(DOTFILES), verb)):
                 return
-            done = 0
-            for item in DOTFILES.values():
-                if self.dot_copy(item, "backup" if action == "backup_all" else "restore", quiet=True):
-                    done += 1
+            done = sum(1 for item in DOTFILES.values() if self.dot_copy(item, direction, quiet=True))
             self.refresh_dotfiles()
             self.set_status("{0} 完成：{1}/{2}".format(verb, done, len(DOTFILES)))
             return
@@ -1772,30 +1932,23 @@ class App(tk.Tk):
         item = self.selected_dot()
         if item is None:
             return
-        if action == "backup":
-            if self.dot_copy(item, "backup"):
-                self.set_status("已备份到仓库：{0}".format(item.repo_path()))
-        elif action == "restore":
-            if self.dot_copy(item, "restore"):
-                self.set_status("已从仓库恢复：{0}".format(item.target_path()))
+        path = item.repo_path() if direction == "backup" else item.target_path()
+        if self.dot_copy(item, direction):
+            self.set_status("{0}：{1}".format(
+                "已备份到仓库" if direction == "backup" else "已从仓库恢复", path))
         self.refresh_dotfiles()
 
     def dot_copy(self, item: DotFile, direction: str, quiet: bool = False) -> bool:
         target = item.target_path()
         repo = item.repo_path()
+        src, dst = (target, repo) if direction == "backup" else (repo, target)
+        label = "系统文件" if direction == "backup" else "仓库文件"
         try:
-            if direction == "backup":
-                if not os.path.isfile(target):
-                    if not quiet:
-                        messagebox.showwarning(APP_TITLE, "系统文件不存在：{0}".format(target))
-                    return False
-                copy_file(target, repo)
-            else:
-                if not os.path.isfile(repo):
-                    if not quiet:
-                        messagebox.showwarning(APP_TITLE, "仓库文件不存在：{0}".format(repo))
-                    return False
-                copy_file(repo, target)
+            if not os.path.isfile(src):
+                if not quiet:
+                    messagebox.showwarning(APP_TITLE, "{0}不存在：{1}".format(label, src))
+                return False
+            copy_file(src, dst)
             return True
         except OSError as exc:
             if not quiet:
