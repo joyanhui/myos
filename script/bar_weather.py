@@ -21,6 +21,7 @@ KEY_FLAG = "apikey_invalid"
 DETAIL_LOCK = "detail.lock"
 PICKER_LOCK = "picker.lock"
 TTL_OK = 1800
+ASHELL_POLL = 60
 FORECAST_DAYS = 3
 WEEKDAYS = ("周一", "周二", "周三", "周四", "周五", "周六", "周日")
 TTL_FAIL = 300
@@ -422,6 +423,26 @@ def bar_class(entry, key):
     return "warn"
 
 
+def bar_alt(city, entry, key):
+    if key is None:
+        return "unset"
+    if entry and entry.get("ok"):
+        return "ok"
+    if (entry or {}).get("kind") == "apikey":
+        return "error"
+    return "warn"
+
+
+def ashell_text(city, entry, key):
+    if key is None:
+        return "PLS CFG APIKEY"
+    if entry and entry.get("ok"):
+        data = entry["data"]
+        icon = city_icon(data.get("code"), data.get("is_day"))
+        return f"{icon} {city['short']} {data.get('temp')}°C"
+    return error_text(entry)
+
+
 def forecast_lines(entry):
     rows = ((entry or {}).get("data") or {}).get("days") or []
     lines = []
@@ -737,6 +758,28 @@ def print_waybar(key):
     print(json.dumps(payload, ensure_ascii=False))
 
 
+def print_ashell(key):
+    city = active_city()
+    entry = ensure_city(city, key)
+    payload = {"text": ashell_text(city, entry, key), "alt": bar_alt(city, entry, key)}
+    print(json.dumps(payload, ensure_ascii=False), flush=True)
+
+
+def listen_ashell(key):
+    last = None
+    while True:
+        city = active_city()
+        entry = ensure_city(city, key)
+        payload = {
+            "text": ashell_text(city, entry, key),
+            "alt": bar_alt(city, entry, key),
+        }
+        if payload != last:
+            print(json.dumps(payload, ensure_ascii=False), flush=True)
+            last = payload
+        time.sleep(ASHELL_POLL)
+
+
 def main():
     args = sys.argv[1:]
     key = api_key()
@@ -747,6 +790,12 @@ def main():
         return
     if args[0] == "--waybar":
         print_waybar(key)
+        return
+    if args[0] == "--ashell":
+        print_ashell(key)
+        return
+    if args[0] == "--ashell-listen":
+        listen_ashell(key)
         return
     if args[0] == "--tooltip":
         print(all_summary(key))

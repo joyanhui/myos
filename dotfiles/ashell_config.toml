@@ -10,7 +10,20 @@ target = "file"
 [modules]
 left = ["Workspaces"]
 center = ["WindowTitle"]
-right = [["SystemInfo", "Settings"], "Tray"]
+right = ["SystemInfo", ["Weather", "Lunar", "Tempo", "Tray", "Settings"]]
+
+[[CustomModule]]
+name = "Lunar"
+type = "Text"
+listen_cmd = "bar-lunar --ashell-listen"
+
+[[CustomModule]]
+name = "Weather"
+command = "bar-weather --detail"
+on_right_click = "bar-weather --picker"
+on_scroll_up = "bar-weather --next"
+on_scroll_down = "bar-weather --prev"
+listen_cmd = "bar-weather --ashell-listen"
 
 [workspaces]
 visibility_mode = "MonitorSpecific"
@@ -20,6 +33,9 @@ indicator_format = "Name"
 [window_title]
 mode = "Title"
 truncate_title_after_length = 80
+
+[tempo]
+clock_format = "%a %m月%d日 %H:%M"
 
 [system_info]
 indicators = ["Cpu", "Memory", "Temperature"]
@@ -43,6 +59,22 @@ sensor = "Cpu"
 [tray]
 right_click = "Open"
 
+[notifications]
+show_timestamps = true
+show_bodies = true
+toast = true
+toast_timeout = 5000
+toast_limit = 5
+
+[osd]
+enabled = true
+timeout = 1500
+show_volume_percentage = true
+show_brightness_percentage = true
+
+[animations]
+enabled = true
+
 [settings]
 lock_cmd = "swaylock -f"
 shutdown_cmd = "systemctl poweroff"
@@ -60,22 +92,39 @@ network_indicator_format = "Icon"
 bluetooth_indicator_format = "Icon"
 brightness_indicator_format = "Icon"
 enable_tooltips = true
-indicators = ["Audio", "Microphone", "Bluetooth", "Network", "Battery", "Brightness"]
+indicators = [
+  "IdleInhibitor",
+  "PowerProfile",
+  "Audio",
+  "Microphone",
+  "Bluetooth",
+  "Network",
+  "Vpn",
+  "Battery",
+  "Brightness",
+]
 
 [appearance]
 font_name = "Sarasa Gothic SC"
 scale_factor = 1.0
 opacity = 0.95
-background_color = "#121619"
-text_color = "#e3e8e2"
-primary_color = "#a8d5b5"
-success_color = "#a8d5b5"
-warning_color = "#754d30"
-danger_color = "#ffb4ab"
-workspace_colors = ["#a8d5b5", "#75a1b0", "#c8a6c9", "#d8b58a"]
+primary_color = "#9bd7c0"
+success_color = "#a7d8b4"
+warning_color = "#e7b778"
+danger_color = "#f28b82"
+text_color = "#e5eee9"
+workspace_colors = ["#9bd7c0", "#8bbad0", "#c7a6d9", "#e7b778"]
+
+[appearance.background_color]
+base = "#101719"
+weak = "#182225"
+strong = "#22302f"
 
 [appearance.bar]
 surface = "solid"
-radius = "lg"
-margin = "none"
-padding = "xxs"
+radius = "xl"
+margin = ["sm", "md"]
+padding = ["xs", "md"]
+
+[appearance.menu]
+backdrop = 0.35

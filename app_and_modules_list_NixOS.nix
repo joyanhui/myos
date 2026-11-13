@@ -36,6 +36,7 @@ in
     ++ importIf (hasTag "common") (import "${global_settings.secretRelDir}/sensitive_env.nix")
 
     ++ importIf (hasTag "amd" || hasTag "intel") ./modules/services/bluetooth.nix
+    ++ importIf (hasTag "desktop" && !hasTag "wsl") ./modules/services/power_profiles_daemon.nix
     ++ importIf (hasTag "amd" || hasTag "intel") ./modules/services/mnt_autofs.nix
     ++ importIf ((hasTag "amd" || hasTag "intel") && hasTag "gui") ./modules/apps/recovery_testdisk.nix
     ++ importIf (hasTag "amd") ./machine/hardware/amd.nix

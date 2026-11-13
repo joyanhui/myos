@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
+import json
+import sys
 import tempfile
+import time
 from datetime import date, datetime
 from pathlib import Path
 
@@ -119,8 +122,22 @@ def cached_lunar_text(today):
 
 
 def main():
+    args = sys.argv[1:]
     now = datetime.now()
     today = now.date()
+    if args and args[0] == "--ashell-listen":
+        while True:
+            now = datetime.now()
+            today = now.date()
+            print(
+                json.dumps(
+                    {"text": cached_lunar_text(today), "alt": "lunar"},
+                    ensure_ascii=False,
+                ),
+                flush=True,
+            )
+            time.sleep(max(1, 60 - now.second))
+        return
     print(
         f"{WEEKDAYS[today.weekday()]} {today.isoformat()} "
         f"{cached_lunar_text(today)} {now.strftime('%H:%M')}"

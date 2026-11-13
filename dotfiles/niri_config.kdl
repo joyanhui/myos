@@ -130,8 +130,8 @@ binds {
     Super+Alt+Down hotkey-overlay-title="window height -10% | 窗口高度 -10%" { set-window-height "-10%"; }
     Mod+Comma hotkey-overlay-title="consume window into column | 并入列" { consume-window-into-column; }
     Mod+Period hotkey-overlay-title="expel window from column | 移出列" { expel-window-from-column; }
-    Mod+BracketLeft hotkey-overlay-title="consume/expel window (left) | 并入/移出列 (左)" { consume-or-expel-window-left; }
-    Mod+BracketRight hotkey-overlay-title="consume/expel window (right) | 并入/移出列 (右)" { consume-or-expel-window-right; }
+    Mod+Shift+BracketLeft hotkey-overlay-title="consume/expel window (left) | 并入/移出列 (左)" { consume-or-expel-window-left; }
+    Mod+Shift+BracketRight hotkey-overlay-title="consume/expel window (right) | 并入/移出列 (右)" { consume-or-expel-window-right; }
     Mod+Shift+C hotkey-overlay-title="center column | 居中列" { center-column; }
 
     Mod+Shift+O repeat=false hotkey-overlay-title="toggle overview | 切换概览" { toggle-overview; }
