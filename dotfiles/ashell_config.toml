@@ -10,11 +10,21 @@ target = "file"
 [modules]
 left = ["Workspaces"]
 center = ["WindowTitle"]
-right = ["SystemInfo", ["Weather", "Lunar", "Power", "Tempo", "Tray", "Settings"]]
+right = [
+  "SystemInfo",
+  [
+    "Weather",
+    "Lunar",
+    "Tempo",
+    "Tray",
+    "Settings",
+    "Power",
+  ],
+]
 
 [[CustomModule]]
 name = "Lunar"
-type = "Text"
+command = "bar-lunar --calendar"
 listen_cmd = "bar-lunar --ashell-listen"
 
 [[CustomModule]]
@@ -29,9 +39,6 @@ listen_cmd = "bar-weather --ashell-listen"
 name = "Power"
 command = "bar-power --detail"
 listen_cmd = "bar-power --ashell-listen"
-icons.'^unplugged$' = "󰚦"
-icons.'^plugged$' = "󰚥"
-icons.'^charging$' = "󰚥 󰉁"
 
 [workspaces]
 visibility_mode = "MonitorSpecific"
@@ -43,10 +50,18 @@ mode = "Title"
 truncate_title_after_length = 80
 
 [tempo]
-clock_format = "%a %m月%d日 %H:%M"
+clock_format = "%a %m-%d %H:%M"
 
 [system_info]
-indicators = ["Cpu", "Memory", "Temperature"]
+indicators = [
+  "Cpu",
+  "Memory",
+  "MemorySwap",
+  "Temperature",
+  "IpAddress",
+  "DownloadSpeed",
+  "UploadSpeed",
+]
 interval = 2
 
 [system_info.cpu]

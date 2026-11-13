@@ -13,7 +13,7 @@ DETAIL_LOCK = "detail.lock"
 ASHELL_POLL = 30
 LOW_CAPACITY = 20
 
-ICON_CHARGING = "\U000F06A5 \U000F0241"
+ICON_CHARGING = "\U000F0241"
 ICON_PLUG = "\U000F06A5"
 ICON_PLUG_OFF = "\U000F06A6"
 LEVEL_ICONS = [
@@ -255,10 +255,7 @@ def tooltip(data):
 
 
 def payload_text(data):
-    battery = data["battery"]
-    capacity = (battery or {}).get("capacity")
-    text = "--" if capacity is None else f"{capacity}%"
-    return {"text": text, "alt": data["state"]}
+    return {"text": bar_text(data), "alt": data["state"]}
 
 
 def print_waybar():
