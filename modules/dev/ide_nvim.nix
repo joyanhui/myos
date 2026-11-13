@@ -19,7 +19,7 @@ in
       {
         home.packages = [ pkgs.neovim pkgs.tree-sitter ];
 
-        xdg.configFile."nvim/init.lua".source =  config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/dotfiles/nvim_init.lua";
+        xdg.configFile."nvim/init.lua".source =  config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/dotfiles/nvim_init_helix_like.lua";
         xdg.configFile."nvim/nix.readme.md".text=readme;
       };
   };

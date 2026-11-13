@@ -12,14 +12,12 @@ left = ["Workspaces"]
 center = ["WindowTitle"]
 right = [
   "SystemInfo",
-  [
-    "Weather",
-    "Lunar",
-    "Tempo",
-    "Tray",
-    "Settings",
-    "Power",
-  ],
+  "Weather",
+  "Lunar",
+  "Tempo",
+  "Tray",
+  "Settings",
+  "Power",
 ]
 
 [[CustomModule]]
@@ -56,11 +54,7 @@ clock_format = "%a %m-%d %H:%M"
 indicators = [
   "Cpu",
   "Memory",
-  "MemorySwap",
   "Temperature",
-  "IpAddress",
-  "DownloadSpeed",
-  "UploadSpeed",
 ]
 interval = 2
 
@@ -78,6 +72,7 @@ format = "Percentage"
 warn_threshold = 60
 alert_threshold = 80
 sensor = "Cpu"
+units = "Celsius"
 
 [tray]
 right_click = "Open"
@@ -145,8 +140,8 @@ strong = "#22302f"
 [appearance.bar]
 surface = "solid"
 radius = "xl"
-margin = ["sm", "md"]
-padding = ["xs", "md"]
+margin = ["xxs", "md"]
+padding = ["xxs", "md"]
 
 [appearance.menu]
 backdrop = 0.35

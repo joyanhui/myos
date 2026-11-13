@@ -141,7 +141,7 @@ local function start_session_services()
 	local wallpaper_cmd = is_vmware
 			and "wallpaper_dir=$(dirname \"$(readlink -f \"$HOME/.config/hypr/hyprland.lua\")\")/../static_file/wallpaper; wallpaper=$(find \"$wallpaper_dir\" -type f \\( -name '*.jpg' -o -name '*.png' \\) | shuf -n 1); [ -n \"$wallpaper\" ] && swaybg -i \"$wallpaper\" -m fill"
 		or "wallpaper_dir=$(dirname \"$(readlink -f \"$HOME/.config/hypr/hyprland.lua\")\")/../static_file/wallpaper; wallpaper=$(find \"$wallpaper_dir\" -type f -name '*.mp4' | shuf -n 1); [ -n \"$wallpaper\" ] && mpvpaper --auto-pause -o 'no-audio loop panscan=1 hwdec=auto-safe vf=fps=30' '*' \"$wallpaper\""
-	hl.exec_cmd(soft_render .. "ashell")
+	hl.exec_cmd(soft_render .. "dms run")
 	hl.exec_cmd(soft_render .. wallpaper_cmd)
 	hl.exec_cmd(
 		"systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE HYPRLAND_INSTANCE_SIGNATURE; "

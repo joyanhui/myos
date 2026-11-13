@@ -73,7 +73,7 @@ INSTALL_HINTS = {
     "nix-env": "nix profile install nixpkgs#helix",
 }
 ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
-BASIC_CONFIG = """theme = "base16_default_dark"
+BASIC_CONFIG = """theme = "default"
 
 [editor]
 line-number = "relative"
