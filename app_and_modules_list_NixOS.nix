@@ -51,7 +51,7 @@ in
     ++ importIf (hasTag "desktop") ./modules/desktop/wayland_wm_niri.nix
     ++ importIf (hasTag "desktop") ./modules/desktop/wayland_wm_hyprland.nix
     ## ++ importIf (hasTag "desktop") ./modules/desktop/wayland_dms.nix
-    ++ importIf (hasTag "desktop") ./modules/desktop/wayland_ironbar.nix
+    ++ importIf (hasTag "desktop") ./modules/desktop/wayland_ashell_bar.nix
     ++ importIf (hasTag "desktop") ./modules/desktop/wayland_waybar.nix
     ++ importIf (hasTag "desktop") ./modules/desktop/bar_scripts.nix
     ++ importIf (hasTag "desktop") ./modules/desktop/screenshot.nix

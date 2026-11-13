@@ -1,0 +1,80 @@
+position = "Top"
+outputs = "All"
+enable_esc_key = true
+
+[logging]
+level = "warn"
+target = "file"
+
+[modules]
+left = ["Workspaces"]
+center = ["WindowTitle"]
+right = [["SystemInfo", "Settings"], "Tray"]
+
+[workspaces]
+visibility_mode = "MonitorSpecific"
+group_by_monitor = false
+indicator_format = "Name"
+
+[window_title]
+mode = "Title"
+truncate_title_after_length = 80
+
+[system_info]
+indicators = ["Cpu", "Memory", "Temperature"]
+interval = 2
+
+[system_info.cpu]
+warn_threshold = 60
+alert_threshold = 80
+format = "Percentage"
+
+[system_info.memory]
+warn_threshold = 70
+alert_threshold = 85
+format = "Percentage"
+
+[system_info.temperature]
+warn_threshold = 60
+alert_threshold = 80
+sensor = "Cpu"
+
+[tray]
+right_click = "Open"
+
+[settings]
+lock_cmd = "swaylock -f"
+shutdown_cmd = "systemctl poweroff"
+suspend_cmd = "systemctl suspend"
+hibernate_cmd = "systemctl hibernate"
+reboot_cmd = "systemctl reboot"
+logout_cmd = "loginctl terminate-user $USER"
+battery_format = "IconAndPercentage"
+battery_hide_when_full = false
+volume_step = 5
+max_volume = 100
+audio_indicator_format = "Icon"
+microphone_indicator_format = "Icon"
+network_indicator_format = "Icon"
+bluetooth_indicator_format = "Icon"
+brightness_indicator_format = "Icon"
+enable_tooltips = true
+indicators = ["Audio", "Microphone", "Bluetooth", "Network", "Battery", "Brightness"]
+
+[appearance]
+font_name = "Sarasa Gothic SC"
+scale_factor = 1.0
+opacity = 0.95
+background_color = "#121619"
+text_color = "#e3e8e2"
+primary_color = "#a8d5b5"
+success_color = "#a8d5b5"
+warning_color = "#754d30"
+danger_color = "#ffb4ab"
+workspace_colors = ["#a8d5b5", "#75a1b0", "#c8a6c9", "#d8b58a"]
+
+[appearance.bar]
+surface = "solid"
+radius = "lg"
+margin = "none"
+padding = "xxs"

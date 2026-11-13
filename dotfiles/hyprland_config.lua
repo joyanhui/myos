@@ -141,7 +141,7 @@ local function start_session_services()
 	local wallpaper_cmd = is_vmware
 			and "wallpaper_dir=$(dirname \"$(readlink -f \"$HOME/.config/hypr/hyprland.lua\")\")/../static_file/wallpaper; wallpaper=$(find \"$wallpaper_dir\" -type f \\( -name '*.jpg' -o -name '*.png' \\) | shuf -n 1); [ -n \"$wallpaper\" ] && swaybg -i \"$wallpaper\" -m fill"
 		or "wallpaper_dir=$(dirname \"$(readlink -f \"$HOME/.config/hypr/hyprland.lua\")\")/../static_file/wallpaper; wallpaper=$(find \"$wallpaper_dir\" -type f -name '*.mp4' | shuf -n 1); [ -n \"$wallpaper\" ] && mpvpaper --auto-pause -o 'no-audio loop panscan=1 hwdec=auto-safe vf=fps=30' '*' \"$wallpaper\""
-	hl.exec_cmd(soft_render .. "ironbar")
+	hl.exec_cmd(soft_render .. "ashell")
 	hl.exec_cmd(soft_render .. wallpaper_cmd)
 	hl.exec_cmd(
 		"systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE HYPRLAND_INSTANCE_SIGNATURE; "
@@ -202,6 +202,29 @@ local function resize_active_height(factor)
 	end
 
 	hl.dispatch(hl.dsp.window.resize({ x = 0, y = amount, relative = true, window = active }))
+end
+
+local function resize_active_width(factor)
+	local active = hl.get_active_window()
+	if active == nil then
+		return
+	end
+
+	if not active.floating then
+		hl.dispatch(hl.dsp.layout(factor > 0 and "mfact +0.1" or "mfact -0.1"))
+		return
+	end
+
+	if active.size == nil or active.size.x == nil then
+		return
+	end
+
+	local amount = math.max(1, math.floor(active.size.x * math.abs(factor)))
+	if factor < 0 then
+		amount = -amount
+	end
+
+	hl.dispatch(hl.dsp.window.resize({ x = amount, y = 0, relative = true, window = active }))
 end
 
 local function consume_or_expel(direction)
@@ -448,14 +471,18 @@ hl.bind(
 	{ description = "switch preset column width | 切换预设列宽" }
 )
 hl.bind(mod_key("SHIFT + H"), reset_master_layout, { description = "reset window height | 重置窗口高度" })
-hl.bind(mod_key("MINUS"), hl.dsp.layout("mfact -0.1"), { description = "column width -10% | 列宽 -10%" })
-hl.bind(mod_key("EQUAL"), hl.dsp.layout("mfact +0.1"), { description = "column width +10% | 列宽 +10%" })
-hl.bind(mod_key("SHIFT + MINUS"), function()
-	resize_active_height(-0.1)
-end, { description = "window height -10% | 窗口高度 -10%" })
-hl.bind(mod_key("SHIFT + EQUAL"), function()
+hl.bind("SUPER + ALT + LEFT", function()
+	resize_active_width(-0.1)
+end, { description = "window width -10% | 窗口宽度 -10%" })
+hl.bind("SUPER + ALT + RIGHT", function()
+	resize_active_width(0.1)
+end, { description = "window width +10% | 窗口宽度 +10%" })
+hl.bind("SUPER + ALT + UP", function()
 	resize_active_height(0.1)
 end, { description = "window height +10% | 窗口高度 +10%" })
+hl.bind("SUPER + ALT + DOWN", function()
+	resize_active_height(-0.1)
+end, { description = "window height -10% | 窗口高度 -10%" })
 hl.bind(
 	mod_key("COMMA"),
 	hl.dsp.window.move({ into_or_create_group = "right" }),

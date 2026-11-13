@@ -15,6 +15,7 @@ let
     ├────────────────────────────────────┼──────────────────────────────────────────────────────┤
     │ 常驻快捷键（任何模式可用）         │                                                      │
     │ 进入 / 退出锁定模式                │ Ctrl+G                                               │
+    │ 进入分屏模式                       │ Alt+P（Ctrl+P 已透传给程序，不占用）                 │
     │ 新建分屏                           │ Alt+N                                                │
     │ 浮动分屏开关                       │ Alt+F                                                │
     │ 按方向切换焦点（跨标签）           │ Alt+H / Alt+L / Alt+J / Alt+K                        │
@@ -23,7 +24,7 @@ let
     │ 切换预设布局                       │ Alt+[ / Alt+]                                        │
     │ 退出 zellij（终止会话）            │ Ctrl+Q                                               │
     ├────────────────────────────────────┼──────────────────────────────────────────────────────┤
-    │ 分屏                               │ Ctrl+P                                               │
+    │ 分屏                               │ Alt+P                                                │
     │ 按方向切换焦点                     │ H / L / J / K 或方向键                               │
     │ 新建分屏（自动方向）               │ N                                                    │
     │ 上下分屏                           │ D                                                    │
@@ -106,6 +107,15 @@ in
         scroll_mode_sync true
         show_startup_tips false
         show_release_notes false
+
+        keybinds {
+            shared_except "pane" "locked" {
+                bind "Ctrl p" { Write 16; }
+            }
+            shared_except "locked" {
+                bind "Alt p" { SwitchToMode "Pane"; }
+            }
+        }
       '';
     };
 }

@@ -92,6 +92,26 @@
           "Alt",
           "Shift",
           "F"
+        ],
+        "wm-decrease-width": [
+          "Win",
+          "Alt",
+          "Left"
+        ],
+        "wm-increase-width": [
+          "Win",
+          "Alt",
+          "Right"
+        ],
+        "wm-increase-height": [
+          "Win",
+          "Alt",
+          "Up"
+        ],
+        "wm-decrease-height": [
+          "Win",
+          "Alt",
+          "Down"
         ]
       },
       "animations": {
