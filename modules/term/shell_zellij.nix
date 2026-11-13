@@ -24,7 +24,7 @@ let
     │ 切换预设布局                       │ Alt+[ / Alt+]                                        │
     │ 退出 zellij（终止会话）            │ Ctrl+Q                                               │
     ├────────────────────────────────────┼──────────────────────────────────────────────────────┤
-    │ 分屏                               │ Ctrl+M（Ctrl+P 已透传给程序，不占用）                │
+    │ 分屏                               │ Ctrl+M（原来快捷键Ctrl+P）                           │
     │ 按方向切换焦点                     │ H / L / J / K 或方向键                               │
     │ 新建分屏（自动方向）               │ N                                                    │
     │ 上下分屏                           │ D                                                    │
@@ -83,9 +83,6 @@ let
     │ 关闭全部会话                       │ zellij kill-all-sessions                             │
     │ 删除已复活的会话记录               │ zellij delete-session <会话名>                       │
     │ 删除全部会话记录                   │ zellij delete-all-sessions                           │
-    │ 修改会话选项（立即生效）           │ zellij options --mouse-mode false                    │
-    │ 检查配置和目录                     │ zellij setup --check                                 │
-    │ 导出默认配置                       │ zellij setup --dump-config                           │
     └────────────────────────────────────┴──────────────────────────────────────────────────────┘
     EOF
   '';
