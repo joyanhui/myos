@@ -6,17 +6,14 @@
   ...
 }:
 let
-  ghProxy = global_settings.ghProxy;
+  pkgLocks = import ../pkg_locks_loader.nix { inherit pkgs lib global_settings; };
   cc_switch =
     with pkgs;
     stdenv.mkDerivation rec {
       pname = "cc-switch";
-      version = "3.20.0";
+      inherit (pkgLocks.entries.cc-switch) version;
 
-      src = fetchurl {
-        url = "${ghProxy}/https://github.com/farion1231/cc-switch/releases/download/v${version}/CC-Switch-v${version}-Linux-x86_64.deb";
-        hash = "sha256-1AruLIblKXgTXBX986fLn5VVrXwEatO+LcrF7c0qUsA=";
-      };
+      src = pkgLocks.fetchSource "cc-switch" "src";
 
       nativeBuildInputs = [
         autoPatchelfHook

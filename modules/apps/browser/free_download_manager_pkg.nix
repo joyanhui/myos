@@ -1,8 +1,10 @@
 { lib
 , stdenv
+, pkgs
+, global_settings
 , fetchurl
 , dpkg
-, wrapGAppsHook
+, wrapGAppsHook3
 , autoPatchelfHook
 , udev
 , libdrm
@@ -11,25 +13,25 @@
 , gst_all_1
 , xorg
 , libpulseaudio
-, mysql80
 ,
 }:
 
+let
+  pkgLocks = import ../../pkg_locks_loader.nix { inherit pkgs lib global_settings; };
+in
+
 stdenv.mkDerivation rec {
   pname = "freedownloadmanager";
-  version = "6.21.0.5639";
+  inherit (pkgLocks.entries.freedownloadmanager) version;
 
-  src = fetchurl {
-    url = "https://files2.freedownloadmanager.org/6/latest/freedownloadmanager.deb";
-    hash = "sha256-mmMIHbmmI0ZvBvOzCtiVdmbkmzZC65X28cuZMZ0w0xk=";
-    #curlOpts = "--proxy http://127.0.0.1:7890";
-  };
+  src = pkgLocks.fetchSource pname "src";
+  #curlOpts = "--proxy http://127.0.0.1:7890";
 
   unpackPhase = "dpkg-deb -x $src .";
 
   nativeBuildInputs = [
     dpkg
-    wrapGAppsHook
+    wrapGAppsHook3
     autoPatchelfHook
   ];
 
@@ -38,7 +40,11 @@ stdenv.mkDerivation rec {
     libpqxx
     unixODBC
     stdenv.cc.cc
-    mysql80
+    pkgs.libtiff
+    pkgs.wayland
+    pkgs.libxkbcommon
+    pkgs.krb5
+    pkgs.xcb-util-cursor
   ]
   ++ (with gst_all_1; [
     gstreamer
@@ -59,6 +65,29 @@ stdenv.mkDerivation rec {
   runtimeDependencies = [
     (lib.getLib udev)
   ];
+
+  autoPatchelfIgnoreMissingDeps = [
+    "libmysqlclient.so.21"
+    "libclntsh.so.23.1"
+    "libfbclient.so.2"
+    "libmimerapi.so"
+  ];
+
+  postFixup = ''
+    for plugin in $out/freedownloadmanager/plugins/sqldrivers/libqsqlmysql.so \
+                  $out/freedownloadmanager/plugins/sqldrivers/libqsqloci.so \
+                  $out/freedownloadmanager/plugins/sqldrivers/libqsqlibase.so \
+                  $out/freedownloadmanager/plugins/sqldrivers/libqsqlmimer.so; do
+      if [ -e "$plugin" ]; then
+        rm "$plugin"
+      fi
+    done
+    for lib in $out/freedownloadmanager/plugins/imageformats/libqtiff.so; do
+      if [ -e "$lib" ]; then
+        patchelf --replace-needed libtiff.so.5 libtiff.so.6 "$lib"
+      fi
+    done
+  '';
 
   installPhase = ''
     mkdir -p $out/bin

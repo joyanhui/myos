@@ -1,9 +1,13 @@
 {
   pkgs,
+  lib,
   username,
+  global_settings,
   ...
 }:
 let
+  pkgLocks = import ../../pkg_locks_loader.nix { inherit pkgs lib global_settings; };
+
   brave = pkgs.callPackage (
     {
       lib,
@@ -66,7 +70,7 @@ let
       commandLineArgs ? "",
     }:
     let
-      version = "1.99.55";
+      inherit (pkgLocks.entries.brave) version;
       optName = "brave";
       fileBase = "brave-browser";
       appId = "com.brave.Browser";
@@ -130,10 +134,7 @@ let
       pname = "brave";
       inherit version;
 
-      src = fetchurl {
-        url = "https://github.com/brave/brave-browser/releases/download/v${version}/brave-browser_${version}_amd64.deb";
-        hash = "sha256-Nk6VSirYTVuj4OIXoinVhzxK5xB9FeYSDkIHUpU5yI0=";
-      };
+      src = pkgLocks.fetchSource "brave" "src";
 
       nativeBuildInputs = [
         dpkg

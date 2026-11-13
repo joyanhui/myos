@@ -54,6 +54,7 @@ in
     ++ importIf (hasTag "dev") ./modules/system/font_i18n.nix
     ++ importIf (hasTag "dev") ./modules/apps/gfw_mihomo.nix
     ++ importIf (hasTag "dev") ./modules/dev/dev_base_and_import_all.nix
+    ++ importIf (hasTag "dev") ./modules/system/pkg_locks_updater.nix
     ++ importIf (hasTag "editor") ./modules/dev/dev_editor_extras.nix
 
     ++ importIf (hasTag "editor") (extract ./modules/dev/ide_helix.nix)

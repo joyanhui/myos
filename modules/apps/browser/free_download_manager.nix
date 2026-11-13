@@ -1,16 +1,18 @@
 { pkgs
+, lib
 , username
+, global_settings
 , ...
 }:
 
 let
   freedownloadmanager = import ./free_download_manager_pkg.nix {
+    inherit pkgs lib global_settings;
     inherit (pkgs)
-      lib
       stdenv
       fetchurl
       dpkg
-      wrapGAppsHook
+      wrapGAppsHook3
       autoPatchelfHook
       udev
       libdrm
@@ -19,7 +21,6 @@ let
       gst_all_1
       xorg
       libpulseaudio
-      mysql80
       ;
   };
 in

@@ -2,70 +2,32 @@
   lib,
   pkgs,
   username,
+  global_settings,
   ...
 }:
 
 let
+  pkgLocks = import ../../pkg_locks_loader.nix { inherit pkgs lib global_settings; };
+  devtoolsLock = pkgLocks.entries.wechat-devtools;
   pname = "wechat-devtools";
-  version = "2.02.2608060";
-  upstreamRev = "1f29b81d30d542f92509f56b0831f04839dcbe40";
+  inherit (devtoolsLock) version;
 
-  upstreamSrc = pkgs.fetchFromGitHub {
-    owner = "msojocs";
-    repo = "wechat-web-devtools-linux";
-    rev = upstreamRev;
-    hash = "sha256-GTvlrT+gXTzQasjtiE3D31A+mqNSqoTN07kSu5tdxNI=";
-  };
-
-  devtoolsExe = pkgs.fetchurl {
-    url = "https://devtools.wxqcloud.qq.com.cn/WechatWebDev/release/be1ec64cf6184b0fa64091919793f068/wechat_devtools_2.02.2608060_win32_x64.exe";
-    hash = "sha256-aDGkmNQbL+cWwcVMc2zEqEEiOK7t1cl8grbQ7L6q9H0=";
-  };
-
-  electronZip = pkgs.fetchurl {
-    url = "https://github.com/electron/electron/releases/download/v36.6.0/electron-v36.6.0-linux-x64.zip";
-    hash = "sha256-ag3ss+OC8y1Ks9uQqr0ILvnuEVT+IFgI+IfiKP2y01U=";
-  };
-
-  nodeDist = pkgs.fetchurl {
-    url = "https://npmmirror.com/mirrors/node/v22.16.0/node-v22.16.0-linux-x64.tar.gz";
-    hash = "sha256-+4cCJhGdRzePqcksRTU4nHLa4U/Me0fm/cyCxD3lpUc=";
-  };
-
-  ripgrep = pkgs.fetchurl {
-    url = "https://github.com/microsoft/ripgrep-prebuilt/releases/download/v15.0.0/ripgrep-v15.0.0-x86_64-unknown-linux-musl.tar.gz";
-    hash = "sha256-ndkwaixEzdox4vTzzzb01xSCYNk3FoPpZdPImSwgU0k=";
-  };
-
-  floatPigment = pkgs.fetchurl {
-    url = "https://github.com/msojocs/float-pigment-rust/releases/download/continuous/float-pigment.linux-x64-gnu.node";
-    hash = "sha256-A7ipWEYvUnNTWpqWAQntjb8NSfkrPW3MkMIa4ULgVK0=";
-  };
-
-  wcc = pkgs.fetchurl {
-    url = "https://github.com/msojocs/wx-compiler/releases/download/v0.1.7/wcc-x86_64";
-    hash = "sha256-yR2YN4WfxWIFjxxCOgVs3iBnwB+drU50eB2mCc+YgV0=";
-  };
-  wcsc = pkgs.fetchurl {
-    url = "https://github.com/msojocs/wx-compiler/releases/download/v0.1.7/wcsc-x86_64";
-    hash = "sha256-fKcvuC3yG2xrzF+6zIgJzjDciFK2/jvcXjNxbKUegao=";
-  };
-  wccNode = pkgs.fetchurl {
-    url = "https://github.com/msojocs/wx-compiler/releases/download/v0.1.7/wcc-x86_64.node";
-    hash = "sha256-creU26/ACSaeb+m4rPh+1CrxD6tP4iAHwKUAoU6MPxM=";
-  };
-  wcscNode = pkgs.fetchurl {
-    url = "https://github.com/msojocs/wx-compiler/releases/download/v0.1.7/wcsc-x86_64.node";
-    hash = "sha256-2/7X/tB2TRjbW8gvYP6gdDc+bsjopb0IwXXXNOJMzFY=";
-  };
+  upstreamSrc = pkgLocks.fetchSource pname "upstream";
+  devtoolsExe = pkgLocks.fetchSource pname "devtoolsExe";
+  electronZip = pkgLocks.fetchSource pname "electron";
+  nodeDist = pkgLocks.fetchSource pname "node";
+  ripgrep = pkgLocks.fetchSource pname "ripgrep";
+  floatPigment = pkgLocks.fetchSource pname "floatPigment";
+  wcc = pkgLocks.fetchSource pname "wcc";
+  wcsc = pkgLocks.fetchSource pname "wcsc";
+  wccNode = pkgLocks.fetchSource pname "wccNode";
+  wcscNode = pkgLocks.fetchSource pname "wcscNode";
 
   wechatDevtoolsBuild = pkgs.stdenv.mkDerivation {
     inherit pname version;
     src = upstreamSrc;
 
-    outputHashMode = "recursive";
-    outputHashAlgo = "sha256";
-    outputHash = "sha256-J2ZX5Mt+ZxQiNDjA07OMQ4DrVN65yp3r/bmX5gJdFys=";
+    inherit (devtoolsLock.derivations.build) outputHashMode outputHashAlgo outputHash;
 
     nativeBuildInputs = with pkgs; [
       bash

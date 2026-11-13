@@ -1,19 +1,18 @@
 {
   pkgs,
+  lib,
   username,
+  global_settings,
   ...
 }:
 let
+  pkgLocks = import ../pkg_locks_loader.nix { inherit pkgs lib global_settings; };
+
   PhotoGIMP = pkgs.stdenvNoCC.mkDerivation {
     pname = "PhotoGIMP";
-    version = "2026-03-28";
+    inherit (pkgLocks.entries.photo-gimp) version;
 
-    src = pkgs.fetchFromGitHub {
-      owner = "Diolinux";
-      repo = "PhotoGIMP";
-      rev = "21edbbc12e2287e5fdeb7998daf71a3144b78dad";
-      hash = "sha256-/oUU/BF6d7cwQ3HizpBnt/DXEB7ZBmSTrxFKqjZA7Uk=";
-    };
+    src = pkgLocks.fetchSource "photo-gimp" "src";
 
     installPhase = ''
       mkdir -p $out/share/PhotoGIMP

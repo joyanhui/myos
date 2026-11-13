@@ -9,6 +9,8 @@
 }:
 
 let
+  pkgLocks = import ../pkg_locks_loader.nix { inherit pkgs lib global_settings; };
+
   fcitx5BinPkg = if hmStandalone then pkgs.fcitx5 else config.i18n.inputMethod.package;
   fcitx5Bin = "${fcitx5BinPkg}/bin/fcitx5";
   fcitx5ThemesDir = "${fcitx5BinPkg}/share/fcitx5/themes";
@@ -64,7 +66,7 @@ let
   };
   rime-ice = pkgs.stdenvNoCC.mkDerivation {
     pname = "rime-ice";
-    version = "2026.06.30";
+    inherit (pkgLocks.entries.rime-ice) version;
 
     /*
       src = pkgs.fetchFromGitHub {
@@ -75,10 +77,7 @@ let
       };
     */
 
-    src = pkgs.fetchzip {
-      url = "${global_settings.ghProxy}/https://github.com/iDvel/rime-ice/archive/refs/tags/2026.06.30.tar.gz";
-      hash = "sha256-HReBFYih39ohqZ2UAX6wPjjh0KuIauJPSOjk6ZXidss=";
-    };
+    src = pkgLocks.fetchSource "rime-ice" "src";
 
     installPhase = ''
       mkdir -p $out/share/rime-data

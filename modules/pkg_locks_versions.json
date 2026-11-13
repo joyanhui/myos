@@ -1,0 +1,157 @@
+{
+  "packages": {
+    "brave": {
+      "version": "1.99.55",
+      "version_check": {
+        "type": "github-release-latest",
+        "owner": "brave",
+        "repo": "brave-browser"
+      },
+      "sources": {
+        "src": {
+          "url": "https://github.com/brave/brave-browser/releases/download/v{version}/brave-browser_{version}_amd64.deb",
+          "hash": "sha256-Nk6VSirYTVuj4OIXoinVhzxK5xB9FeYSDkIHUpU5yI0="
+        }
+      }
+    },
+    "cc-switch": {
+      "version": "3.20.0",
+      "version_check": {
+        "type": "github-release-latest",
+        "owner": "farion1231",
+        "repo": "cc-switch"
+      },
+      "sources": {
+        "src": {
+          "url": "https://github.com/farion1231/cc-switch/releases/download/v{version}/CC-Switch-v{version}-Linux-x86_64.deb",
+          "hash": "sha256-1AruLIblKXgTXBX986fLn5VVrXwEatO+LcrF7c0qUsA="
+        }
+      }
+    },
+    "photo-gimp": {
+      "version": "2026-03-28",
+      "version_check": {
+        "type": "github-commit-latest",
+        "owner": "Diolinux",
+        "repo": "PhotoGIMP"
+      },
+      "sources": {
+        "src": {
+          "type": "git-archive",
+          "url": "https://github.com/Diolinux/PhotoGIMP/archive/{rev}.tar.gz",
+          "rev": "21edbbc12e2287e5fdeb7998daf71a3144b78dad",
+          "hash": "sha256-/oUU/BF6d7cwQ3HizpBnt/DXEB7ZBmSTrxFKqjZA7Uk="
+        }
+      }
+    },
+    "rime-ice": {
+      "version": "2026.06.30",
+      "version_check": {
+        "type": "github-tag-latest",
+        "owner": "iDvel",
+        "repo": "rime-ice",
+        "match": "^[0-9]{4}\\.[0-9]{2}\\.[0-9]{2}$"
+      },
+      "sources": {
+        "src": {
+          "url": "https://github.com/iDvel/rime-ice/archive/refs/tags/{version}.tar.gz",
+          "hash": "sha256-HReBFYih39ohqZ2UAX6wPjjh0KuIauJPSOjk6ZXidss=",
+          "unpack": true
+        }
+      }
+    },
+    "wechat": {
+      "version": "4.1.0.13",
+      "version_check": {
+        "type": "manual"
+      },
+      "sources": {
+        "src": {
+          "url": "https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_x86_64.AppImage",
+          "hash": "sha256-RSYYC8qYASh5FZmvEi/0eVACpXFaUQ9qZUgOK+aHQkQ="
+        }
+      }
+    },
+    "wechat-devtools": {
+      "version": "2.02.2608060",
+      "version_check": {
+        "type": "manual"
+      },
+      "sources": {
+        "upstream": {
+          "type": "git-archive",
+          "url": "https://github.com/msojocs/wechat-web-devtools-linux/archive/{rev}.tar.gz",
+          "rev": "1f29b81d30d542f92509f56b0831f04839dcbe40",
+          "hash": "sha256-GTvlrT+gXTzQasjtiE3D31A+mqNSqoTN07kSu5tdxNI="
+        },
+        "devtoolsExe": {
+          "url": "https://devtools.wxqcloud.qq.com.cn/WechatWebDev/release/be1ec64cf6184b0fa64091919793f068/wechat_devtools_{version}_win32_x64.exe",
+          "hash": "sha256-aDGkmNQbL+cWwcVMc2zEqEEiOK7t1cl8grbQ7L6q9H0="
+        },
+        "electron": {
+          "pinned": true,
+          "version": "36.6.0",
+          "url": "https://github.com/electron/electron/releases/download/v{source_version}/electron-v{source_version}-linux-x64.zip",
+          "hash": "sha256-ag3ss+OC8y1Ks9uQqr0ILvnuEVT+IFgI+IfiKP2y01U="
+        },
+        "node": {
+          "pinned": true,
+          "version": "22.16.0",
+          "url": "https://npmmirror.com/mirrors/node/v{source_version}/node-v{source_version}-linux-x64.tar.gz",
+          "hash": "sha256-+4cCJhGdRzePqcksRTU4nHLa4U/Me0fm/cyCxD3lpUc="
+        },
+        "ripgrep": {
+          "pinned": true,
+          "version": "15.0.0",
+          "url": "https://github.com/microsoft/ripgrep-prebuilt/releases/download/v{source_version}/ripgrep-v{source_version}-x86_64-unknown-linux-musl.tar.gz",
+          "hash": "sha256-ndkwaixEzdox4vTzzzb01xSCYNk3FoPpZdPImSwgU0k="
+        },
+        "floatPigment": {
+          "pinned": true,
+          "url": "https://github.com/msojocs/float-pigment-rust/releases/download/continuous/float-pigment.linux-x64-gnu.node",
+          "hash": "sha256-A7ipWEYvUnNTWpqWAQntjb8NSfkrPW3MkMIa4ULgVK0="
+        },
+        "wcc": {
+          "pinned": true,
+          "url": "https://github.com/msojocs/wx-compiler/releases/download/v0.1.7/wcc-x86_64",
+          "hash": "sha256-yR2YN4WfxWIFjxxCOgVs3iBnwB+drU50eB2mCc+YgV0="
+        },
+        "wcsc": {
+          "pinned": true,
+          "url": "https://github.com/msojocs/wx-compiler/releases/download/v0.1.7/wcsc-x86_64",
+          "hash": "sha256-fKcvuC3yG2xrzF+6zIgJzjDciFK2/jvcXjNxbKUegao="
+        },
+        "wccNode": {
+          "pinned": true,
+          "url": "https://github.com/msojocs/wx-compiler/releases/download/v0.1.7/wcc-x86_64.node",
+          "hash": "sha256-creU26/ACSaeb+m4rPh+1CrxD6tP4iAHwKUAoU6MPxM="
+        },
+        "wcscNode": {
+          "pinned": true,
+          "url": "https://github.com/msojocs/wx-compiler/releases/download/v0.1.7/wcsc-x86_64.node",
+          "hash": "sha256-2/7X/tB2TRjbW8gvYP6gdDc+bsjopb0IwXXXNOJMzFY="
+        }
+      },
+      "derivations": {
+        "build": {
+          "outputHashMode": "recursive",
+          "outputHashAlgo": "sha256",
+          "outputHash": "sha256-J2ZX5Mt+ZxQiNDjA07OMQ4DrVN65yp3r/bmX5gJdFys="
+        }
+      }
+    },
+    "freedownloadmanager": {
+      "version": "6.36.0.7128",
+      "version_check": {
+        "type": "manual",
+        "version_from": "deb-version"
+      },
+      "sources": {
+        "src": {
+          "url": "https://files2.freedownloadmanager.org/6/latest/freedownloadmanager.deb",
+          "hash": "sha256-XLFyp12RtIuDC1JO/sojFXk0WJX833bVesaocwi9CDI="
+        }
+      }
+    }
+  }
+}

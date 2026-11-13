@@ -1,15 +1,14 @@
 {
   pkgs,
+  lib,
   username,
+  global_settings,
   ...
 }:
 let
-  version = "4.1.0.13";
-  srcOfficial = pkgs.fetchurl {
-    # nix-prefetch-url https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_x86_64.AppImage | xargs -I{} nix hash convert --hash-algo sha256 --to sri {}
-    url = "https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_x86_64.AppImage";
-    hash = "sha256-RSYYC8qYASh5FZmvEi/0eVACpXFaUQ9qZUgOK+aHQkQ=";
-  };
+  pkgLocks = import ../../pkg_locks_loader.nix { inherit pkgs lib global_settings; };
+  version = pkgLocks.entries.wechat.version;
+  srcOfficial = pkgLocks.fetchSource "wechat" "src";
 
   appimageContents = pkgs.appimageTools.extract {
     pname = "wechat";

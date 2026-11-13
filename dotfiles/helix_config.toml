@@ -1,13 +1,9 @@
 theme = "base16_terminal"
 
 [keys.normal]
-C-y = [
-  ':sh rm -f /tmp/yazi-helix-picker',
-  ':insert-output env EDITOR_COMMAND=hx yazi "%{buffer_name}" --chooser-file=/tmp/yazi-helix-picker',
-  ':sh printf "\\x1b[?1049h\\x1b[?2004h" > /dev/tty',
-  ':open %sh{cat /tmp/yazi-helix-picker}',
-  ':redraw',
-]
+C-y = ":sh zellij run --floating --close-on-exit -- yazi >/dev/null 2>&1"
+C-g = ":sh zellij run --floating --close-on-exit -- lazygit >/dev/null 2>&1"
+C-t = ":sh zellij run --floating --close-on-exit -- zsh >/dev/null 2>&1"
 
 [editor]
 soft-wrap.enable = true
