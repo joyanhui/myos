@@ -301,6 +301,8 @@ DOTFILES = {
                              r"win11.dotfiles\nvim_win_init.lua"),
     "helix config.toml": DotFile(r"%APPDATA%\helix\config.toml",
                                  r"..\dotfiles\helix_config.toml"),
+    "zellij config.kdl": DotFile(r"%APPDATA%\Zellij\config.kdl",
+                                 r"..\dotfiles\zellij_config.kdl"),
     "helix languages.toml": DotFile(r"%APPDATA%\helix\languages.toml",
                                     r"..\dotfiles\helix_languages.toml"),
     "pi settings.json": DotFile(r"%USERPROFILE%\.pi\agent\settings.json",

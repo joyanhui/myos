@@ -1,4 +1,5 @@
 position = "Top"
+layer = "Top"
 outputs = "All"
 enable_esc_key = true
 

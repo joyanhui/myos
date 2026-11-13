@@ -1,0 +1,14 @@
+mouse_mode true
+copy_clipboard "system"
+copy_on_select true
+support_kitty_keyboard_protocol true
+scroll_mode_sync true
+show_startup_tips false
+show_release_notes false
+
+keybinds {
+    shared_except "pane" "locked" {
+        bind "Ctrl p" { Write 16; }
+        bind "Ctrl m" { SwitchToMode "Pane"; }
+    }
+}
