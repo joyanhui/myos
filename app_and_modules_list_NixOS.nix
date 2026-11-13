@@ -75,7 +75,11 @@ in
     ++ importIf (hasTag "dev" && !hasTag "wsl") ./modules/apps/gfw_mihomo.nix
     ++ importIf (hasTag "dev") ./modules/dev/git_github_gitea.nix
     ++ importIf (hasTag "dev") ./modules/dev/dev_base_and_import_all.nix
-    ++ importIf (hasTag "dev") ./modules/system/pkg_locks_updater.nix
+    ++ importIf (hasTag "dev")
+      (
+        (import ./modules/pkg_locks_loader.nix { inherit pkgs lib global_settings; }).updaterModule
+        { }
+      )
     ++ importIf (hasTag "editor") ./modules/dev/dev_editor_extras.nix
 
     ++ importIf (hasTag "editor") ./modules/dev/ide_helix.nix

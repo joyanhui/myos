@@ -232,6 +232,7 @@ SOFTWARE = {
         Package("DISM++", "ChuyuTeam.DISM++", "winget", ("ChuyuTeam.DISM++",), scoop_alias="dismplusplus"),
         Package("Nushell", "Nushell.Nushell", "winget", ("Nushell.Nushell",)),
         Package("Helix", "Helix.Helix", "winget", ("Helix.Helix",)),
+        Package("Zellij", "Zellij.Zellij", "winget", ("Zellij.Zellij",)),
         Package("noctty", "AmanThanvi.noctty", "winget", ("AmanThanvi.noctty",)),
         Package("7-Zip", "7zip.7zip", "winget", ("7zip.7zip",)),
         Package("Git", "Git.Git", "winget", ("Git.Git",)),

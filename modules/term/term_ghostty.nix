@@ -38,7 +38,7 @@ let
     background = ${background}
     background-opacity = 0.88
     background-blur = true
-    command = zsh
+    command = zellij
     cursor-style = bar
     font-family = "${font.mono}"
     font-size = ${toString font.size.term}
