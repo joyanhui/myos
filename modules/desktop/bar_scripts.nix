@@ -5,5 +5,7 @@
       config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/script/bar_lunar.py";
     home.file.".local/bin/bar-weather".source =
       config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/script/bar_weather.py";
+    home.file.".local/bin/bar-power".source =
+      config.lib.file.mkOutOfStoreSymlink "${global_settings.repoDir}/script/bar_power_status.py";
   };
 }

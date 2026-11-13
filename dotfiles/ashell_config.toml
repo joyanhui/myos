@@ -10,7 +10,7 @@ target = "file"
 [modules]
 left = ["Workspaces"]
 center = ["WindowTitle"]
-right = ["SystemInfo", ["Weather", "Lunar", "Tempo", "Tray", "Settings"]]
+right = ["SystemInfo", ["Weather", "Lunar", "Power", "Tempo", "Tray", "Settings"]]
 
 [[CustomModule]]
 name = "Lunar"
@@ -24,6 +24,14 @@ on_right_click = "bar-weather --picker"
 on_scroll_up = "bar-weather --next"
 on_scroll_down = "bar-weather --prev"
 listen_cmd = "bar-weather --ashell-listen"
+
+[[CustomModule]]
+name = "Power"
+command = "bar-power --detail"
+listen_cmd = "bar-power --ashell-listen"
+icons.'^unplugged$' = "󰚦"
+icons.'^plugged$' = "󰚥"
+icons.'^charging$' = "󰚥 󰉁"
 
 [workspaces]
 visibility_mode = "MonitorSpecific"
@@ -100,7 +108,6 @@ indicators = [
   "Bluetooth",
   "Network",
   "Vpn",
-  "Battery",
   "Brightness",
 ]
 

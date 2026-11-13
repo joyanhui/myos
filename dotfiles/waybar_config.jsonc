@@ -5,7 +5,7 @@
   "spacing": 8,
   "modules-left": ["niri/workspaces", "hyprland/workspaces"],
   "modules-center": ["niri/window", "hyprland/window"],
-  "modules-right": ["cpu", "temperature", "memory", "network", "battery", "backlight", "tray", "pulseaudio", "custom/weather", "custom/lunar"],
+  "modules-right": ["cpu", "temperature", "memory", "network", "custom/power", "backlight", "tray", "pulseaudio", "custom/weather", "custom/lunar"],
   "niri/workspaces": {
     "all-outputs": false,
     "format": "{index}",
@@ -90,6 +90,13 @@
     "on-click-middle": "bar-weather --picker",
     "on-scroll-up": "bar-weather --prev",
     "on-scroll-down": "bar-weather --next"
+  },
+  "custom/power": {
+    "exec": "bar-power --waybar",
+    "interval": 20,
+    "return-type": "json",
+    "tooltip": true,
+    "on-click": "bar-power --detail"
   },
   "custom/lunar": {
     "exec": "bar-lunar",

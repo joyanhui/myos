@@ -575,9 +575,9 @@ def popup_button(parent, text, command):
         activeforeground=POPUP_BG,
         relief="flat",
         bd=0,
-        padx=14,
-        pady=6,
-        font=(POPUP_FONT, 11),
+        padx=18,
+        pady=10,
+        font=(POPUP_FONT, 14),
         cursor="hand2",
     )
 
@@ -601,9 +601,9 @@ def run_picker():
         return
     import tkinter as tk
 
-    root = popup_window("选择默认城市", 320, 320)
+    root = popup_window("选择默认城市", 520, 560)
     frame = tk.Frame(root, bg=POPUP_BG)
-    frame.pack(fill="both", expand=True, padx=12, pady=12)
+    frame.pack(fill="both", expand=True, padx=16, pady=16)
     tk.Label(
         frame,
         text="双击或选中后确定，设为 bar 显示的默认城市",
@@ -611,9 +611,9 @@ def run_picker():
         fg=POPUP_FG,
         anchor="w",
         justify="left",
-        wraplength=260,
-        font=(POPUP_FONT, 10),
-    ).pack(fill="x", pady=(0, 8))
+        wraplength=460,
+        font=(POPUP_FONT, 14),
+    ).pack(fill="x", pady=(0, 10))
     listing = tk.Listbox(
         frame,
         bg=POPUP_PANEL,
@@ -624,7 +624,7 @@ def run_picker():
         bd=0,
         highlightthickness=0,
         activestyle="none",
-        font=(POPUP_FONT, 12),
+        font=(POPUP_FONT, 16),
     )
     for city in CITIES:
         listing.insert("end", city["name"])
@@ -676,7 +676,7 @@ def run_detail(key):
         return
     import tkinter as tk
 
-    root = popup_window("天气预报", 820, 560)
+    root = popup_window("天气预报", 1280, 860)
     frame = tk.Frame(root, bg=POPUP_BG)
     frame.pack(fill="both", expand=True, padx=12, pady=12)
     body = tk.Text(
@@ -686,10 +686,10 @@ def run_detail(key):
         relief="flat",
         bd=0,
         highlightthickness=0,
-        padx=12,
-        pady=10,
+        padx=16,
+        pady=14,
         wrap="none",
-        font=(POPUP_FONT, 11),
+        font=(POPUP_FONT, 15),
         cursor="arrow",
     )
     body.insert("1.0", text)
