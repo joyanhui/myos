@@ -39,6 +39,7 @@ let
     background-opacity = 0.88
     background-blur = true
     command = zellij
+    term = xterm-256color
     cursor-style = bar
     font-family = "${font.mono}"
     font-size = ${toString font.size.term}

@@ -28,6 +28,8 @@ let
     "#2A2110"
   ];
   rioConfig = background: ''
+    env-vars = ["TERM=xterm-256color"]
+
     [fonts]
     family = "${font.mono}"
     size = 18

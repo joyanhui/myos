@@ -92,7 +92,7 @@ in
     { config, ... }:
     {
       home.packages = [
-        pkgs.zellij
+        pkgs.unstable.zellij
         zellijHelp
       ];
 
