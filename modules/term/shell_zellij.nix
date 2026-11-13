@@ -102,13 +102,10 @@ in
         mouse_mode true
         copy_clipboard "system"
         copy_on_select true
-        scroll_mode_sync true
         support_kitty_keyboard_protocol true
+        scroll_mode_sync true
         show_startup_tips false
         show_release_notes false
-        session_serialization true
-        pane_frame_style "titles"
-        default_mode "normal"
       '';
     };
 }
