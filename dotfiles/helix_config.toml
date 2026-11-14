@@ -1,4 +1,4 @@
-theme = "base16_terminal"
+theme = "term16_dark"
 
 [keys.normal]
 C-y = ':sh if [ -n "$ZELLIJ" ]; then zellij run --floating --close-on-exit -- yazi >/dev/null 2>&1; elif [ -n "$TMUX" ]; then tmux display-popup -E -w 90%% -h 90%% yazi; else yazi </dev/tty >/dev/tty 2>&1; fi'
