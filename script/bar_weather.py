@@ -509,10 +509,10 @@ def refresh_bar():
             pass
 
 
-POPUP_BG = "#1c1f21"
-POPUP_PANEL = "#26292b"
+POPUP_BG = "#121619"
+POPUP_PANEL = "#1b2226"
 POPUP_FG = "#e3e8e2"
-POPUP_ACCENT = "#7fd0c8"
+POPUP_ACCENT = "#a8d5b5"
 POPUP_FONT = "Noto Sans Mono CJK SC"
 
 

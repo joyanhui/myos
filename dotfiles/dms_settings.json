@@ -429,7 +429,6 @@
         "intervalCommand:weather",
         "intervalCommand:lunar",
         "notificationButton",
-        "battery",
         "intervalCommand:power",
         "controlCenterButton"
       ],

@@ -246,7 +246,7 @@ def run_calendar():
     root.title("农历万年历")
     root.configure(bg=POPUP_BG)
     root.resizable(False, False)
-    width, height = 760, 820
+    width, height = 900, 820
     screen_w, screen_h = root.winfo_screenwidth(), root.winfo_screenheight()
     root.geometry(
         f"{width}x{height}+{(screen_w - width) // 2}+{max(0, (screen_h - height) // 3)}"
@@ -288,15 +288,28 @@ def run_calendar():
 
     grid = tk.Frame(root, bg=POPUP_BG)
     grid.pack(fill="both", expand=True, padx=18, pady=(0, 8))
-    footer = tk.Label(
-        root,
+    footer = tk.Frame(root, bg=POPUP_BG)
+    footer.pack(fill="x", padx=18, pady=(0, 14))
+    footer_text = tk.Label(
+        footer,
         bg=POPUP_BG,
         fg=POPUP_DIM,
         anchor="w",
         justify="left",
         font=(POPUP_FONT, 13),
     )
-    footer.pack(fill="x", padx=18, pady=(0, 14))
+    footer_text.pack(side="left")
+    clock = tk.Label(
+        footer,
+        bg=POPUP_BG,
+        fg=POPUP_ACCENT,
+        font=(POPUP_FONT, 13),
+    )
+    clock.pack(side="right")
+
+    def tick():
+        clock.configure(text=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        root.after(1000, tick)
 
     def step(delta):
         month = state["month"] + delta
@@ -331,7 +344,7 @@ def run_calendar():
             f"{lunar_day_name(lunar_day)}"
         )
         leap_year = "闰年" if year_leap(lunar_year) else "平年"
-        footer.configure(text=f"{label}   农历{leap_year}，{lunar_year_days(lunar_year)} 天")
+        footer_text.configure(text=f"{label}   农历{leap_year}，{lunar_year_days(lunar_year)} 天")
 
     def render():
         for child in grid.winfo_children():
@@ -387,6 +400,7 @@ def run_calendar():
     button(controls, "今天", go_today).pack(side="left", padx=3)
     button(controls, "下月", lambda: step(1)).pack(side="left", padx=3)
     button(controls, "下年", lambda: step_year(1)).pack(side="left", padx=3)
+    button(controls, "关闭", root.destroy).pack(side="left", padx=(14, 0))
 
     root.bind("<Left>", lambda _event: step(-1))
     root.bind("<Right>", lambda _event: step(1))
@@ -395,6 +409,7 @@ def run_calendar():
 
     render()
     describe(today)
+    tick()
     root.mainloop()
     lock.close()
 
@@ -419,10 +434,7 @@ def main():
     if args and args[0] == "--calendar":
         run_calendar()
         return
-    print(
-        f"{WEEKDAYS[today.weekday()]} {today.isoformat()} "
-        f"{cached_lunar_text(today)} {now.strftime('%H:%M')}"
-    )
+    print(cached_lunar_text(today))
 
 
 if __name__ == "__main__":

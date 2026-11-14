@@ -28,7 +28,7 @@
         "id": "power",
         "name": "Power",
         "command": "bar-power --text",
-        "icon": "battery_full",
+        "icon": "power",
         "refreshInterval": 30,
         "clickCommand": "bar-power --detail",
         "popoutEnabled": false,

@@ -15,21 +15,16 @@ DETAIL_LOCK = "detail.lock"
 ASHELL_POLL = 30
 LOW_CAPACITY = 20
 
+ICON_BATTERY = "\U000F0079"
 ICON_CHARGING = "\U000F0241"
 ICON_PLUG = "\U000F06A5"
 ICON_PLUG_OFF = "\U000F06A6"
-LEVEL_ICONS = [
-    "\U000F008E",
-    "\U000F007A",
-    "\U000F007B",
-    "\U000F007C",
-    "\U000F007D",
-    "\U000F007E",
-    "\U000F007F",
-    "\U000F0080",
-    "\U000F0081",
-    "\U000F0082",
-]
+COLOR_CHARGING = "#4ade80"
+COLOR_ALERT = "#f87171"
+COLOR_MID = "#b07d4e"
+LOW_CAPACITY_RED = 35
+LOW_CAPACITY_BROWN = 60
+BAR_TEXT_LIMIT = 50
 
 STATE_UNPLUGGED = "unplugged"
 STATE_PLUGGED = "plugged"
@@ -48,6 +43,12 @@ def read_int(path):
         return int(float(read_text(path)))
     except (TypeError, ValueError):
         return None
+
+
+def clamped_capacity(value):
+    if value is None:
+        return None
+    return max(0, min(100, value))
 
 
 def supplies():
@@ -92,7 +93,7 @@ def battery_status():
             "manufacturer": read_text(entry / "manufacturer"),
             "technology": read_text(entry / "technology"),
             "status": read_text(entry / "status") or "Unknown",
-            "capacity": read_int(entry / "capacity"),
+            "capacity": clamped_capacity(read_int(entry / "capacity")),
             "energy_now": energy_now,
             "energy_full": energy_full,
             "energy_design": energy_design,
@@ -121,31 +122,63 @@ def snapshot():
     return {"mains": mains, "battery": battery, "state": state}
 
 
-def level_icon(capacity):
+def percent_color(capacity):
     if capacity is None:
-        return LEVEL_ICONS[0]
-    index = min(len(LEVEL_ICONS) - 1, max(0, capacity // 10))
-    return LEVEL_ICONS[index]
+        return None
+    if capacity < LOW_CAPACITY_RED:
+        return COLOR_ALERT
+    if capacity < LOW_CAPACITY_BROWN:
+        return COLOR_MID
+    return None
 
 
-def battery_icon(data):
-    state = data["state"]
-    battery = data["battery"] or {}
-    capacity = battery.get("capacity")
-    if state == STATE_CHARGING:
-        return ICON_CHARGING
-    if state == STATE_PLUGGED:
-        return ICON_PLUG
-    return level_icon(capacity)
+def markup(text, color):
+    if not color:
+        return text
+    return f'<font color="{color}">{text}</font>'
 
 
-def bar_text(data):
+def join_parts(parts, sep):
+    return sep.join(markup(text, color) for text, color in parts)
+
+
+def bar_rich(parts):
+    options = [
+        join_parts(parts, ""),
+        join_parts([(text, color if index == 0 else None) for index, (text, color) in enumerate(parts)], ""),
+        join_parts([(text, color if index == 1 else None) for index, (text, color) in enumerate(parts)], ""),
+        join_parts([(text, None) for text, _color in parts], ""),
+    ]
+    for text in options:
+        if len(text) <= BAR_TEXT_LIMIT:
+            return text
+    return options[-1]
+
+
+def bar_text(data, rich=False):
     battery = data["battery"]
+    state = data["state"]
     if not battery:
+        if data["mains"]["online"]:
+            return markup(ICON_PLUG, COLOR_ALERT) if rich else ICON_PLUG
         return f"{ICON_PLUG_OFF} NO BAT"
     capacity = battery.get("capacity")
     percent = "--" if capacity is None else f"{capacity}%"
-    return f"{battery_icon(data)} {percent}"
+    color = percent_color(capacity)
+    icon = ICON_BATTERY
+    if state == STATE_CHARGING:
+        icon = ICON_CHARGING
+    elif state == STATE_PLUGGED:
+        icon = ICON_PLUG
+    if not rich:
+        return f"{icon}{percent}"
+    if state == STATE_CHARGING:
+        return bar_rich([(ICON_CHARGING, COLOR_CHARGING), (percent, color)])
+    if state == STATE_PLUGGED:
+        if color == COLOR_ALERT:
+            return markup(f"{ICON_PLUG}{percent}", COLOR_ALERT)
+        return bar_rich([(ICON_PLUG, COLOR_ALERT), (percent, color)])
+    return bar_rich([(ICON_BATTERY, None), (percent, color)])
 
 
 def state_label(data):
@@ -265,7 +298,7 @@ def print_waybar():
     print(
         json.dumps(
             {
-                "text": bar_text(data),
+                "text": bar_text(data, rich=True),
                 "tooltip": tooltip(data),
                 "class": state_class(data),
             },
@@ -406,14 +439,15 @@ def run_detail():
         padx=18,
         pady=16,
         wrap="word",
+        height=18,
         font=(POPUP_FONT, 15),
         cursor="arrow",
     )
-    body.pack(fill="both", expand=True, padx=12, pady=(12, 6))
     body.insert("1.0", plain_text(tooltip(snapshot())))
     body.configure(state="disabled")
     buttons = tk.Frame(root, bg=POPUP_BG)
-    buttons.pack(fill="x", padx=12, pady=(0, 12))
+    buttons.pack(side="bottom", fill="x", padx=12, pady=(0, 12))
+    body.pack(fill="both", expand=True, padx=12, pady=(12, 6))
 
     def reload():
         body.configure(state="normal")
@@ -459,7 +493,7 @@ def main():
     args = sys.argv[1:]
     mode = args[0] if args else "--text"
     if mode == "--text":
-        print(bar_text(snapshot()))
+        print(bar_text(snapshot(), rich=True))
         return
     if mode == "--json":
         print(json.dumps(snapshot(), ensure_ascii=False))
