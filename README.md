@@ -5,7 +5,6 @@
 ## Hosts
 
 - `wsl`：WSL2 的 NixOS 配置。
-- `tb_amd`：ThinkBook 14p AMD 配置。
 - `raw_os_core_img_creat或raw_os_work_amd/intel`：Raw OS 基础镜像构建配置，生成初始 raw 镜像以及内部、外部引导产物，运行在 raw 镜像内的 日用工作环境配置，包含 Intel/amd IOMMU、KVM 和 VFIO 等 带VMware tools。镜像文件支持当到NTFS分区默认路径为 `OS-img/nixos.raw`
 - `iso_installer`：不含桌面用作重装系统或维护系统用的命令行live盘，主要用来服务器重做系统等。
 - `homeConfigurations.linux`：Debian、Ubuntu 等基于 glibc Linux 的 standalone 配置。
@@ -106,7 +105,6 @@ transcrypt
 ├── dotfiles/                  # 集中存放由 Nix 软链接管理的非敏感配置文件
 ├── machine/                   # 机器配置
 │   └── 机器配置说明.md        # 机器配置说明
-│   ├── tb_amd/                # ThinkBook 14p AMD 的硬件和机器配置
 │   ├── raw_os/                # Raw OS 核心和工作环境配置
 │   └── wsl.nix                # WSL 入口，导入 nixos-wsl 模块
 ├── modules/

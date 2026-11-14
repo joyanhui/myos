@@ -12,7 +12,6 @@
 
       xdg.configFile."lazygit/config.yml".text = ''
         gui:
-          editor: nvim
           nerdFontsVersion: "3"
           showRandomTip: false
           showCommandLog: false
@@ -23,9 +22,6 @@
               - bold
             selectedLineBgColor:
               - default
-        os:
-          editCommand: nvim
-          editCommandTemplate: nvim {{filename}}
         confirmOnQuit: true
 
       '';

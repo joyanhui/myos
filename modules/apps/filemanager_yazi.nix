@@ -62,18 +62,6 @@ in
             cache_dir = "/tmp/yazi-cache";
           };
           opener = {
-            edit = [
-              {
-                run = ''''${EDITOR_COMMAND:-nvim} "$@"'';
-                block = true;
-              }
-            ];
-            open = [
-              {
-                run = ''xdg-open "$@"'';
-                block = false;
-              }
-            ];
             reveal = [
               {
                 run = ''thunar "$(dirname "$@")"'';

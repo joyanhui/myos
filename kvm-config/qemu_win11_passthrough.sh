@@ -290,7 +290,7 @@ fi
 echo "==== 预检 ===="
 
 if [[ ! -d /sys/kernel/iommu_groups ]] || [[ -z "$(ls -A /sys/kernel/iommu_groups 2>/dev/null)" ]]; then
-  echo "  错误: IOMMU 未启用（需要 amd_iommu=on iommu=pt，见 machine/tb_amd/default.nix）" >&2
+  echo "  错误: IOMMU 未启用（需要 amd_iommu=on iommu=pt）" >&2
   exit 1
 fi
 echo "  IOMMU: 已启用"

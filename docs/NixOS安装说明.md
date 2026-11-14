@@ -114,4 +114,4 @@ export proxy="http://192.168.1.110:7890" # phone or other pc with clash/mihomo
 export http_proxy=$proxy && export https_proxy=$proxy && export ftp_proxy=$proxy && export no_proxy="localhost, 127.0.0.1, ::1"
 
 
-sudo  nixos-rebuild switch --flake /home/nixos/myws/os-config#tb_amd --option substituters https://cache.nixos.org
+sudo  nixos-rebuild switch --flake /home/nixos/myws/os-config#raw_os_work_amd --option substituters https://cache.nixos.org
