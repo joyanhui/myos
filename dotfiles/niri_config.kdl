@@ -145,6 +145,18 @@ binds {
 
     // Mod+Shift+Escape allow-inhibiting=false hotkey-overlay-title="toggle shortcuts inhibit | 切换快捷键抑制" { toggle-keyboard-shortcuts-inhibit; }
     // Mod+Ctrl+Shift+P hotkey-overlay-title="power off monitors | 关闭显示器" { power-off-monitors; }
+
+    XF86AudioRaiseVolume allow-when-locked=true hotkey-overlay-title="volume up | 音量加" { spawn "wpctl" "set-volume" "-l" "1" "@DEFAULT_AUDIO_SINK@" "5%+"; }
+    XF86AudioLowerVolume allow-when-locked=true hotkey-overlay-title="volume down | 音量减" { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%-"; }
+    XF86AudioMute allow-when-locked=true hotkey-overlay-title="toggle mute | 静音切换" { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
+    XF86AudioMicMute allow-when-locked=true hotkey-overlay-title="toggle microphone mute | 麦克风静音切换" { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
+    XF86MonBrightnessUp allow-when-locked=true hotkey-overlay-title="brightness up | 亮度加" { spawn "brightnessctl" "-e4" "-n2" "set" "5%+"; }
+    XF86MonBrightnessDown allow-when-locked=true hotkey-overlay-title="brightness down | 亮度减" { spawn "brightnessctl" "-e4" "-n2" "set" "5%-"; }
+    XF86AudioPlay hotkey-overlay-title="play/pause | 播放/暂停" { spawn "playerctl" "play-pause"; }
+    XF86AudioPause hotkey-overlay-title="play/pause | 播放/暂停" { spawn "playerctl" "play-pause"; }
+    XF86AudioNext hotkey-overlay-title="next track | 下一首" { spawn "playerctl" "next"; }
+    XF86AudioPrev hotkey-overlay-title="previous track | 上一首" { spawn "playerctl" "previous"; }
+    XF86AudioStop hotkey-overlay-title="stop playback | 停止播放" { spawn "playerctl" "stop"; }
 }
 
 input {

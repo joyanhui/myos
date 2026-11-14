@@ -524,3 +524,45 @@ hl.bind(
 	),
 	{ description = "select area screenshot, copy and notify | 自由选取截图、复制到剪贴板并通知" }
 )
+
+hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), {
+	locked = true,
+	repeating = true,
+	description = "volume up | 音量加",
+})
+hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"), {
+	locked = true,
+	repeating = true,
+	description = "volume down | 音量减",
+})
+hl.bind("XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"), {
+	locked = true,
+	repeating = true,
+	description = "toggle mute | 静音切换",
+})
+hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"), {
+	locked = true,
+	repeating = true,
+	description = "toggle microphone mute | 麦克风静音切换",
+})
+hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%+"), {
+	locked = true,
+	repeating = true,
+	description = "brightness up | 亮度加",
+})
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%-"), {
+	locked = true,
+	repeating = true,
+	description = "brightness down | 亮度减",
+})
+hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), {
+	locked = true,
+	description = "play/pause | 播放/暂停",
+})
+hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), {
+	locked = true,
+	description = "play/pause | 播放/暂停",
+})
+hl.bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), { locked = true, description = "next track | 下一首" })
+hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true, description = "previous track | 上一首" })
+hl.bind("XF86AudioStop", hl.dsp.exec_cmd("playerctl stop"), { locked = true, description = "stop playback | 停止播放" })
