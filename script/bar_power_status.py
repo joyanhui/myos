@@ -2,6 +2,8 @@
 import fcntl
 import json
 import os
+import shutil
+import subprocess
 import sys
 import tempfile
 import time
@@ -292,6 +294,60 @@ POPUP_FG = "#e3e8e2"
 POPUP_ACCENT = "#a8d5b5"
 POPUP_FONT = "Noto Sans Mono CJK SC"
 
+POWER_PROFILES = [
+    ("power-saver", "节能"),
+    ("balanced", "平衡"),
+    ("performance", "性能"),
+]
+
+
+def power_profile_available():
+    return shutil.which("powerprofilesctl") is not None
+
+
+def power_profile():
+    try:
+        result = subprocess.run(
+            ["powerprofilesctl", "get"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return ""
+    if result.returncode != 0:
+        return ""
+    return result.stdout.strip()
+
+
+def set_power_profile(name):
+    try:
+        subprocess.run(
+            ["powerprofilesctl", "set", name],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return True
+
+
+def profile_label():
+    current = power_profile()
+    for name, label in POWER_PROFILES:
+        if name == current:
+            return f"电源模式: {label}"
+    return "电源模式: 未知"
+
+
+def next_profile():
+    names = [name for name, _label in POWER_PROFILES]
+    current = power_profile()
+    if current in names:
+        return names[(names.index(current) + 1) % len(names)]
+    return names[0]
+
 
 def popup_lock(name):
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
@@ -383,6 +439,17 @@ def run_detail():
         )
 
     button(buttons, "刷新", reload).pack(side="left")
+
+    if power_profile_available():
+
+        def cycle_profile():
+            set_power_profile(next_profile())
+            profile_button.configure(text=profile_label())
+            reload()
+
+        profile_button = button(buttons, profile_label(), cycle_profile)
+        profile_button.pack(side="left", padx=(10, 0))
+
     button(buttons, "关闭", root.destroy).pack(side="right")
     root.mainloop()
     lock.close()

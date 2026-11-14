@@ -430,6 +430,7 @@
         "intervalCommand:lunar",
         "notificationButton",
         "battery",
+        "intervalCommand:power",
         "controlCenterButton"
       ],
       "spacing": 4,

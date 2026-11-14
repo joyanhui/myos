@@ -1,0 +1,40 @@
+{
+  "intervalCommand": {
+    "enabled": true,
+    "variants": [
+      {
+        "id": "weather",
+        "name": "Weather",
+        "command": "bar-weather --text",
+        "icon": "partly_cloudy_day",
+        "refreshInterval": 300,
+        "clickCommand": "bar-weather --detail",
+        "popoutEnabled": false,
+        "useAccentColor": false,
+        "tabularNumbers": false
+      },
+      {
+        "id": "lunar",
+        "name": "Lunar",
+        "command": "bar-lunar",
+        "icon": "calendar_month",
+        "refreshInterval": 60,
+        "clickCommand": "bar-lunar --calendar",
+        "popoutEnabled": false,
+        "useAccentColor": false,
+        "tabularNumbers": false
+      },
+      {
+        "id": "power",
+        "name": "Power",
+        "command": "bar-power --text",
+        "icon": "battery_full",
+        "refreshInterval": 30,
+        "clickCommand": "bar-power --detail",
+        "popoutEnabled": false,
+        "useAccentColor": false,
+        "tabularNumbers": true
+      }
+    ]
+  }
+}
