@@ -54,7 +54,7 @@
 background = #0A181A
 background-opacity = 0.88
 background-blur = true
-command = call "%LOCALAPPDATA%\noctty\launch.cmd"
+command = where zellij>nul 2>nul && (set SHELL=powershell.exe& where nu>nul 2>nul && set SHELL=nu.exe& zellij) || (where nu>nul 2>nul && nu || powershell.exe)
 cursor-style = bar
 cursor-style-blink = false
 
