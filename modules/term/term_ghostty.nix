@@ -38,7 +38,7 @@ let
     background = ${background}
     background-opacity = 0.88
     background-blur = true
-    command = zellij
+    command = if command -v zellij >/dev/null 2>&1; then exec zellij; else exec "''${SHELL:-zsh}"; fi
     term = xterm-256color
     cursor-style = bar
     font-family = "${font.mono}"

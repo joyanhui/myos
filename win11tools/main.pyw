@@ -297,6 +297,8 @@ PKG_INDEX = {pkg.title: pkg for pkg in all_packages()}
 DOTFILES = {
     "noctty config.ghostty": DotFile(r"%LOCALAPPDATA%\noctty\config.ghostty",
                                      r"win11.dotfiles\noctty_config.ghostty"),
+    "noctty launch.cmd": DotFile(r"%LOCALAPPDATA%\noctty\launch.cmd",
+                                 r"win11.dotfiles\noctty_launch.cmd"),
     "helix config.toml": DotFile(r"%APPDATA%\helix\config.toml",
                                  r"..\dotfiles\helix_config.toml"),
     "zellij config.kdl": DotFile(r"%APPDATA%\Zellij\config.kdl",

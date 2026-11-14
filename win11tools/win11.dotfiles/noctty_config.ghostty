@@ -54,7 +54,7 @@
 background = #0A181A
 background-opacity = 0.88
 background-blur = true
-command = nu
+command = call "%LOCALAPPDATA%\noctty\launch.cmd"
 cursor-style = bar
 cursor-style-blink = false
 
