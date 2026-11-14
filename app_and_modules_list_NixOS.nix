@@ -52,10 +52,10 @@ in
     ++ importIf (hasTag "desktop") ./modules/desktop/wayland_wm_niri.nix
     ++ importIf (hasTag "desktop") ./modules/desktop/wayland_wm_hyprland.nix
     ++ importIf (hasTag "desktop") ./modules/desktop/wayland_copyq.nix
-    ++ importIf (hasTag "desktop") ./modules/desktop/wayland_bar_dms.nix
-    ++ importIf (hasTag "desktop") ./modules/desktop/wayland_bar_ashell.nix
+    # ++ importIf (hasTag "desktop") ./modules/desktop/wayland_bar_dms.nix
+    # ++ importIf (hasTag "desktop") ./modules/desktop/wayland_bar_ashell.nix
     ++ importIf (hasTag "desktop") ./modules/desktop/wayland_bar_waybar.nix
-    ++ importIf (hasTag "desktop") ./modules/desktop/wayland_bar_noctalia.nix
+    # ++ importIf (hasTag "desktop") ./modules/desktop/wayland_bar_noctalia.nix
     ++ importIf (hasTag "desktop") ./modules/desktop/bar_scripts.nix
     ++ importIf (hasTag "desktop") ./modules/desktop/screenshot.nix
     # ++ importIf (hasTag "desktop") ./modules/system/desktopfile_manager.nix

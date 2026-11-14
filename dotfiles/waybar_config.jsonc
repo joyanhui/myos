@@ -1,11 +1,36 @@
 {
   "layer": "top",
   "position": "top",
-  "height": 44,
-  "spacing": 8,
-  "modules-left": ["niri/workspaces", "hyprland/workspaces"],
-  "modules-center": ["niri/window", "hyprland/window"],
-  "modules-right": ["tray", "cpu", "memory", "temperature", "network", "pulseaudio", "backlight", "custom/weather", "custom/lunar", "custom/power", "custom/disk"],
+  "height": 30,
+  "spacing": 2,
+  "margin": "0 10",
+  "fixed-center": true,
+  "modules-left": [
+    "niri/workspaces",
+    "hyprland/workspaces"
+  ],
+  "modules-center": [
+    "niri/window",
+    "hyprland/window"
+  ],
+  "modules-right": [
+    "tray",
+    "cpu",
+    "memory",
+    "custom/disk",
+    "temperature",
+    "network",
+    "pulseaudio",
+    "backlight",
+    "custom/weather",
+    "clock",
+    "custom/lunar",
+    "custom/power"
+  ],
+  "clock": {
+    "interval": 30,
+    "format": "<span font='16'>󰥔</span> {:%Y-%m-%d %a %H:%M}"
+  },
   "niri/workspaces": {
     "all-outputs": false,
     "format": "{index}",
@@ -48,7 +73,7 @@
   "backlight": {
     "format": "<span font='16'>◐</span> {percent}%",
     "scroll-step": 5,
-    "tooltip": true
+    "tooltip": false
   },
   "tray": {
     "icon-size": 16,
@@ -60,11 +85,14 @@
       "StatusNotifierItem": "kdeconnectindicatordark"
     }
   },
-
   "pulseaudio": {
     "format": "<span font='16'>󰕾</span> {volume}%",
     "format-muted": "<span font='16'>󰝟</span> muted",
-    "format-icons": ["󰕿", "󰖀", "󰕾"],
+    "format-icons": [
+      "󰕿",
+      "󰖀",
+      "󰕾"
+    ],
     "max-volume": 100,
     "scroll-step": 5,
     "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
