@@ -1,0 +1,288 @@
+[bar]
+order = ["default"]
+
+    [bar.default]
+    position = "top"
+    thickness = 44
+    background_opacity = 0.62
+    border = "outline"
+    border_width = 1.0
+    capsule = true
+    capsule_border = "outline"
+    capsule_fill = "surface_variant"
+    capsule_opacity = 0.55
+    capsule_thickness = 0.58
+    capsule_padding = 8
+    capsule_radius = 10
+    concave_edge_corners = false
+    font_scale = 1.1
+    font_weight = 550
+    hover_highlight = true
+    margin_ends = 24
+    margin_edge = 8
+    padding = 14
+    radius = 18
+    radius_top_left = 18
+    radius_top_right = 18
+    radius_bottom_left = 18
+    radius_bottom_right = 18
+    shadow = true
+    widget_spacing = 12
+    start = [ "launcher", "workspaces", "active-window" ]
+    center = [ "media", "clock" ]
+    end = [ "tray", "cpu", "ram", "temp", "wx", "lunar", "notifications", "power", "disk", "control-center" ]
+
+[battery]
+warning_threshold = 35
+
+[control_center]
+show_shortcut_labels = true
+width = 700
+
+    [[control_center.shortcuts]]
+    type = "wifi"
+
+    [[control_center.shortcuts]]
+    type = "bluetooth"
+
+    [[control_center.shortcuts]]
+    type = "wallpaper"
+
+    [[control_center.shortcuts]]
+    type = "notification"
+
+    [[control_center.shortcuts]]
+    type = "power_profile"
+
+    [[control_center.shortcuts]]
+    type = "nightlight"
+
+[dock]
+enabled = true
+auto_hide = true
+position = "bottom"
+magnification = true
+show_dots = true
+
+[lockscreen]
+blur_intensity = 0.0
+blurred_desktop = false
+fingerprint = false
+lock_before_suspend = true
+tint_intensity = 0.0
+
+[notification]
+background_opacity = 0.95
+position = "top_right"
+
+[plugins]
+enabled = [ "local/bar-scripts" ]
+
+[osd]
+background_opacity = 1.0
+enabled = true
+position = "top_right"
+position_vertical = "top_right"
+
+[shell]
+date_format = "%A, %x"
+font_family = "Sarasa Gothic SC"
+setup_wizard_enabled = false
+telemetry_enabled = false
+time_format = "{:%H:%M}"
+corner_radius_scale = 1.15
+
+[theme]
+mode = "dark"
+shell_mode = "follow"
+source = "builtin"
+builtin = "Tokyo-Night"
+
+    [shell.animation]
+    enabled = true
+    speed = 1.0
+
+    [shell.launcher]
+    categories = true
+    compact = false
+    show_icons = true
+    sort_by_usage = true
+
+    [shell.session]
+    grid = false
+    show_shortcuts = true
+
+        [[shell.session.actions]]
+        action = "lock"
+        shortcut = "1"
+
+        [[shell.session.actions]]
+        action = "suspend"
+        shortcut = "2"
+
+        [[shell.session.actions]]
+        action = "command"
+        command = "systemctl hibernate"
+        label = "Hibernate"
+        shortcut = "3"
+
+        [[shell.session.actions]]
+        action = "reboot"
+        shortcut = "4"
+
+        [[shell.session.actions]]
+        action = "logout"
+        shortcut = "5"
+
+        [[shell.session.actions]]
+        action = "shutdown"
+        shortcut = "6"
+        variant = "destructive"
+
+        [[shell.session.actions]]
+        action = "command"
+        command = "systemctl reboot --firmware-setup"
+        label = "Reboot to UEFI"
+        shortcut = "7"
+
+[system.monitor]
+cpu_temp_activity_threshold = 80.0
+cpu_temp_critical_threshold = 90.0
+cpu_usage_activity_threshold = 80.0
+cpu_usage_critical_threshold = 90.0
+disk_used_pct_activity_threshold = 80.0
+disk_used_pct_critical_threshold = 90.0
+gpu_usage_activity_threshold = 80.0
+gpu_usage_critical_threshold = 90.0
+ram_pct_activity_threshold = 60.0
+ram_pct_critical_threshold = 85.0
+swap_pct_activity_threshold = 80.0
+swap_pct_critical_threshold = 90.0
+
+[wallpaper]
+enabled = false
+
+[weather]
+enabled = false
+
+[widget.active-window]
+color = "on_surface_variant"
+max_length = 200.0
+title_scroll = "on_hover"
+type = "active_window"
+
+[widget.clock]
+capsule_fill = "primary"
+capsule_opacity = 0.18
+color = "primary"
+font_scale = 1.08
+font_weight = 700
+format = "{:%a %m/%d %H:%M}"
+tooltip_format = "{:%A, %Y-%m-%d}"
+type = "clock"
+
+[widget.control-center]
+capsule_fill = "primary"
+capsule_opacity = 0.9
+capsule_foreground = "on_primary"
+glyph = "noctalia"
+type = "control-center"
+
+[widget.cpu]
+capsule_fill = "primary"
+capsule_opacity = 0.22
+color = "primary"
+stat = "cpu_usage"
+type = "sysmon"
+visualization = "none"
+
+[widget.disk]
+command = "bar-disk --noctalia"
+interval = 60
+type = "local/bar-scripts:cmd"
+
+    [widget.disk.actions]
+    left = "exec bar-disk --detail"
+
+[widget.launcher]
+capsule_fill = "primary"
+capsule_opacity = 0.9
+capsule_foreground = "on_primary"
+glyph = "rocket"
+type = "launcher"
+
+[widget.lunar]
+command = "bar-lunar --noctalia"
+interval = 60
+type = "local/bar-scripts:cmd"
+
+    [widget.lunar.actions]
+    left = "exec bar-lunar --calendar"
+
+[widget.media]
+art_size = 26.0
+capsule_fill = "secondary"
+capsule_opacity = 0.18
+artist_first = false
+hide_artist = true
+color = "on_surface_variant"
+hide_when_no_media = true
+max_length = 360.0
+min_length = 140.0
+title_scroll = "always"
+type = "media"
+
+[widget.notifications]
+hide_when_no_unread = true
+type = "notifications"
+
+[widget.power]
+command = "bar-power --noctalia"
+interval = 30
+type = "local/bar-scripts:cmd"
+
+    [widget.power.actions]
+    left = "exec bar-power --detail"
+
+[widget.ram]
+capsule_fill = "secondary"
+capsule_opacity = 0.22
+color = "secondary"
+stat = "ram_used"
+type = "sysmon"
+visualization = "none"
+
+[widget.temp]
+capsule_fill = "tertiary"
+capsule_opacity = 0.22
+color = "tertiary"
+stat = "cpu_temp"
+type = "sysmon"
+visualization = "none"
+
+[widget.tray]
+hide_passive = false
+type = "tray"
+
+[widget.wx]
+command = "bar-weather --noctalia"
+interval = 300
+type = "local/bar-scripts:cmd"
+
+    [widget.wx.actions]
+    left = "exec bar-weather --detail"
+    right = "exec bar-weather --next"
+
+[widget.workspaces]
+capsule = false
+empty_color = "outline"
+focused_color = "primary"
+label_source = "id"
+labels_only_when_occupied = true
+max_label_chars = 2
+occupied_color = "on_surface_variant"
+pill_scale = 0.78
+show_icons = false
+show_labels = true
+style = "regular"
+type = "workspaces"

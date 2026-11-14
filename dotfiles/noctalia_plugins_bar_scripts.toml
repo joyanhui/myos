@@ -1,0 +1,24 @@
+id = "local/bar-scripts"
+name = "Bar Scripts"
+version = "1.0.0"
+plugin_api = 14
+author = "local"
+description = "Bar widget rendering the JSON output of script/bar_*.py"
+
+[[widget]]
+id = "cmd"
+entry = "widget.luau"
+
+    [[widget.setting]]
+    key = "command"
+    label_key = "command"
+    type = "string"
+    default = ""
+
+    [[widget.setting]]
+    key = "interval"
+    label_key = "interval"
+    type = "int"
+    default = 60
+    min = 1
+    max = 86400
