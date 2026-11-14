@@ -3,7 +3,6 @@ theme = "term16_dark"
 [keys.normal]
 C-y = ':sh if [ -n "$ZELLIJ" ]; then zellij run --floating --close-on-exit -- yazi >/dev/null 2>&1; elif [ -n "$TMUX" ]; then tmux display-popup -E -w 90%% -h 90%% yazi; else yazi </dev/tty >/dev/tty 2>&1; fi'
 A-g = ':sh if [ -n "$ZELLIJ" ]; then zellij run --floating --close-on-exit -- lazygit >/dev/null 2>&1; elif [ -n "$TMUX" ]; then tmux display-popup -E -w 90%% -h 90%% lazygit; else lazygit </dev/tty >/dev/tty 2>&1; fi'
-A-t = ':sh if [ -n "$ZELLIJ" ]; then zellij run --floating --close-on-exit -- zsh >/dev/null 2>&1; elif [ -n "$TMUX" ]; then tmux display-popup -E -w 90%% -h 90%% zsh; else zsh </dev/tty >/dev/tty 2>&1; fi'
 
 [editor]
 soft-wrap.enable = true
