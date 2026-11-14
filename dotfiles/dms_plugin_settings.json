@@ -28,9 +28,20 @@
         "id": "power",
         "name": "Power",
         "command": "bar-power --text",
-        "icon": "power",
+        "icon": "󰐥",
         "refreshInterval": 30,
         "clickCommand": "bar-power --detail",
+        "popoutEnabled": false,
+        "useAccentColor": false,
+        "tabularNumbers": true
+      },
+      {
+        "id": "disk",
+        "name": "Disk",
+        "command": "bar-disk --text",
+        "icon": "󰋊",
+        "refreshInterval": 60,
+        "clickCommand": "bar-disk --detail",
         "popoutEnabled": false,
         "useAccentColor": false,
         "tabularNumbers": true

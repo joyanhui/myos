@@ -1,0 +1,184 @@
+{
+  "settingsVersion": 59,
+  "bar": {
+    "barType": "floating",
+    "position": "top",
+    "density": "default",
+    "showOutline": false,
+    "showCapsule": true,
+    "capsuleOpacity": 1,
+    "widgetSpacing": 4,
+    "contentPadding": 2,
+    "fontScale": 1,
+    "enableExclusionZoneInset": true,
+    "backgroundOpacity": 0.7,
+    "useSeparateOpacity": false,
+    "marginVertical": 4,
+    "marginHorizontal": 8,
+    "displayMode": "always_visible",
+    "showOnWorkspaceSwitch": true,
+    "rightClickAction": "controlCenter",
+    "widgets": {
+      "left": [
+        {
+          "id": "Launcher"
+        },
+        {
+          "id": "Workspace",
+          "labelMode": "index",
+          "followFocusedScreen": true,
+          "hideUnoccupied": false,
+          "showApplications": false
+        },
+        {
+          "id": "ActiveWindow",
+          "showText": true,
+          "showIcon": true,
+          "maxWidth": 200
+        }
+      ],
+      "center": [
+        {
+          "id": "MediaMini",
+          "hideMode": "hidden",
+          "maxWidth": 180
+        },
+        {
+          "id": "Clock",
+          "formatHorizontal": "HH:mm ddd MMM dd",
+          "tooltipFormat": "HH:mm ddd, MMM dd",
+          "clockColor": "none"
+        }
+      ],
+      "right": [
+        {
+          "id": "Tray",
+          "drawerEnabled": true,
+          "hidePassive": false
+        },
+        {
+          "id": "SystemMonitor",
+          "compactMode": true,
+          "showCpuUsage": true,
+          "showMemoryUsage": true,
+          "showCpuCores": false,
+          "showCpuFreq": false
+        },
+        {
+          "id": "CustomButton",
+          "ipcIdentifier": "weather",
+          "icon": "",
+          "showIcon": false,
+          "parseJson": true,
+          "textCommand": "bar-weather --noctalia",
+          "textIntervalMs": 300000,
+          "leftClickExec": "bar-weather --detail",
+          "rightClickExec": "bar-weather --next",
+          "hideMode": "alwaysExpanded",
+          "maxTextLength": {
+            "horizontal": 24,
+            "vertical": 24
+          }
+        },
+        {
+          "id": "CustomButton",
+          "ipcIdentifier": "lunar",
+          "icon": "",
+          "showIcon": false,
+          "parseJson": true,
+          "textCommand": "bar-lunar --noctalia",
+          "textIntervalMs": 60000,
+          "leftClickExec": "bar-lunar --calendar",
+          "hideMode": "alwaysExpanded",
+          "maxTextLength": {
+            "horizontal": 24,
+            "vertical": 24
+          }
+        },
+        {
+          "id": "NotificationHistory",
+          "showUnreadBadge": true,
+          "hideWhenZero": false
+        },
+        {
+          "id": "CustomButton",
+          "ipcIdentifier": "power",
+          "icon": "",
+          "showIcon": false,
+          "parseJson": true,
+          "textCommand": "bar-power --noctalia",
+          "textIntervalMs": 30000,
+          "leftClickExec": "bar-power --detail",
+          "hideMode": "alwaysExpanded",
+          "maxTextLength": {
+            "horizontal": 24,
+            "vertical": 24
+          }
+        },
+        {
+          "id": "CustomButton",
+          "ipcIdentifier": "disk",
+          "icon": "",
+          "showIcon": false,
+          "parseJson": true,
+          "textCommand": "bar-disk --noctalia",
+          "textIntervalMs": 60000,
+          "leftClickExec": "bar-disk --detail",
+          "hideMode": "alwaysExpanded",
+          "maxTextLength": {
+            "horizontal": 32,
+            "vertical": 32
+          }
+        },
+        {
+          "id": "ControlCenter"
+        }
+      ]
+    }
+  },
+  "general": {
+    "showChangelogOnStartup": false,
+    "telemetryEnabled": false,
+    "enableLockScreenMediaControls": false,
+    "animationDisabled": false,
+    "enableShadows": true,
+    "enableBlurBehind": true
+  },
+  "ui": {
+    "fontDefault": "Sarasa Gothic SC",
+    "fontFixed": "Fira Code",
+    "fontDefaultScale": 1,
+    "fontFixedScale": 1,
+    "tooltipsEnabled": true,
+    "panelBackgroundOpacity": 0.94,
+    "panelsAttachedToBar": true
+  },
+  "colorSchemes": {
+    "useWallpaperColors": false,
+    "predefinedScheme": "Noctalia (default)",
+    "darkMode": true,
+    "schedulingMode": "off",
+    "syncGsettings": true
+  },
+  "systemMonitor": {
+    "cpuWarningThreshold": 80,
+    "cpuCriticalThreshold": 90,
+    "memWarningThreshold": 60,
+    "memCriticalThreshold": 85,
+    "diskAvailWarningThreshold": 25,
+    "diskAvailCriticalThreshold": 10,
+    "batteryWarningThreshold": 35,
+    "batteryCriticalThreshold": 15
+  },
+  "notifications": {
+    "enabled": true,
+    "location": "top_right",
+    "enableKeyboardLayoutToast": false,
+    "enableBatteryToast": false
+  },
+  "osd": {
+    "enabled": true,
+    "location": "top_right",
+    "autoHideMs": 2000
+  }
+}

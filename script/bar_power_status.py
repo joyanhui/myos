@@ -15,16 +15,24 @@ DETAIL_LOCK = "detail.lock"
 ASHELL_POLL = 30
 LOW_CAPACITY = 20
 
-ICON_BATTERY = "\U000F0079"
-ICON_CHARGING = "\U000F0241"
-ICON_PLUG = "\U000F06A5"
-ICON_PLUG_OFF = "\U000F06A6"
+# 电池图标（mdi battery，实心电池轮廓），用于电池供电状态
+ICON_BATTERY = "\U000f0079"
+# 闪电图标（mdi flash，单道闪电），用于正在充电状态
+ICON_CHARGING = "\U000f0241"
+# 断开闪电图标（mdi flash-off，闪电中间一道斜线），用于接了外部电源但未充电
+ICON_FLASH_OFF = "\U000f0243"
+# 插头图标（mdi power-plug，带线两脚插头），用于有外部电源但没有电池
+ICON_PLUG = "\U000f06a5"
+# 断开的插头图标（mdi power-plug-off，插头带斜杠），用于既无电池也无外部电源
+ICON_PLUG_OFF = "\U000f06a6"
+# 插头图标（mdi power-plug-outline，描边插头带线），用于接了外部电源且有电池（充电/未充电）
+ICON_PLUG_OUTLINE = "\U000f1425"
 COLOR_CHARGING = "#4ade80"
 COLOR_ALERT = "#f87171"
 COLOR_MID = "#b07d4e"
+COLOR_DIM = "#8b9a93"
 LOW_CAPACITY_RED = 35
 LOW_CAPACITY_BROWN = 60
-BAR_TEXT_LIMIT = 50
 
 STATE_UNPLUGGED = "unplugged"
 STATE_PLUGGED = "plugged"
@@ -122,6 +130,9 @@ def snapshot():
     return {"mains": mains, "battery": battery, "state": state}
 
 
+GAP = "  "
+
+
 def percent_color(capacity):
     if capacity is None:
         return None
@@ -132,27 +143,11 @@ def percent_color(capacity):
     return None
 
 
-def markup(text, color):
-    if not color:
-        return text
-    return f'<font color="{color}">{text}</font>'
-
-
-def join_parts(parts, sep):
-    return sep.join(markup(text, color) for text, color in parts)
-
-
-def bar_rich(parts):
-    options = [
-        join_parts(parts, ""),
-        join_parts([(text, color if index == 0 else None) for index, (text, color) in enumerate(parts)], ""),
-        join_parts([(text, color if index == 1 else None) for index, (text, color) in enumerate(parts)], ""),
-        join_parts([(text, None) for text, _color in parts], ""),
-    ]
-    for text in options:
-        if len(text) <= BAR_TEXT_LIMIT:
-            return text
-    return options[-1]
+def badge(text, color=None):
+    attrs = ' size="+2"'
+    if color:
+        attrs += f' color="{color}"'
+    return f"<font{attrs}>{text}</font>"
 
 
 def bar_text(data, rich=False):
@@ -160,25 +155,22 @@ def bar_text(data, rich=False):
     state = data["state"]
     if not battery:
         if data["mains"]["online"]:
-            return markup(ICON_PLUG, COLOR_ALERT) if rich else ICON_PLUG
+            return badge(ICON_PLUG, COLOR_ALERT) if rich else ICON_PLUG
         return f"{ICON_PLUG_OFF} NO BAT"
     capacity = battery.get("capacity")
     percent = "--" if capacity is None else f"{capacity}%"
     color = percent_color(capacity)
-    icon = ICON_BATTERY
-    if state == STATE_CHARGING:
-        icon = ICON_CHARGING
-    elif state == STATE_PLUGGED:
-        icon = ICON_PLUG
+    if state in (STATE_CHARGING, STATE_PLUGGED):
+        tail = ICON_CHARGING if state == STATE_CHARGING else ICON_FLASH_OFF
+        if not rich:
+            return f"{ICON_PLUG_OUTLINE}{GAP}{percent}{GAP}{tail}"
+        tail_color = COLOR_CHARGING if state == STATE_CHARGING else COLOR_DIM
+        return ICON_PLUG_OUTLINE + GAP + percent + GAP + badge(tail, tail_color)
     if not rich:
-        return f"{icon}{percent}"
-    if state == STATE_CHARGING:
-        return bar_rich([(ICON_CHARGING, COLOR_CHARGING), (percent, color)])
-    if state == STATE_PLUGGED:
-        if color == COLOR_ALERT:
-            return markup(f"{ICON_PLUG}{percent}", COLOR_ALERT)
-        return bar_rich([(ICON_PLUG, COLOR_ALERT), (percent, color)])
-    return bar_rich([(ICON_BATTERY, None), (percent, color)])
+        return f"{ICON_BATTERY}{GAP}{percent}"
+    if color:
+        return badge(f"{ICON_BATTERY}{GAP}{percent}", color)
+    return badge(ICON_BATTERY) + GAP + percent
 
 
 def state_label(data):
@@ -245,11 +237,15 @@ def detail_lines(data):
     mains = data["mains"]
     lines = [state_label(data)]
     if mains["name"]:
-        lines.append(f"适配器 {mains['name']}: {'已连接' if mains['online'] else '未连接'}")
+        lines.append(
+            f"适配器 {mains['name']}: {'已连接' if mains['online'] else '未连接'}"
+        )
     if not battery:
         lines.append("未检测到电池")
         return lines
-    model = " ".join(part for part in (battery.get("manufacturer"), battery.get("model")) if part)
+    model = " ".join(
+        part for part in (battery.get("manufacturer"), battery.get("model")) if part
+    )
     if model:
         lines.append(f"电池 {battery['name']}: {model}")
     capacity = battery.get("capacity")
@@ -298,7 +294,21 @@ def print_waybar():
     print(
         json.dumps(
             {
-                "text": bar_text(data, rich=True),
+                "text": bar_text(data),
+                "tooltip": tooltip(data),
+                "class": state_class(data),
+            },
+            ensure_ascii=False,
+        )
+    )
+
+
+def print_shell_json():
+    data = snapshot()
+    print(
+        json.dumps(
+            {
+                "text": bar_text(data),
                 "tooltip": tooltip(data),
                 "class": state_class(data),
             },
@@ -405,7 +415,9 @@ def popup_ready():
 
 def plain_text(text):
     return "".join(
-        ch for ch in str(text) if not (0xE000 <= ord(ch) <= 0xF8FF or ord(ch) >= 0xF0000)
+        ch
+        for ch in str(text)
+        if not (0xE000 <= ord(ch) <= 0xF8FF or ord(ch) >= 0xF0000)
     )
 
 
@@ -417,6 +429,7 @@ def run_detail():
     if lock is None:
         return
     import tkinter as tk
+    from tkinter import messagebox
 
     root = tk.Tk()
     root.title("电源状态")
@@ -484,6 +497,18 @@ def run_detail():
         profile_button = button(buttons, profile_label(), cycle_profile)
         profile_button.pack(side="left", padx=(10, 0))
 
+    def system_action(verb, label):
+        if not messagebox.askyesno("确认", f"确认{label}？", parent=root):
+            return
+        subprocess.Popen(["systemctl", verb])
+        root.destroy()
+
+    button(buttons, "重启", lambda: system_action("reboot", "重启")).pack(
+        side="left", padx=(10, 0)
+    )
+    button(buttons, "关机", lambda: system_action("poweroff", "关机")).pack(
+        side="left", padx=(10, 0)
+    )
     button(buttons, "关闭", root.destroy).pack(side="right")
     root.mainloop()
     lock.close()
@@ -494,6 +519,12 @@ def main():
     mode = args[0] if args else "--text"
     if mode == "--text":
         print(bar_text(snapshot(), rich=True))
+        return
+    if mode == "--plain":
+        print(bar_text(snapshot()))
+        return
+    if mode == "--noctalia":
+        print_shell_json()
         return
     if mode == "--json":
         print(json.dumps(snapshot(), ensure_ascii=False))

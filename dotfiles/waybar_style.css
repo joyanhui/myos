@@ -19,7 +19,7 @@ window#waybar {
   margin: 3px 6px;
 }
 
-#workspaces button, #window, #cpu, #temperature, #memory, #tray, #wireplumber, #custom-lunar, #custom-weather {
+#workspaces button, #window, #cpu, #temperature, #memory, #tray, #wireplumber, #custom-lunar, #custom-weather, #custom-power, #custom-disk {
   color: #e3e8e2;
   border-radius: 999px;
   padding: 3px 10px;
@@ -54,7 +54,7 @@ window#waybar {
   color: #e3e8e2;
 }
 
-#network, #battery, #backlight {
+#network, #backlight {
   color: #e3e8e2;
   border-radius: 999px;
   padding: 3px 10px;
@@ -62,16 +62,12 @@ window#waybar {
   min-height: 30px;
 }
 
-#network label, #battery label, #backlight label {
+#network label, #backlight label {
   font-size: 13px;
 }
 
 #network {
   background: rgba(45, 105, 111, 0.88);
-}
-
-#battery {
-  background: rgba(133, 70, 76, 0.88);
 }
 
 #backlight {
@@ -104,6 +100,22 @@ window#waybar {
 
 #custom-weather {
   background: rgba(45, 105, 111, 0.88);
+}
+
+#custom-power {
+  background: rgba(133, 70, 76, 0.88);
+}
+
+#custom-disk {
+  background: rgba(117, 77, 48, 0.88);
+}
+
+#custom-power.warn, #custom-power.unplugged, #custom-disk.warn {
+  color: #e0b47a;
+}
+
+#custom-power.error, #custom-power.critical, #custom-disk.error {
+  color: #ffb4ab;
 }
 
 #custom-weather.warn, #custom-weather.error, #custom-weather.unset {

@@ -5,7 +5,7 @@
   "spacing": 8,
   "modules-left": ["niri/workspaces", "hyprland/workspaces"],
   "modules-center": ["niri/window", "hyprland/window"],
-  "modules-right": ["cpu", "temperature", "memory", "network", "custom/power", "backlight", "tray", "pulseaudio", "custom/weather", "custom/lunar"],
+  "modules-right": ["tray", "cpu", "memory", "temperature", "network", "pulseaudio", "backlight", "custom/weather", "custom/lunar", "custom/power", "custom/disk"],
   "niri/workspaces": {
     "all-outputs": false,
     "format": "{index}",
@@ -45,17 +45,6 @@
     "tooltip-format": "{ifname}: {ipaddr}/{cidr}",
     "on-click": "nm-connection-editor"
   },
-  "battery": {
-    "states": {
-      "warning": 30,
-      "critical": 15
-    },
-    "format": "<span font='16'>{icon}</span> {capacity}%",
-    "format-charging": "<span font='16'>󱐋</span> {capacity}%",
-    "format-plugged": "<span font='16'>󰚥</span> {capacity}%",
-    "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂"],
-    "tooltip": true
-  },
   "backlight": {
     "format": "<span font='16'>◐</span> {percent}%",
     "scroll-step": 5,
@@ -83,7 +72,7 @@
   },
   "custom/weather": {
     "exec": "bar-weather --waybar",
-    "interval": 30,
+    "interval": 300,
     "return-type": "json",
     "tooltip": true,
     "on-click": "bar-weather --detail",
@@ -93,16 +82,23 @@
   },
   "custom/power": {
     "exec": "bar-power --waybar",
-    "interval": 20,
+    "interval": 30,
     "return-type": "json",
     "tooltip": true,
     "on-click": "bar-power --detail"
   },
+  "custom/disk": {
+    "exec": "bar-disk --waybar",
+    "interval": 60,
+    "return-type": "json",
+    "tooltip": true,
+    "on-click": "bar-disk --detail"
+  },
   "custom/lunar": {
-    "exec": "bar-lunar",
-    "interval": 2,
-    "format": "<span font='16'>󰥔</span>  {}",
-    "tooltip-format": "点击打开万年历",
-    "on-click": "xdg-open https://www.51wnl.com/webcalandar/index.html"
+    "exec": "bar-lunar --waybar",
+    "interval": 60,
+    "return-type": "json",
+    "tooltip": true,
+    "on-click": "bar-lunar --calendar"
   }
 }

@@ -758,6 +758,17 @@ def print_waybar(key):
     print(json.dumps(payload, ensure_ascii=False))
 
 
+def print_shell_json(key):
+    city = active_city()
+    entry = ensure_city(city, key)
+    payload = {
+        "text": bar_text(city, entry, key),
+        "tooltip": all_summary(key),
+        "class": bar_class(entry, key),
+    }
+    print(json.dumps(payload, ensure_ascii=False))
+
+
 def print_ashell(key):
     city = active_city()
     entry = ensure_city(city, key)
@@ -790,6 +801,9 @@ def main():
         return
     if args[0] == "--waybar":
         print_waybar(key)
+        return
+    if args[0] == "--noctalia":
+        print_shell_json(key)
         return
     if args[0] == "--ashell":
         print_ashell(key)

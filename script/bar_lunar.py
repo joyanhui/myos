@@ -431,6 +431,21 @@ def main():
             )
             time.sleep(max(1, 60 - now.second))
         return
+    if args and args[0] in ("--waybar", "--noctalia"):
+        print(
+            json.dumps(
+                {
+                    "text": cached_lunar_text(today),
+                    "tooltip": (
+                        f"农历 {ganzhi_year(today.year)}年（{zodiac_of(today.year)}）  "
+                        "点击打开万年历"
+                    ),
+                    "class": "ok",
+                },
+                ensure_ascii=False,
+            )
+        )
+        return
     if args and args[0] == "--calendar":
         run_calendar()
         return
