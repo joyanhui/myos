@@ -50,7 +50,7 @@ in
     ++ importIf (hasTag "desktop") ./modules/desktop/wayland_wm_base.nix
     ++ importIf (hasTag "desktop") ./modules/desktop/wayland_rofi.nix
     ++ importIf (hasTag "desktop") ./modules/desktop/wayland_wm_niri.nix
-    ++ importIf (hasTag "desktop") ./modules/desktop/wayland_wm_hyprland.nix
+    # ++ importIf (hasTag "desktop") ./modules/desktop/wayland_wm_hyprland.nix
     ++ importIf (hasTag "desktop") ./modules/desktop/wayland_copyq.nix
     # ++ importIf (hasTag "desktop") ./modules/desktop/wayland_bar_dms.nix
     # ++ importIf (hasTag "desktop") ./modules/desktop/wayland_bar_ashell.nix
