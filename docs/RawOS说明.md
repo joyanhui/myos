@@ -92,36 +92,16 @@ machine/raw_os/docs_script/creat-rawOsExternalBootEfi.sh -o ./nixos-img.efi
    - 根据选择的启动项完成后续efi启动逻辑
 
 ### 虚拟机启动
-nixos.raw 使用通用的虚拟磁盘镜像格式，所以支持几乎所有系统下所有虚拟机软件作为虚拟磁盘启动。下文为记录的常用方案。
-#### VMware
 
-VMware Workstation/ESXi 直接把 `nixos.raw` 作为虚拟磁盘启动，不需要转换格式；也可以创建一个 VMDK 文件（具体可查阅VMware的文档）映射现有的 `nixos.raw`，并将客户机固件设置为 UEFI 启动即可。实际测试VMware的虚拟显卡性能最好，在关闭动态壁纸和毛玻璃，并配置好VMware客户机工具情况下，VMware内niri的使用体验接近物理机。
+`nixos.raw` 是标准格式的虚拟磁盘，主流虚拟机软件基本都能直接使用。
 
-#### VirtualBox
+- VMware Workstation/ESXi：不能直接把 raw 文件当作虚拟磁盘，但可以创建 VMDK 映射它，客户机固件设置为 UEFI。
+- VirtualBox：原生支持 raw 磁盘，把系统设置为 UEFI 启动即可。
+- Hyper-V：先用 Arsenal-Image-Mounter 等工具把镜像挂载成物理磁盘，在磁盘管理里设为脱机，然后在第二代虚拟机的磁盘设置里选择这块物理硬盘；也可以用 `machine/raw_os/docs_script/additional-foot-to-raw-and-renameVHD.sh` 给 raw 文件加上 VHD 尾部并改名为 `.vhd`，第一代虚拟机可直接使用。
+- QEMU：直接使用 `-drive format=raw`，固件位于 `kvm-config/firmware/`。
 
-VirtualBox 默认就支持 raw 格式的虚拟磁盘，只需要配置使用 UEFI 启动即可，无须而外配置。
+> 实测在未启用 Hyper-V/WSL 的机器上用 VMware 启动，关闭毛玻璃、复杂动画、动态壁纸等特效后，niri 桌面体验接近物理机。
 
-#### Hyper-V
-
-先使用 Arsenal-Image-Mounter等同类软件 将 `nixos.raw` 挂载到物理机模拟为物理硬盘；然后在物理机的“磁盘管理”中将该磁盘设置为“脱机”。最后在 Hyper-V 中创建第二代虚拟机，并在虚拟机的磁盘设置中选择该物理硬盘即可。也可以在nix部分增加对hypr-v客户机的支持，提升体验。
-
-#### QEMU
-
-以qemu在Windows的启动方法为例
-```powershell
-    & "C:\Program Files\qemu\qemu-system-x86_64.exe" `
-      -machine q35,accel=whpx -cpu max -m 8G -smp 4 `
-      -smbios type=11,value=io.systemd.stub.kernel-cmdline-extra=nomodeset `
-      -bios N:\OS-img\OVMF.fd `
-      -drive "if=virtio,format=raw,file=N:\OS-img\nixos.raw,cache=writeback" `
-      -vga std -display sdl `
-      -device qemu-xhci -device usb-tablet `
-      -netdev user,id=net0  -device virtio-net-pci,netdev=net0 `
-      -serial "file:N:\OS-img\qemu-serial.log"
-```
-qemu 在window下坑较多，图形性能也一般。
-
-如果没能启动而是进入到了efi shell 输入 ` FS0:\EFI\BOOT\BOOTX64.EFI`  即可手动选择启动。
 <a id="raw-os-runtime-update"></a>
 
 ### Raw OS 内nixos-rebulid方法
@@ -129,9 +109,8 @@ qemu 在window下坑较多，图形性能也一般。
 以下命令必须在已经启动的 raw OS 内执行，并且在仓库根目录运行。根据实际硬件设置 `target`：AMD 使用 `raw_os_work_amd`，Intel 使用 `raw_os_work_intel`。例如：`sudo nixos-rebuild switch --flake .#raw_os_work_amd  --option substituters https://cache.nixos.org`
 
 
-## 测试、扩容和 QEMU
+## 测试和扩容
 
 - 测试和验收流程见：[Raw OS 测试和验证方法](RawOS测试与验证方法.md)。
 - 引导链路、GRUB、UKI 和 initrd 服务说明见：[Raw OS 引导架构与 UKI 说明](RawOS引导架构与UKI说明.md)。
 - raw 镜像扩容见：[raw 镜像扩容方法](Raw镜像扩容方法.md)。
-- QEMU fd固件位于 `kvm-config/`,也可以自己从qemu安装目录获取。
