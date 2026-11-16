@@ -109,10 +109,14 @@ binds {
 
     Mod+Shift+Left hotkey-overlay-title="focus column left | 聚焦左列" { focus-column-left; }
     Mod+Shift+Right hotkey-overlay-title="focus column right | 聚焦右列" { focus-column-right; }
+    Super+Shift+Left hotkey-overlay-title="focus monitor left | 焦点切到左屏" { focus-monitor-left; }
+    Super+Shift+Right hotkey-overlay-title="focus monitor right | 焦点切到右屏" { focus-monitor-right; }
     Mod+Shift+Up hotkey-overlay-title="focus window up | 聚焦上方窗口" { focus-window-up; }
     Mod+Shift+Down hotkey-overlay-title="focus window down | 聚焦下方窗口" { focus-window-down; }
     Mod+Shift+WheelScrollUp hotkey-overlay-title="focus column left | 聚焦左列" { focus-column-left; }
     Mod+Shift+WheelScrollDown hotkey-overlay-title="focus column right | 聚焦右列" { focus-column-right; }
+    Mod+Ctrl+Left hotkey-overlay-title="move column to monitor left | 移动列到左屏" { move-column-to-monitor-left; }
+    Mod+Ctrl+Right hotkey-overlay-title="move column to monitor right | 移动列到右屏" { move-column-to-monitor-right; }
     Mod+Ctrl+Shift+Left hotkey-overlay-title="move column left | 移动列到左侧" { move-column-left; }
     Mod+Ctrl+Shift+Right hotkey-overlay-title="move column right | 移动列到右侧" { move-column-right; }
     Mod+Ctrl+Shift+Up hotkey-overlay-title="move window up | 移动窗口向上" { move-window-up; }

@@ -390,6 +390,12 @@ hl.bind(
 	hl.dsp.focus({ direction = "right" }),
 	{ description = "focus column right | 聚焦右列" }
 )
+hl.bind("SUPER + SHIFT + LEFT", hl.dsp.focus({ monitor = "left" }), {
+	description = "focus monitor left | 焦点切到左屏",
+})
+hl.bind("SUPER + SHIFT + RIGHT", hl.dsp.focus({ monitor = "right" }), {
+	description = "focus monitor right | 焦点切到右屏",
+})
 hl.bind(
 	mod_key("SHIFT + UP"),
 	hl.dsp.focus({ direction = "up" }),
@@ -399,6 +405,16 @@ hl.bind(
 	mod_key("SHIFT + DOWN"),
 	hl.dsp.focus({ direction = "down" }),
 	{ description = "focus window down | 聚焦下方窗口" }
+)
+hl.bind(
+	mod_key("CTRL + LEFT"),
+	hl.dsp.window.move({ monitor = "left" }),
+	{ description = "move column to monitor left | 移动列到左屏" }
+)
+hl.bind(
+	mod_key("CTRL + RIGHT"),
+	hl.dsp.window.move({ monitor = "right" }),
+	{ description = "move column to monitor right | 移动列到右屏" }
 )
 hl.bind(
 	mod_key("CTRL + SHIFT + LEFT"),
