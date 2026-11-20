@@ -1,8 +1,8 @@
 theme = "term16_dark"
 
 [keys.normal]
-C-y = ':sh yazi </dev/tty >/dev/tty 2>&1'
-A-g = ':sh lazygit </dev/tty >/dev/tty 2>&1'
+A-y = ':sh exec yazi'
+A-g = ':sh exec lazygit'
 
 [editor]
 soft-wrap.enable = true
