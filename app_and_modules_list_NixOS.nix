@@ -50,7 +50,7 @@ in
     ++ importIf (hasTag "desktop") ./modules/desktop/wayland_wm_base.nix
     ++ importIf (hasTag "desktop") ./modules/desktop/wayland_rofi.nix
     ++ importIf (hasTag "desktop") ./modules/desktop/wayland_wm_niri.nix
-    # ++ importIf (hasTag "desktop") ./modules/desktop/wayland_wm_hyprland.nix
+    ++ importIf (hasTag "desktop") ./modules/desktop/wayland_wm_hyprland.nix
     ++ importIf (hasTag "desktop") ./modules/desktop/wayland_copyq.nix
     # ++ importIf (hasTag "desktop") ./modules/desktop/wayland_bar_dms.nix
     # ++ importIf (hasTag "desktop") ./modules/desktop/wayland_bar_ashell.nix
@@ -98,6 +98,7 @@ in
     ++ importIf (hasTag "gui") ./modules/apps/graphics_tools.nix
     ++ importIf (hasTag "gui") ./modules/apps/filemanager_thunar.nix
     ++ importIf (hasTag "gui") ./modules/apps/graphics_gimp3.nix
+    ++ importIf (hasTag "gui") ./modules/apps/graphics_openscad.nix
     ++ importIf (hasTag "gui") ./modules/apps/browser/brave.nix
     #++ importIf (hasTag "dailyPC") ./modules/apps/browser/chromium.nix
     #++ importIf (hasTag "dev") ./modules/apps/browser/firefox.nix

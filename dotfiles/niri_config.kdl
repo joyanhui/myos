@@ -1,3 +1,7 @@
+output "AU Optronics 0xC391" {
+    scale 1.2
+}
+
 environment {
     XDG_CURRENT_DESKTOP "niri"
     XDG_SESSION_DESKTOP "niri"

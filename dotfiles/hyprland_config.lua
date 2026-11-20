@@ -315,6 +315,11 @@ hl.bind(
 	{ description = "focus workspace 9 | 聚焦工作区 9" }
 )
 hl.bind(
+	mod_key("SHIFT + 0"),
+	hl.dsp.focus({ workspace = 10 }),
+	{ description = "focus workspace 0 | 聚焦工作区 0" }
+)
+hl.bind(
 	mod_key("SHIFT + S"),
 	hl.dsp.workspace.toggle_special("magic"),
 	{ description = "toggle special workspace | 切换特殊工作区" }
@@ -368,6 +373,11 @@ hl.bind(
 	mod_key("CTRL + SHIFT + 9"),
 	hl.dsp.window.move({ workspace = 9 }),
 	{ description = "move window to workspace 9 | 移动窗口到工作区 9" }
+)
+hl.bind(
+	mod_key("CTRL + SHIFT + 0"),
+	hl.dsp.window.move({ workspace = 10 }),
+	{ description = "move window to workspace 0 | 移动窗口到工作区 0" }
 )
 hl.bind(mod_key("SHIFT + A"), hl.dsp.exec_cmd("rofi -show window"), { description = "window switcher | 窗口切换" })
 
@@ -440,8 +450,8 @@ hl.bind(
 )
 hl.bind(
 	mod_key("CTRL + SHIFT + M"),
-	hl.dsp.layout("swapwithmaster master"),
-	{ description = "swap active window with master | 交换活动窗口与主窗口" }
+	hl.dsp.window.fullscreen({ mode = "maximized" }),
+	{ description = "maximize column | 最大化列" }
 )
 hl.bind(
 	mod_key("SHIFT + M"),
@@ -501,18 +511,13 @@ hl.bind(
 	hl.dsp.window.move({ out_of_group = true }),
 	{ description = "expel window from column | 移出列" }
 )
-hl.bind(mod_key("BRACKETLEFT"), function()
+hl.bind(mod_key("SHIFT + BRACKETLEFT"), function()
 	consume_or_expel("left")
 end, { description = "consume/expel window (left) | 并入/移出列 (左)" })
-hl.bind(mod_key("BRACKETRIGHT"), function()
+hl.bind(mod_key("SHIFT + BRACKETRIGHT"), function()
 	consume_or_expel("right")
 end, { description = "consume/expel window (right) | 并入/移出列 (右)" })
--- hl.bind(mod_key("SHIFT + C"), hl.dsp.layout("orientationcenter"), { description = "center column | 居中列" })
--- hl.bind(
--- 	mod_key("CTRL + SHIFT + C"),
--- 	hl.dsp.layout("orientationleft"),
--- 	{ description = "set column orientation left | 设置列方向为左" }
--- )
+hl.bind(mod_key("SHIFT + C"), hl.dsp.layout("orientationcenter"), { description = "center column | 居中列" })
 
 hl.bind(
 	mod_key("SHIFT + O"),
