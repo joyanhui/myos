@@ -5,10 +5,10 @@
   "defaultThinkingLevel": "max",
   "enabledModels": [
     "aihub-ds/deepseek-v4.1-flash",
-    "aihub-sol-astra/gpt-6.1-sol",
     "aihub-sol-astra/gpt-6.1-terra",
-    "aihub-luna/gpt-6-luna",
-    "aihub-ds/deepseek-v4.1-flash-1017"
+    "aihub-ds/deepseek-v4.1-flash-1017",
+    "aihub-sol-astra/gpt-6.2-sol",
+    "aihub-sol-astra/gpt-6.2-astra"
   ],
   "packages": [
     "npm:@joyanhui/pi-ext-bar-cursor",

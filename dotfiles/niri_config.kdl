@@ -1,8 +1,3 @@
-
-output "eDP-1" {
-    scale 1.0
-}
-
 environment {
     XDG_CURRENT_DESKTOP "niri"
     XDG_SESSION_DESKTOP "niri"
@@ -42,6 +37,17 @@ layout {
         color "#0007"
     }
 }
+
+workspace "1"
+workspace "2"
+workspace "3"
+workspace "4"
+workspace "5"
+workspace "6"
+workspace "7"
+workspace "8"
+workspace "9"
+workspace "0"
 
 prefer-no-csd
    hotkey-overlay {
@@ -87,24 +93,26 @@ binds {
     Mod+Shift+Q repeat=false hotkey-overlay-title="close window | 关闭窗口" { close-window; }
     Mod+Ctrl+Shift+E hotkey-overlay-title="quit niri | 退出 niri" { quit; }
 
-    Mod+Shift+1 hotkey-overlay-title="focus workspace 1 | 聚焦工作区 1" { focus-workspace 1; }
-    Mod+Shift+2 hotkey-overlay-title="focus workspace 2 | 聚焦工作区 2" { focus-workspace 2; }
-    Mod+Shift+3 hotkey-overlay-title="focus workspace 3 | 聚焦工作区 3" { focus-workspace 3; }
-    Mod+Shift+4 hotkey-overlay-title="focus workspace 4 | 聚焦工作区 4" { focus-workspace 4; }
-    Mod+Shift+5 hotkey-overlay-title="focus workspace 5 | 聚焦工作区 5" { focus-workspace 5; }
-    Mod+Shift+6 hotkey-overlay-title="focus workspace 6 | 聚焦工作区 6" { focus-workspace 6; }
-    Mod+Shift+7 hotkey-overlay-title="focus workspace 7 | 聚焦工作区 7" { focus-workspace 7; }
-    Mod+Shift+8 hotkey-overlay-title="focus workspace 8 | 聚焦工作区 8" { focus-workspace 8; }
-    Mod+Shift+9 hotkey-overlay-title="focus workspace 9 | 聚焦工作区 9" { focus-workspace 9; }
-    Mod+Ctrl+Shift+1 hotkey-overlay-title="move column to workspace 1 | 移动列到工作区 1" { move-column-to-workspace 1; }
-    Mod+Ctrl+Shift+2 hotkey-overlay-title="move column to workspace 2 | 移动列到工作区 2" { move-column-to-workspace 2; }
-    Mod+Ctrl+Shift+3 hotkey-overlay-title="move column to workspace 3 | 移动列到工作区 3" { move-column-to-workspace 3; }
-    Mod+Ctrl+Shift+4 hotkey-overlay-title="move column to workspace 4 | 移动列到工作区 4" { move-column-to-workspace 4; }
-    Mod+Ctrl+Shift+5 hotkey-overlay-title="move column to workspace 5 | 移动列到工作区 5" { move-column-to-workspace 5; }
-    Mod+Ctrl+Shift+6 hotkey-overlay-title="move column to workspace 6 | 移动列到工作区 6" { move-column-to-workspace 6; }
-    Mod+Ctrl+Shift+7 hotkey-overlay-title="move column to workspace 7 | 移动列到工作区 7" { move-column-to-workspace 7; }
-    Mod+Ctrl+Shift+8 hotkey-overlay-title="move column to workspace 8 | 移动列到工作区 8" { move-column-to-workspace 8; }
-    Mod+Ctrl+Shift+9 hotkey-overlay-title="move column to workspace 9 | 移动列到工作区 9" { move-column-to-workspace 9; }
+    Mod+Shift+1 hotkey-overlay-title="focus workspace 1 | 聚焦工作区 1" { focus-workspace "1"; }
+    Mod+Shift+2 hotkey-overlay-title="focus workspace 2 | 聚焦工作区 2" { focus-workspace "2"; }
+    Mod+Shift+3 hotkey-overlay-title="focus workspace 3 | 聚焦工作区 3" { focus-workspace "3"; }
+    Mod+Shift+4 hotkey-overlay-title="focus workspace 4 | 聚焦工作区 4" { focus-workspace "4"; }
+    Mod+Shift+5 hotkey-overlay-title="focus workspace 5 | 聚焦工作区 5" { focus-workspace "5"; }
+    Mod+Shift+6 hotkey-overlay-title="focus workspace 6 | 聚焦工作区 6" { focus-workspace "6"; }
+    Mod+Shift+7 hotkey-overlay-title="focus workspace 7 | 聚焦工作区 7" { focus-workspace "7"; }
+    Mod+Shift+8 hotkey-overlay-title="focus workspace 8 | 聚焦工作区 8" { focus-workspace "8"; }
+    Mod+Shift+9 hotkey-overlay-title="focus workspace 9 | 聚焦工作区 9" { focus-workspace "9"; }
+    Mod+Shift+0 hotkey-overlay-title="focus workspace 0 | 聚焦工作区 0" { focus-workspace "0"; }
+    Mod+Ctrl+Shift+1 hotkey-overlay-title="move column to workspace 1 | 移动列到工作区 1" { move-column-to-workspace "1"; }
+    Mod+Ctrl+Shift+2 hotkey-overlay-title="move column to workspace 2 | 移动列到工作区 2" { move-column-to-workspace "2"; }
+    Mod+Ctrl+Shift+3 hotkey-overlay-title="move column to workspace 3 | 移动列到工作区 3" { move-column-to-workspace "3"; }
+    Mod+Ctrl+Shift+4 hotkey-overlay-title="move column to workspace 4 | 移动列到工作区 4" { move-column-to-workspace "4"; }
+    Mod+Ctrl+Shift+5 hotkey-overlay-title="move column to workspace 5 | 移动列到工作区 5" { move-column-to-workspace "5"; }
+    Mod+Ctrl+Shift+6 hotkey-overlay-title="move column to workspace 6 | 移动列到工作区 6" { move-column-to-workspace "6"; }
+    Mod+Ctrl+Shift+7 hotkey-overlay-title="move column to workspace 7 | 移动列到工作区 7" { move-column-to-workspace "7"; }
+    Mod+Ctrl+Shift+8 hotkey-overlay-title="move column to workspace 8 | 移动列到工作区 8" { move-column-to-workspace "8"; }
+    Mod+Ctrl+Shift+9 hotkey-overlay-title="move column to workspace 9 | 移动列到工作区 9" { move-column-to-workspace "9"; }
+    Mod+Ctrl+Shift+0 hotkey-overlay-title="move column to workspace 0 | 移动列到工作区 0" { move-column-to-workspace "0"; }
     Mod+Shift+A hotkey-overlay-title="window switcher | 窗口切换" { spawn "rofi" "-show" "window"; }
 
     Mod+Shift+Left hotkey-overlay-title="focus column left | 聚焦左列" { focus-column-left; }

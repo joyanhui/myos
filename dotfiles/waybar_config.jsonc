@@ -33,7 +33,7 @@
   },
   "niri/workspaces": {
     "all-outputs": false,
-    "format": "{index}",
+    "format": "{value}",
     "disable-scroll": true
   },
   "hyprland/workspaces": {

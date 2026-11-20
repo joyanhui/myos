@@ -113,8 +113,7 @@
         }
       },
       "options": {
-        "apiKey": "PLACEHOLDER_API_KEY",
-        "baseURL": "https://example.invalid/placeholder"
+        "baseURL": "https://hub.linux.do/v1"
       }
     },
     "aihub.top": {
@@ -138,8 +137,7 @@
         }
       },
       "options": {
-        "apiKey": "PLACEHOLDER_API_KEY",
-        "baseURL": "https://example.invalid/placeholder"
+        "baseURL": "https://aihub.top/v1"
       }
     },
     "4router-luna": {
@@ -154,18 +152,47 @@
             "store": false
           },
           "variants": {
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {},
-            "max": {}
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "medium": {
+              "reasoningEffort": "medium"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "xhigh": {
+              "reasoningEffort": "xhigh"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          },
+          "reasoning": true,
+          "attachment": true,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "cost": {
+            "input": 0,
+            "output": 0,
+            "cache_read": 0,
+            "cache_write": 0
           }
         }
       },
       "options": {
-        "apiKey": "PLACEHOLDER_API_KEY",
-        "baseURL": "https://example.invalid/placeholder"
-      }
+        "baseURL": "https://4router.net/v1"
+      },
+      "name": "4Router Luna",
+      "npm": "@ai-sdk/openai-compatible"
     },
     "deepseek": {
       "models": {
@@ -178,8 +205,7 @@
       },
       "npm": "@ai-sdk/openai-compatible",
       "options": {
-        "apiKey": "PLACEHOLDER_API_KEY",
-        "baseURL": "https://example.invalid/placeholder",
+        "baseURL": "https://api.deepseek.com/v1",
         "setCacheKey": true
       }
     },
@@ -250,8 +276,7 @@
       },
       "npm": "@ai-sdk/openai-compatible",
       "options": {
-        "apiKey": "PLACEHOLDER_API_KEY",
-        "baseURL": "https://example.invalid/placeholder",
+        "baseURL": "https://hub.linux.do/v1",
         "setCacheKey": true
       }
     },
@@ -263,8 +288,7 @@
       },
       "npm": "@ai-sdk/openai",
       "options": {
-        "apiKey": "PLACEHOLDER_API_KEY",
-        "baseURL": "https://example.invalid/placeholder",
+        "baseURL": "https://muyuan.do/v1",
         "setCacheKey": true
       }
     },
@@ -272,8 +296,7 @@
       "name": "LaneAI",
       "npm": "@ai-sdk/openai-compatible",
       "options": {
-        "apiKey": "PLACEHOLDER_API_KEY",
-        "baseURL": "https://example.invalid/placeholder"
+        "baseURL": "https://www.laneai.dev/v1"
       },
       "models": {
         "deepseek-v4-flash": {
@@ -364,11 +387,247 @@
             "xhigh": {},
             "max": {}
           }
+        },
+        "gpt-6.2-astra": {
+          "name": "GPT-6.2 Astra",
+          "reasoning": true,
+          "attachment": true,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "limit": {
+            "context": 272000,
+            "output": 272000
+          },
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "medium": {
+              "reasoningEffort": "medium"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "xhigh": {
+              "reasoningEffort": "xhigh"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
+        },
+        "gpt-6.2-sol": {
+          "name": "GPT-6.2 Sol",
+          "reasoning": true,
+          "attachment": true,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "limit": {
+            "context": 272000,
+            "output": 272000
+          },
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "medium": {
+              "reasoningEffort": "medium"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "xhigh": {
+              "reasoningEffort": "xhigh"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
+        },
+        "gpt-6.1-terra": {
+          "name": "GPT-6.1 Terra",
+          "reasoning": true,
+          "attachment": true,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "limit": {
+            "context": 272000,
+            "output": 272000
+          },
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "medium": {
+              "reasoningEffort": "medium"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "xhigh": {
+              "reasoningEffort": "xhigh"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
         }
       },
       "options": {
-        "apiKey": "PLACEHOLDER_API_KEY",
-        "baseURL": "https://example.invalid/placeholder"
+        "baseURL": "https://aihub.top/v1"
+      },
+      "name": "AIHub Sol Astra",
+      "npm": "@ai-sdk/openai-compatible"
+    },
+    "aihub-ds": {
+      "name": "AIHub DeepSeek",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "https://aihub.top/v1"
+      },
+      "models": {
+        "deepseek-v4.1-flash": {
+          "name": "DeepSeek V4.1 Flash",
+          "reasoning": true,
+          "attachment": false,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "limit": {
+            "context": 272000,
+            "output": 384000
+          },
+          "interleaved": {
+            "field": "reasoning_content"
+          },
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
+        },
+        "deepseek-v4.1-flash-1017": {
+          "name": "DeepSeek V4.1 Flash 1017",
+          "reasoning": true,
+          "attachment": false,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "limit": {
+            "context": 272000,
+            "output": 384000
+          },
+          "interleaved": {
+            "field": "reasoning_content"
+          },
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
+        }
+      }
+    },
+    "aihub-zhipu": {
+      "name": "AIHub Zhipu",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "https://aihub.top/v1"
+      },
+      "models": {
+        "glm-5.3": {
+          "name": "GLM-5.3",
+          "reasoning": true,
+          "attachment": false,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          }
+        }
+      }
+    },
+    "aihub-kimi": {
+      "name": "AIHub Kimi",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "https://aihub.top/v1"
+      },
+      "models": {
+        "kimi-k3": {
+          "name": "Kimi K3",
+          "reasoning": true,
+          "attachment": false,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "limit": {
+            "context": 1048576,
+            "output": 1048576
+          }
+        }
       }
     }
   },

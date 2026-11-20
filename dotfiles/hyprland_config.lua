@@ -47,26 +47,18 @@ hl.config({
 		layout = "master",
 	},
 	decoration = {
-		rounding = 5,
+		rounding = 0,
 		active_opacity = 1.0,
 		inactive_opacity = 1.0,
 		shadow = {
-			enabled = true,
-			range = is_vmware and 8 or 20,
-			render_power = is_vmware and 2 or 3,
-			offset = { 0, 4 },
-			color = 0x77000000,
+			enabled = false,
 		},
 		blur = {
-			enabled = not is_vmware,
-			size = 8,
-			passes = 3,
-			xray = true,
-			ignore_opacity = true,
+			enabled = false,
 		},
 	},
 	animations = {
-		enabled = true,
+		enabled = false,
 	},
 	master = {
 		mfact = 0.6,
@@ -84,7 +76,7 @@ hl.config({
 		groupbar = {
 			enabled = true,
 			blur = false,
-			gradients = true,
+			gradients = false,
 			gradient_round_only_edges = false,
 			gradient_rounding = 0,
 			gaps_in = 5,
@@ -138,9 +130,8 @@ hl.window_rule({
 local function start_session_services()
 	local soft_render = is_vmware and "export LIBGL_ALWAYS_SOFTWARE=1; " or ""
 	local systemd_client_env = is_vmware and "systemctl --user set-environment LIBGL_ALWAYS_SOFTWARE=1; " or ""
-	local wallpaper_cmd = is_vmware
-			and "wallpaper_dir=$(dirname \"$(readlink -f \"$HOME/.config/hypr/hyprland.lua\")\")/../static_file/wallpaper; wallpaper=$(find \"$wallpaper_dir\" -type f \\( -name '*.jpg' -o -name '*.png' \\) | shuf -n 1); [ -n \"$wallpaper\" ] && swaybg -i \"$wallpaper\" -m fill"
-		or "wallpaper_dir=$(dirname \"$(readlink -f \"$HOME/.config/hypr/hyprland.lua\")\")/../static_file/wallpaper; wallpaper=$(find \"$wallpaper_dir\" -type f -name '*.mp4' | shuf -n 1); [ -n \"$wallpaper\" ] && mpvpaper --auto-pause -o 'no-audio loop panscan=1 hwdec=auto-safe vf=fps=30' '*' \"$wallpaper\""
+	local wallpaper_cmd =
+		"wallpaper_dir=$(dirname \"$(readlink -f \"$HOME/.config/hypr/hyprland.lua\")\")/../static_file/wallpaper; wallpaper=$(find \"$wallpaper_dir\" -type f \\( -name '*.jpg' -o -name '*.png' \\) | shuf -n 1); [ -n \"$wallpaper\" ] && swaybg -i \"$wallpaper\" -m fill"
 	hl.exec_cmd("waybar")
 	hl.exec_cmd("copyq --start-server")
 	hl.exec_cmd(soft_render .. wallpaper_cmd)
