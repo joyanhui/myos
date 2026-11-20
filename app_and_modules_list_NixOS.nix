@@ -89,6 +89,7 @@ in
     ++ importIf (hasTag "gui") ./modules/dev/ide_thonny.nix
     ++ importIf (hasTag "editor") ./modules/dev/ide_common.nix
     ++ importIf (hasTag "editor") ./modules/dev/tool_lazygit.nix
+    ++ importIf (hasTag "dev") ./modules/dev/tool_easy_eda.nix
 
     ++ importIf (hasTag "input-method") ./modules/input-method/fcitx5_rime.nix
     ++ importIf (hasTag "wsl") ./modules/input-method/fcitx5_rime_wsl.nix

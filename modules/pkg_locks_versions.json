@@ -152,6 +152,18 @@
           "hash": "sha256-XLFyp12RtIuDC1JO/sojFXk0WJX833bVesaocwi9CDI="
         }
       }
+    },
+    "lceda-pro": {
+      "version": "4.1.105",
+      "version_check": {
+        "type": "manual"
+      },
+      "sources": {
+        "src": {
+          "url": "https://image.lceda.cn/files/lceda-pro-linux-x64-{version}.zip",
+          "hash": "sha256-6Vo6Hw254S4YkiWWa5cbc8vn5l3DLRSmKHhU/5TatLA="
+        }
+      }
     }
   }
 }

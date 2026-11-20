@@ -65,6 +65,7 @@ in
     ++ importIf (hasTag "editor") (extract ./modules/dev/ide_nvim.nix)
     ++ importIf (hasTag "editor") (extract ./modules/dev/ide_common.nix)
     ++ importIf (hasTag "editor") (extract ./modules/dev/tool_lazygit.nix)
+    ++ importIf (hasTag "dev") (extract ./modules/dev/tool_easy_eda.nix)
 
     ++ importIf (hasTag "ai") (extract ./modules/ai/ai_common.nix)
     ++ importIf (hasTag "ai") (extract ./modules/ai/cc_switch.nix)
