@@ -1,14 +1,17 @@
 {
-  "lastChangelogVersion": "1.5.2",
+  "lastChangelogVersion": "1.6.0",
   "defaultProvider": "aihub-ds",
   "defaultModel": "deepseek-v4.1-flash",
   "defaultThinkingLevel": "max",
   "enabledModels": [
     "aihub-ds/deepseek-v4.1-flash",
-    "aihub-sol-astra/gpt-6.1-terra",
+    "aihub-gpt/gpt-6.1-terra",
     "aihub-ds/deepseek-v4.1-flash-1017",
-    "aihub-sol-astra/gpt-6.2-sol",
-    "aihub-sol-astra/gpt-6.2-astra"
+    "aihub-gpt/gpt-6.2-sol",
+    "aihub-gpt/gpt-6.2-astra",
+    "aihub-claude/claude-opus-5-5",
+    "aihub-claude/claude-sonnet-5-5",
+    "aihub-claude/claude-fable-5-2"
   ],
   "packages": [
     "npm:@joyanhui/pi-ext-bar-cursor",
@@ -25,7 +28,7 @@
   ],
   "extensionChangelogVersions": {
     "{\"source\":\"npm:pi-web-access\",\"scope\":\"user\"}": "0.48.0",
-    "{\"source\":\"npm:pi-subagents\",\"scope\":\"user\"}": "0.88.1",
+    "{\"source\":\"npm:pi-subagents\",\"scope\":\"user\"}": "0.89.2",
     "{\"source\":\"npm:@narumitw/pi-goal\",\"scope\":\"user\"}": "0.55.3",
     "{\"source\":\"npm:@narumitw/pi-btw\",\"scope\":\"user\"}": "0.63.8"
   }

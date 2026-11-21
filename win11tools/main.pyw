@@ -1263,11 +1263,11 @@ echo "改配置 $CONFIG 后: /etc/init.d/mihomo reload"
 """
 
 
-def make_tree(parent, columns, pady=(0, 0)):
+def make_tree(parent, columns, pady=(0, 0), selectmode="browse"):
     wrap = ttk.Frame(parent)
     wrap.pack(fill="both", expand=True, pady=pady)
     tree = ttk.Treeview(wrap, columns=[col[0] for col in columns], show="headings",
-                        selectmode="browse")
+                        selectmode=selectmode)
     for key, heading, width in columns:
         tree.heading(key, text=heading)
         tree.column(key, width=width, anchor="w")
@@ -2004,12 +2004,12 @@ class App(tk.Tk):
             ("target", "系统文件", 360),
             ("repo", "仓库文件（相对仓库根目录）", 300),
             ("state", "状态", 200),
-        ), pady=(10, 0))
+        ), pady=(10, 0), selectmode="extended")
         self.dot_tree.tag_configure("ok", foreground=COLOR_OK)
         self.dot_tree.tag_configure("bad", foreground=COLOR_BAD)
         self.dot_tree.bind("<Double-1>", self.on_dot_double_click)
         self.dot_tree.bind("<<TreeviewSelect>>", lambda _e: self.set_status(
-            "双击“系统文件”列打开配置所在目录，双击“仓库文件”列打开仓库文件位置"))
+            "按住 Ctrl / Shift 可多选；双击“系统文件”列打开配置所在目录，双击“仓库文件”列打开仓库文件位置"))
 
         row = ttk.Frame(frame)
         row.pack(fill="x", pady=(10, 0))
@@ -2314,12 +2314,12 @@ class App(tk.Tk):
                                  tags=("ok" if has_target and has_repo else "bad",))
         self.set_status("dotfile 状态已刷新")
 
-    def selected_dot(self):
+    def selected_dots(self):
         selection = self.dot_tree.selection()
         if not selection:
-            messagebox.showinfo(APP_TITLE, "请先在列表中选择一项")
-            return None
-        return DOTFILES.get(selection[0])
+            messagebox.showinfo(APP_TITLE, "请先在列表中选择一项（可按住 Ctrl / Shift 多选）")
+            return []
+        return [DOTFILES[iid] for iid in selection if iid in DOTFILES]
 
     def on_dot_double_click(self, event):
         row = self.dot_tree.identify_row(event.y)
@@ -2348,14 +2348,27 @@ class App(tk.Tk):
             self.set_status("{0} 完成：{1}/{2}".format(verb, done, len(DOTFILES)))
             return
 
-        item = self.selected_dot()
-        if item is None:
+        items = self.selected_dots()
+        if not items:
             return
-        path = item.repo_path() if direction == "backup" else item.target_path()
-        if self.dot_copy(item, direction):
-            self.set_status("{0}：{1}".format(
-                "已备份到仓库" if direction == "backup" else "已从仓库恢复", path))
+        quiet = len(items) > 1
+        done = 0
+        failed = []
+        for item in items:
+            if self.dot_copy(item, direction, quiet=quiet):
+                done += 1
+            else:
+                failed.append(item.repo_path() if direction == "backup" else item.target_path())
         self.refresh_dotfiles()
+        label = "已备份到仓库" if direction == "backup" else "已从仓库恢复"
+        if quiet:
+            self.set_status("{0}：{1}/{2}".format(label, done, len(items)))
+            if failed:
+                messagebox.showwarning(APP_TITLE, "失败 {0} 项：\n{1}".format(
+                    len(failed), "\n".join(failed)))
+        elif done:
+            self.set_status("{0}：{1}".format(
+                label, items[0].repo_path() if direction == "backup" else items[0].target_path()))
 
     def dot_copy(self, item: DotFile, direction: str, quiet: bool = False) -> bool:
         target = item.target_path()

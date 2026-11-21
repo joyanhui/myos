@@ -240,6 +240,8 @@ def detail_lines(data):
         lines.append(
             f"适配器 {mains['name']}: {'已连接' if mains['online'] else '未连接'}"
         )
+    if mains["online"]:
+        lines.append("USB-C/PD 协商电压、电流、功率：系统未提供读数")
     if not battery:
         lines.append("未检测到电池")
         return lines
@@ -267,6 +269,9 @@ def detail_lines(data):
     voltage = battery.get("voltage_now")
     if voltage:
         lines.append(f"电压: {round(voltage / 1_000_000, 2)} V")
+    if voltage and battery.get("power_now") is not None:
+        current = round(abs(battery["power_now"]) / voltage, 2)
+        lines.append(f"电池电流: {current} A（由功率和电压估算）")
     duration = remaining_text(data)
     if duration:
         label = "预计充满" if data["state"] == STATE_CHARGING else "预计可用"

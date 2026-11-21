@@ -335,7 +335,7 @@
         }
       }
     },
-    "aihub-sol-astra": {
+    "aihub-gpt": {
       "models": {
         "gpt-6-astra": {
           "limit": {
@@ -500,7 +500,7 @@
       "options": {
         "baseURL": "https://aihub.top/v1"
       },
-      "name": "AIHub Sol Astra",
+      "name": "AIHub GPT",
       "npm": "@ai-sdk/openai-compatible"
     },
     "aihub-ds": {
@@ -626,6 +626,123 @@
           "limit": {
             "context": 1048576,
             "output": 1048576
+          }
+        }
+      }
+    },
+    "aihub-claude": {
+      "name": "AIHub Claude",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "https://aihub.top/v1"
+      },
+      "models": {
+        "claude-fable-5-2": {
+          "name": "Claude Fable 5.2",
+          "reasoning": true,
+          "attachment": true,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          },
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "medium": {
+              "reasoningEffort": "medium"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "xhigh": {
+              "reasoningEffort": "xhigh"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
+        },
+        "claude-opus-5-5": {
+          "name": "Claude Opus 5.5",
+          "reasoning": true,
+          "attachment": true,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          },
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "medium": {
+              "reasoningEffort": "medium"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "xhigh": {
+              "reasoningEffort": "xhigh"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
+        },
+        "claude-sonnet-5-5": {
+          "name": "Claude Sonnet 5.5",
+          "reasoning": true,
+          "attachment": true,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          },
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "medium": {
+              "reasoningEffort": "medium"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "xhigh": {
+              "reasoningEffort": "xhigh"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
           }
         }
       }

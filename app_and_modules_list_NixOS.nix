@@ -85,7 +85,7 @@ in
 
     ++ importIf (hasTag "editor") ./modules/dev/ide_helix.nix
     ++ importIf (hasTag "editor") ./modules/dev/ide_nvim.nix
-    # ++ importIf (hasTag "editor" && !hasTag "wsl") ./modules/dev/ide_antigravity.nix
+    ++ importIf (hasTag "editor" && !hasTag "wsl") ./modules/dev/ide_antigravity.nix
     ++ importIf (hasTag "gui") ./modules/dev/ide_thonny.nix
     ++ importIf (hasTag "editor") ./modules/dev/ide_common.nix
     ++ importIf (hasTag "editor") ./modules/dev/tool_lazygit.nix

@@ -60,18 +60,6 @@
         }
       }
     },
-    "wechat": {
-      "version": "4.1.0.13",
-      "version_check": {
-        "type": "manual"
-      },
-      "sources": {
-        "src": {
-          "url": "https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_x86_64.AppImage",
-          "hash": "sha256-ZbFSuutgutjU8bjlq/gAse/WHkKUUh1pQFgQFos/wsM="
-        }
-      }
-    },
     "wechat-devtools": {
       "version": "2.02.2608060",
       "version_check": {
