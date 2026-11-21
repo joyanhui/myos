@@ -109,7 +109,7 @@ transcrypt
 │   └── wsl.nix                # WSL 入口，导入 nixos-wsl 模块
 ├── modules/
 │   └── 系统与Nix设置说明.md   # 系统与 Nix 设置说明
-│   ├── desktop/               # 桌面会话：Wayland、niri、锁屏、DMS、截图及相关配置
+│   ├── desktop/               # 桌面会话：Wayland、niri、锁屏、Waybar、截图及相关配置
 │   ├── term/                  # Shell、终端、命令行工具和 Shell 配置
 │   ├── services/              # SSH、定时任务、数据库、虚拟化、网络服务和其他系统服务
 │   ├── apps/                  # 浏览器、即时通信、文件管理、办公、媒体、兼容层和远程工具

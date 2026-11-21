@@ -56,15 +56,6 @@ name = "json"
 auto-format = true
 formatter = { command = "prettier", args = ["--parser", "json", "--print-width", "180"] }
 
-[language-server.openscad-lsp]
-command = "openscad-lsp"
-args = ["--stdio"]
-
-[[language]]
-name = "openscad"
-file-types = ["scad"]
-language-servers = ["openscad-lsp"]
-
 [[language]]
 name = "json5"
 file-types = ["json5"]

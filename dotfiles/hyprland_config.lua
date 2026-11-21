@@ -520,11 +520,6 @@ end, { description = "consume/expel window (right) | 并入/移出列 (右)" })
 hl.bind(mod_key("SHIFT + C"), hl.dsp.layout("orientationcenter"), { description = "center column | 居中列" })
 
 hl.bind(
-	mod_key("SHIFT + O"),
-	hl.dsp.exec_cmd("dms ipc call hypr toggleOverview"),
-	{ description = "toggle overview | 切换概览" }
-)
-hl.bind(
 	mod_key("SHIFT + P"),
 	hl.dsp.exec_cmd("flameshot gui"),
 	{ description = "screenshot (flameshot) | 截图 (flameshot)" }
