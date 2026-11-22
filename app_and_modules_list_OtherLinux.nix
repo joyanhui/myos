@@ -87,5 +87,7 @@ in
     ++ importIf (hasTag "gui") (extract ./modules/apps/filemanager_thunar.nix)
     ++ importIf (hasTag "desktop" || hasTag "dailyPC") (extract ./modules/desktop/screenshot.nix)
     ++ importIf (hasTag "gui") (extract ./modules/apps/graphics_gimp3.nix)
+    ++ importIf (hasTag "gui") (extract ./modules/apps/graphics_freecad.nix)
+    ++ importIf (hasTag "gui") (extract ./modules/apps/graphics_openscad.nix)
     ++ importIf (hasTag "gui") (extract ./modules/dev/ide_thonny.nix);
 }
