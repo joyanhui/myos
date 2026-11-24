@@ -44,7 +44,7 @@ in
     ++ importIf (hasTag "gui") ./modules/apps/graphics_tools.nix
     ++ importIf (hasTag "common") ./modules/apps/fastfetch.nix
 
-    ++ importIf (hasTag "inputKeyd") ./modules/services/input_keyd.nix
+    ++ importIf (hasTag "amd") ./modules/services/input_keyd.nix
 
     ++ importIf (hasTag "desktop") ./modules/desktop/swaylock.nix
     ++ importIf (hasTag "desktop") ./modules/desktop/wayland_wm_base.nix

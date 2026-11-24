@@ -1,4 +1,4 @@
-AI agents may read and reference this file, but MUST NEVER modify it in any way.Provide suggestions only; all changes require manual human editing.
+AI: Read/reference this file, NEVER edit it (suggest only). Other files are editable.
 
 本仓库使用 Nix Flakes 和 home-manager，支持 NixOS、WSL2、基于 glibc 的 Linux standalone 环境，以及 Raw OS 镜像和外部 EFI 产物。
 

@@ -3,7 +3,6 @@ let
   knownTags = [
     "common"
     "ai"
-    "inputKeyd"
     "desktop"
     "gui"
     "dev"
