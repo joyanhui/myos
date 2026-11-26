@@ -33,7 +33,7 @@ let
     - docsPackages：文档工具 all = hugo + jekyll + mdbook
     - golangPackages：go + gopls + delve；env 含 GOPROXY 国内镜像
     - zigPackages：zig + zls
-    - pythonPackages：python313 + uv / ruff / pyright 等
+    - pythonPackages：python314 + uv / ruff / pyright 等
     - flutterPackages：flutter（Android 构建依赖 android 组）
     - android：Android SDK / NDK + jdk17；env 含 ANDROID_HOME / JAVA_HOME 等
 
@@ -79,7 +79,7 @@ let
   };
 
   languagePackages = rec {
-    python = pkgs.python313.withPackages (
+    python = pkgs.python314.withPackages (
       ps: with ps; [
         pip
         requests
@@ -115,7 +115,7 @@ let
         python
         uv
         ruff
-        python3Packages.debugpy
+        python314Packages.debugpy
         pyright
         go
         gopls
@@ -206,7 +206,7 @@ let
   };
   espPackages = rec {
     libPath = pkgs.lib.makeLibraryPath (pkgList "libxml2|xz|zlib|libffi");
-    tools = pkgList "espflash|esptool|espup|ldproxy|mpremote|minicom|picocom|libxml2|xz|cmake|ninja|python313";
+    tools = pkgList "espflash|esptool|espup|ldproxy|mpremote|minicom|picocom|libxml2|xz|cmake|ninja|python314";
     pythonDeps =
       ps: with ps; [
         pyserial
@@ -248,11 +248,11 @@ let
 
   pythonPackages = {
     packages = [
-      (pkgs.python313.withPackages (
+      (pkgs.python314.withPackages (
         ps: (espPackages.pythonDeps ps) ++ (pick ps "pip|tkinter|json5|protobuf|click|pyyaml")
       ))
     ]
-    ++ pkgList "uv|ruff|python3Packages.debugpy|pyright";
+    ++ pkgList "uv|ruff|python314Packages.debugpy|pyright";
   };
   flutterPackages = pkgList "flutter";
 

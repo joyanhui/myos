@@ -127,6 +127,26 @@ hl.window_rule({
 	float = true,
 })
 
+local lceda_popup_title = "pro.lceda.cn/editor?entry=dummy - Brave"
+
+hl.window_rule({
+	name = "brave-lceda-popup-floating",
+	match = { class = "^brave-browser$", title = [[^\Q]] .. lceda_popup_title .. [[\E$]] },
+	tag = "brave-lceda-popup",
+	float = true,
+})
+
+hl.on("window.title", function(window)
+	if
+		window.mapped
+		and not window.floating
+		and window.class == "brave-browser"
+		and window.title == lceda_popup_title
+	then
+		hl.dispatch(hl.dsp.window.float({ action = "enable", window = window }))
+	end
+end)
+
 local function start_session_services()
 	local soft_render = is_vmware and "export LIBGL_ALWAYS_SOFTWARE=1; " or ""
 	local systemd_client_env = is_vmware and "systemctl --user set-environment LIBGL_ALWAYS_SOFTWARE=1; " or ""
