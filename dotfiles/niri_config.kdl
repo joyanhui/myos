@@ -1,5 +1,5 @@
-output "AU Optronics 0xC391" {
-    scale 1.2
+output "AU Optronics 0xC391 Unknown" {
+    scale 1.1
 }
 
 environment {
@@ -18,7 +18,7 @@ cursor {
 layout {
     gaps 8
     center-focused-column "never"
-    default-column-width { proportion 0.4; }
+    default-column-width { proportion 0.5; }
     preset-column-widths {
         proportion 0.33333
         proportion 0.4
@@ -69,6 +69,11 @@ window-rule {
 }
 
 window-rule {
+    match app-id=r#"^brave-browser$"# title=r#"^pro\.lceda\.cn/editor\?entry=dummy - Brave$"#
+    open-floating true
+}
+
+window-rule {
     match app-id=r#"^Tk$"#
     open-floating true
 }
@@ -79,6 +84,7 @@ screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 spawn-at-startup "waybar"
 // bar 的选择和配置  end
 spawn-at-startup "copyq" "--start-server"
+spawn-sh-at-startup "exec uv run --no-project --with dbus-next==0.2.3 --python \"$(command -v python3)\" python3 \"${REPO_DIR:?REPO_DIR is required}/script/niri_tweaks_starup.py\""
 spawn-sh-at-startup "wallpaper_dir=$(dirname \"$(readlink -f \"$HOME/.config/niri/config.kdl\")\")/../static_file/wallpaper; wallpaper=$(ls \"$wallpaper_dir\"/*.jpg \"$wallpaper_dir\"/*.png 2>/dev/null | shuf -n 1); [ -n \"$wallpaper\" ] && swaybg -i \"$wallpaper\" -m fill &"
 spawn-sh-at-startup "systemctl --user import-environment WAYLAND_DISPLAY NIRI_SOCKET XDG_CURRENT_DESKTOP XDG_SESSION_TYPE; systemctl --user restart fcitx5"
 spawn-sh-at-startup "swayidle -w timeout 1800 'swaylock -f' timeout 2700 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' before-sleep 'swaylock -f'"
@@ -154,8 +160,8 @@ binds {
     Mod+Shift+C hotkey-overlay-title="center column | 居中列" { center-column; }
 
     Mod+Shift+O repeat=false hotkey-overlay-title="toggle overview | 切换概览" { toggle-overview; }
-    Mod+Shift+P hotkey-overlay-title="screenshot (flameshot) | 截图 (flameshot)" { spawn "flameshot" "gui"; }
-    Mod+Ctrl+Shift+P hotkey-overlay-title="select area screenshot (niri) | 自由选取截图 (niri原生截图)" { screenshot; }
+    Mod+Ctrl+Shift+X hotkey-overlay-title="screenshot (flameshot) | 截图 (flameshot)" { spawn "flameshot" "gui"; }
+    Mod+Shift+X hotkey-overlay-title="select area screenshot (niri) | 自由选取截图 (niri原生截图)" { screenshot; }
     // Mod+Shift+Print hotkey-overlay-title="screenshot screen | 截屏 (屏幕)" { screenshot-screen; }
     // Mod+Ctrl+Shift+Print hotkey-overlay-title="screenshot window | 截屏 (窗口)" { screenshot-window; }
 

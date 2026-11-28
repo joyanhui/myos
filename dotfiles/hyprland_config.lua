@@ -540,9 +540,16 @@ end, { description = "consume/expel window (right) | 并入/移出列 (右)" })
 hl.bind(mod_key("SHIFT + C"), hl.dsp.layout("orientationcenter"), { description = "center column | 居中列" })
 
 hl.bind(
-	mod_key("SHIFT + P"),
+	mod_key("CTRL + SHIFT + X"),
 	hl.dsp.exec_cmd("flameshot gui"),
 	{ description = "screenshot (flameshot) | 截图 (flameshot)" }
+)
+hl.bind(
+	mod_key("SHIFT + X"),
+	hl.dsp.exec_cmd(
+		"hyprctl notify 1 5000 0 'hyprland没有原生截图功能，请使用flameshot截图：快捷键是alt+ctrl+shift+x'"
+	),
+	{ description = "screenshot shortcut reminder | 截图快捷键提示" }
 )
 hl.bind(
 	mod_key("CTRL + SHIFT + P"),
