@@ -551,13 +551,6 @@ hl.bind(
 	),
 	{ description = "screenshot shortcut reminder | 截图快捷键提示" }
 )
-hl.bind(
-	mod_key("CTRL + SHIFT + P"),
-	hl.dsp.exec_cmd(
-		'sh -c \'mkdir -p "$HOME/Pictures/Screenshots"; grimblast --notify copysave area "$HOME/Pictures/Screenshots/Screenshot from $(date +"+%Y-%m-%d %H-%M-%S").png"\''
-	),
-	{ description = "select area screenshot, copy and notify | 自由选取截图、复制到剪贴板并通知" }
-)
 
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), {
 	locked = true,
